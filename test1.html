@@ -1,6 +1,7 @@
 <html>
 <head>
 <meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
+<script src="scripts/jquery.js"></script>
 <script src="scripts/matrix.js"></script>
 <script src="scripts/input.js"></script>
 <style type="text/css">
@@ -26,7 +27,7 @@ body {
 	width: 100%;
 	bottom: 0px;
 	position: fixed;
-	text-align: center;
+	text-align: left;
 	margin: 0px;
 	padding: 0%;
 	border-color: #202020;
@@ -89,7 +90,20 @@ body {
 	}
 	h1 { font-size: 1.5em; }
 	h2, h3 { font-size: 1em; }
+	
 }
+
+#toc {
+    border: 1px solid black;
+    width: 200px;
+    height: 200px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background-color: white;
+    overflow: scroll;
+}
+
 
 </style>
 </head>
@@ -190,8 +204,29 @@ blah blah blah blah blah blah blah blah blah blah blah blah
 </p>
 
 </div>
+
+<ul id="toc">
+<li><a href="#" class="tocitem">Chapter 1</a></li>
+<li><a href="#" class="tocitem">Chapter 2</a></li>
+<li><a href="#" class="tocitem">Chapter 3</a></li>
+<li><a href="#" class="tocitem">Chapter 4</a></li>
+<li><a href="#" class="tocitem">Chapter 5</a></li>
+<li><a href="#" class="tocitem">Chapter 6</a></li>
+<li><a href="#" class="tocitem">Chapter 7</a></li>
+<li><a href="#" class="tocitem">Chapter 8</a></li>
+<li><a href="#" class="tocitem">Chapter 9</a></li>
+<li><a href="#" class="tocitem">Chapter 10</a></li>
+<li><a href="#" class="tocitem">Chapter 11</a></li>
+<li><a href="#" class="tocitem">Chapter 12</a></li>
+<li><a href="#" class="tocitem">Chapter 13</a></li>
+<li><a href="#" class="tocitem">Chapter 14</a></li>
+<li><a href="#" class="tocitem">Chapter 15</a></li>
+<li><a href="#" class="tocitem">Chapter 16</a></li>
+<li><a href="#" class="tocitem">Chapter 17</a></li>
+</ul>
+
 <ul id="footer">
-<li><a href="#">TOC</a></li>
+<li><a href="#" id="tocopen">TOC</a></li>
 <li>book name : </li>
 <li>chapter name: </li>
 <li>section name: </li>
@@ -199,6 +234,8 @@ blah blah blah blah blah blah blah blah blah blah blah blah
 
 
 <img id="fullscreen" width="100%"/>
+
+
 
 
 </body>
@@ -289,6 +326,17 @@ function showPhoto(photo) {
 	});
 }
 
+
+$("#toc").hide();
+$("#tocopen").click(function(e) {
+    e.preventDefault();
+    $("#toc").show();
+});
+
+$(".tocitem").click(function(e) {
+    e.preventDefault();
+    $("#toc").hide();
+});
 </script>
 
 </html>
