@@ -1,0 +1,295 @@
+<html>
+<head>
+<meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
+<script src="scripts/matrix.js"></script>
+<script src="scripts/input.js"></script>
+<style type="text/css">
+
+body {
+	margin: 0px;
+	background-color: #fefbf0;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	padding: 0em;
+}
+
+
+#fullscreen { 
+/*	display: none; */
+	visibility: hidden;
+/*	visibility: visible;*/
+	position: fixed; 
+	left: 0;
+	top: 0;
+}
+
+#footer {
+	width: 100%;
+	bottom: 0px;
+	position: fixed;
+	text-align: center;
+	margin: 0px;
+	padding: 0%;
+	border-color: #202020;
+	border-width: 1px;
+	border-style: dotted;
+	list-style-type: none;
+	background-color: #fbe5a0;
+}
+
+#footer li {
+	display: inline-block;
+}
+
+
+
+#content {
+	margin-left: 2em;
+	margin-bottom: 3em;
+	margin-right: 2em;
+	margin-top: 1em;
+	padding-left: 150px;
+	padding-right: 150px;
+}
+
+/*tablet landscape and desktop */
+@media screen and (max-width: 10000px) {
+	.figure {
+		width: 500px;
+	}
+}
+
+/*tablet portrait */
+@media screen and (max-width: 768px) {
+	.figure {
+		position: absolute;
+		left: 1em;
+		float: left;
+		width: 150px;
+		background-color: #00071d;
+	}
+	#content {
+		padding-right: 0px;
+	}
+}
+
+/* phone */
+@media screen and (max-width: 480px) {
+	.figure {
+		position: static;
+		float: none;
+		text-align: center;
+		width: 150px;
+	}
+	#content {
+		margin-left: 0.5em;
+		margin-bottom: 0.5em;
+		margin-right: 0.5em;
+		margin-top: 0.5em;
+		padding: 0;
+	}
+	h1 { font-size: 1.5em; }
+	h2, h3 { font-size: 1em; }
+}
+
+</style>
+</head>
+
+
+<body>
+<div id="content">
+<h1>Prototype Ebook</h1>
+
+<h3>by Josh Marinacci</h3>
+
+<h2>Chapter 1</h2>
+
+
+
+
+<p>
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+</p>
+
+
+<canvas class="figure" id="fig1" width="300px" height="200px"></canvas>
+
+<p><i>drag to rotate</i></p>
+
+
+<p>
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+</p>
+
+<p>
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah </p>
+
+<p>
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+</p>
+
+<img class="figure" src="content/barn.thumb.jpg" onclick="showPhoto('content/barn.jpg');"/>
+
+<p><i>tap to enlarge</i></p>
+<p>
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+blah blah blah blah blah blah blah blah blah blah blah blah 
+</p>
+
+</div>
+<ul id="footer">
+<li><a href="#">TOC</a></li>
+<li>book name : </li>
+<li>chapter name: </li>
+<li>section name: </li>
+</ul>
+
+
+<img id="fullscreen" width="100%"/>
+
+
+</body>
+
+<script>
+var canvas = document.getElementById("fig1");
+var ctx = canvas.getContext('2d');
+
+
+var viewTranslate = new Translate(canvas.width/2,canvas.height/2,0);
+var trans = new Translate(dx,0,0);
+var translate = new Translate(0,100,0);
+
+var dx = 0.0;
+
+window.addEventListener("keydown", function(e) {
+	var inc = 1;
+    if(e.keyCode == 37) dx -= inc;
+    if(e.keyCode == 39) dx += inc;
+},false);
+
+
+
+addDragListener(canvas,function(e){
+	dx = -e.x/7.0;
+});
+
+var tree = new Group();
+for(var j=0; j<5; j++) {
+    var n = j+3;
+    for(var i=0; i<n; i++) {
+        var th = (Math.PI*2.0/n)*i;
+        var radius = 20+j*15;
+        var p = new Point(
+        	Math.sin(th)*radius,       //x
+        	j*40-150,                  //y
+        	Math.cos(th)*radius+200);  //z
+        tree.add(p);
+    }
+}
+
+var ratio = 3/2;
+
+var oldw = -1;
+function draw() {
+	var startTime = new Date().getTime();
+	//canvas = document.getElementById("fig1");
+	var w = canvas.clientWidth;
+	var h = w/ratio;
+	//resize if needed
+	if(w != oldw) {
+		canvas.width = w;
+		canvas.height = h;
+		oldw = w;
+	}
+	
+	viewTranslate = new Translate(200/2,200/2,0);
+    ctx.fillStyle = "black";
+    ctx.fillRect(0,0,w,h);
+    
+    tree.rot = new Rotation(dx/15);
+    var s = canvas.width/200.0;
+    ctx.save();
+    ctx.scale(s,s);
+    tree.draw(ctx);
+    ctx.restore();
+    /*
+    ctx.fillStyle = "white";
+    ctx.fillText("dx = " + dx,10,20);
+    var endTime = new Date().getTime();
+    ctx.fillText("time = " + (endTime-startTime), 10, 40);
+    */
+    setTimeout(draw,30);
+}
+
+draw();
+//setInterval(draw,100);
+
+
+function showPhoto(photo) {
+	console.log("photo = " + photo);
+	var img = document.getElementById("fullscreen");
+	img.src=photo;
+	img.style.visibility = "visible";
+	img.addEventListener("click",function(e) {
+		console.log("clicked");
+		img.style.visibility = "hidden";
+	});
+}
+
+</script>
+
+</html>
+
