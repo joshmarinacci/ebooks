@@ -1,7 +1,7 @@
 <html>
 <script src="scripts/jquery.js"></script>
 <style type="text/css">
-#blah {
+#blah, #foo {
     border: 0px solid black;
     background-color: red;
     position: static;
@@ -9,7 +9,6 @@
     height: 100px;
     top:0;
     left:0;
-    
 }
 #blah {
     -webkit-transition: all .3s ease-in-out; 
@@ -25,8 +24,23 @@
 <body>
 
 <h3>zooming test</h3>
-<img id="blah" src="content/barn.thumb.jpg"/> 
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<p>
+<img id="blah" src="content/barn.thumb.jpg"/>
+</p>
 <h3>some text after the zooming</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
 <script>
 
 var zoomed = false;
@@ -34,23 +48,32 @@ var div = document.getElementById("blah");
 
 div.addEventListener("mousedown", function(e) {
     var pos = $("#blah").offset();
+    var scrolltop = $("body").scrollTop();
+    console.log("st = " + scrolltop);
+    
     if(zoomed) {
         div.style.webkitTransform = 'scale(1)';
         zoomed = false;
         div.src="content/barn.thumb.jpg";
     } else {
-        div.style.position = "absolute";
-        div.style.top = pos.top;
+        div.src="content/barn.jpg";
+        div.style.position = "fixed";
+        div.style.top = pos.top-scrolltop;
         div.style.left = pos.left;
-        //console.log("top = " + pos.top);
         var sx = window.innerWidth/div.offsetWidth;
         var sy = window.innerHeight/div.offsetHeight;
+        console.log("wh = " + window.innerHeight + " scrolltop = " + scrolltop
+            + "percentage = " + ((scrolltop+div.offsetHeight/2)/window.innerHeight));
+        var percentage = ((scrolltop+div.offsetHeight/2)/window.innerHeight);
+        console.log("percentage = " + percentage);
         var s = Math.min(sx,sy);
         div.style.webkitTransform =
-            'translate('+(-pos.left)+'px,'+(-pos.top)+'px)'
-            +' scale('+s+')';
+            'translate('+(-pos.left)+'px,'+(-pos.top)+'px)'+
+            'scale('+s+')';
+        div.style.webkitTransformOrigin = "0% "+(percentage*-100)+"%";
+        //div.style.webkitTransformOrigin = "0% 0%";
+
         zoomed = true;
-        div.src="content/barn.jpg";
     }
 },false);
 div.addEventListener( 'webkitTransitionEnd', function( event ) {
