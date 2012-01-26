@@ -1,28 +1,39 @@
 <html>
-<meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
+<meta name="viewport" content = 
+	"width = device-width, initial-scale=1, maximum-scale=1" />
 <script src="scripts/jquery.js"></script>
 <style type="text/css">
-#blah, #foo {
-    border: 0px solid black;
-    background-color: red;
+#overlay, #photo {
     position: static;
     width: 204px;
-    height: 153px;
 }
-#blah {
-    -webkit-transition: all .3s ease-in-out; 
-    -webkit-transform-origin: 0% 0%; 
+
+#overlay {
+/*    -webkit-transition: opacity 1s ease-in-out;*/
+    -webkit-transition: background-color 1s ease-in-out;
+    -webkit-transition: all 1s ease-in-out; 
+/*    -webkit-transition: -webkit-transform 1s ease-in-out; */
+    -webkit-transform-origin: -0% 0%;
+    -webkit-transform: translate(0px, 0px) scale(0.4);
     position: fixed;
     top:0;
+    bottom: 0;
     left:0;
-    display: none;
+    right: 0;
+    display: block;
+    opacity: 0;
     border: 0px solid red;
+    width: auto;
+    height: auto;
+    background-color: transparent;
 }
-/*
-#blah:hover {
-    -webkit-transform: scale(5,5); 
+
+#overlay img {
+	position: absolute;
+	left: 0; right: 0;
+	top: 0; bottom: 0;
+	margin: auto;
 }
-*/
 
 </style>
 <body>
@@ -40,8 +51,8 @@
 <h3>zooming test</h3>
 <h3>zooming test</h3>
 <p>
-<img id="foo" src="content/barn.thumb.jpg"/>
-<img id="blah" src="content/barn.jpg"/>
+<img id="photo" src="content/barn.thumb.jpg"/>
+<div id="overlay"><img src="content/barn.thumb.jpg"/></div>
 </p>
 <h3>some text after the zooming</h3>
 <h3>zooming test</h3>
@@ -54,39 +65,117 @@
 <h3>zooming test</h3>
 <h3>zooming test</h3>
 <h3>zooming test</h3>
-<script>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
+<h3>zooming test</h3>
 
+<script type="text/javascript">
 var zoomed = false;
-var blah = document.getElementById("blah");
 
-var foo = document.getElementById("foo");
-foo.addEventListener("mousedown", function(e) {
-    var pos = $("#foo").offset();
+var fullImageWidth = 500;
+var thumbImageWidth = 204;
+var fract = thumbImageWidth/fullImageWidth;
+var thumbImageHeight = 135;
+var fullImageHeight = 333;
+var overlay = document.getElementById("overlay");
+
+function toggle() {
+	if(zoomed) {
+		shrink();
+	} else {
+		grow();
+	}
+}
+
+
+function grow() {	
+    var scale = 0.4;
+    var pos = $("#photo").offset();
     var scrolltop = $("body").scrollTop();
-    blah.style.top = pos.top-scrolltop;
-    blah.style.left = pos.left;
-    blah.style.display = "block";
-    
-    var sx = window.innerWidth/blah.offsetWidth;
-    var sy = window.innerHeight/blah.offsetHeight;
-    var percentage = ((scrolltop+foo.offsetHeight/2)/window.innerHeight);
-    var s = Math.min(sx,sy);
-    
-    blah.style.webkitTransform =
-        'translate('+(-pos.left)+'px,'+(-pos.top)+'px)'+
-        'scale('+s+')';
-    blah.style.webkitTransformOrigin = "0% "+(percentage*-100)+"%";
-    zoomed = true;
-},false);
 
-blah.addEventListener( "mousedown", function(e) {
-    blah.style.webkitTransform = 'scale(1)';
+	//zphoto.top = (window.height-zphoto.height)/2 * scale;
+	//h = photo.top - zphoto.top
+	var zpt = (window.innerHeight-fullImageHeight)/2*scale;
+    var phototop = pos.top - scrolltop;
+    var h = phototop-zpt;
+
+	//zphoto.left = (window.width - zphoto.width)/2 * scale;
+	var zpl = (window.innerWidth-fullImageWidth)/2*scale;
+	//w = photo.left - zphoto.left;
+    var photoleft = pos.left;
+    var w = photoleft- zpl;
+
+    overlay.style.webkitTransitionDuration = "0s";
+    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale(0.4)';
+    
+    overlay.style.opacity = "1";
+    
+
+    //var t = pos.top - scrolltop + $("#photo").height()/2;
+    //var per = t/(window.innerHeight);
+    //overlay.style.webkitTransformOrigin = "-4% " + (per*100)+"%";
+    //overlay.style.webkitTransformOrigin = "-4% " + (per*100)+"%";
+/*    overlay.style.top = 0;
+    overlay.style.bottom = 0;
+    overlay.style.left = 0;
+    overlay.style.right = 0;*/
+    //overlay.style.visibility = "visible";
+    
+    //var sx = window.innerWidth/overlay.offsetWidth;
+    //var sy = window.innerHeight/overlay.offsetHeight;
+    //var s = Math.min(sx,sy);
+    //var s = 1;
+    setTimeout(function(){
+	    overlay.style.webkitTransitionDuration = "0.3s";
+	    overlay.style.backgroundColor = "white";
+	    overlay.style.webkitTransform ='translate(0px,0px) scale(1)';
+	    //overlay.style.webkitTransform ='translateX(0px) scale(0.5)';
+	    zoomed = true;
+    
+    },10);
+    
+};
+
+function shrink() {
+    var scale = 0.4;
+    var pos = $("#photo").offset();
+    var scrolltop = $("body").scrollTop();
+
+	//zphoto.top = (window.height-zphoto.height)/2 * scale;
+	//h = photo.top - zphoto.top
+	var zpt = (window.innerHeight-fullImageHeight)/2*scale;
+    var phototop = pos.top - scrolltop;
+    var h = phototop-zpt;
+
+	//zphoto.left = (window.width - zphoto.width)/2 * scale;
+	var zpl = (window.innerWidth-fullImageWidth)/2*scale;
+	//w = photo.left - zphoto.left;
+    var photoleft = pos.left;
+    var w = photoleft- zpl;
+
+    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale(0.4)';
+
+    overlay.style.backgroundColor = "transparent";
     zoomed = false;
-});
+}
 
-blah.addEventListener( 'webkitTransitionEnd', function( event ) {
+$("#photo").click(toggle);
+$("#overlay").click(toggle);
+
+
+document.getElementById("overlay").addEventListener('webkitTransitionEnd',
+ function( event ) {
     if(!zoomed) {
-        blah.style.display = "none";
+	    //console.log("hiding");
+	    //overlay.style.display = "none";
+	    overlay.style.opacity = "0";
+	    //overlay.style.backgroundColor = "transparent";
+        //overlay.style.visibility = "hidden";
+    } else {
     }
 }, false );
 
