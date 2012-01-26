@@ -35,6 +35,14 @@
 	margin: auto;
 }
 
+#debug {
+    position: none;
+    width: 300;
+    height: 100;
+    top: 0; left: 0;
+    background-color: gray;
+}
+
 </style>
 <body>
 
@@ -73,6 +81,8 @@
 <h3>zooming test</h3>
 <h3>zooming test</h3>
 
+<div id="debug">debug</div>
+
 <script type="text/javascript">
 var zoomed = false;
 
@@ -82,6 +92,7 @@ var fract = thumbImageWidth/fullImageWidth;
 var thumbImageHeight = 135;
 var fullImageHeight = 333;
 var overlay = document.getElementById("overlay");
+
 
 function toggle() {
 	if(zoomed) {
@@ -179,6 +190,22 @@ document.getElementById("overlay").addEventListener('webkitTransitionEnd',
     }
 }, false );
 
+document.getElementById("debug").innerHTML = "debug is live";
+
+var pho = document.getElementById("photo");
+pho.addEventListener('gestureend',function(e){
+        document.getElementById("debug").innerHTML = " " + e.scale;
+        if(e.scale > 2) {
+            toggle();
+        }
+});
+
+document.getElementById("overlay").addEventListener('gestureend',function(e){
+        document.getElementById("debug").innerHTML = " " + e.scale;
+        if(e.scale < 0.8) {
+            toggle();
+        }
+});
 
 </script>
 </body>
