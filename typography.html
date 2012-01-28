@@ -1,0 +1,149 @@
+<html>
+<head>
+
+<script src="scripts/jquery.js"></script>
+
+<style type="text/css">
+body {
+	margin-left: 5em;
+	margin-bottom: 1em;
+	margin-right: 5em;
+	margin-top: 1em;
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+h1, h2, h3 {
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+}
+h2 {
+	padding: 0px;
+	margin: 0px;
+	color: #ff2b0d;
+	font-style: normal;
+	font-weight: normal;
+	text-transform: uppercase;
+	font-size: 90%;
+}
+h1 {
+	margin-top: 0.3em;
+}
+
+.photo {
+	font-size: 90%;
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	border-color: black;
+	border-style: solid;
+	border-width: 0px;
+}
+
+.border {
+	border: 1px solid black;
+}
+
+.photo b {
+	font-style: normal;
+	font-weight: normal;
+	color: #ff0f0c;
+}
+
+.photo i {
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+pre {
+	background-color: #fffaed;
+	padding: 0.5em;
+	border-color: #b8b49b;
+	border-style: solid;
+	border-width: 1px;
+}
+
+</style>
+
+
+</head>
+<body>
+
+
+
+<!-- chapter marker -->
+<h2>Chapter 1</h2>
+<!-- chapter name -->
+<h1>Canvas Overview</h1>
+
+
+<!-- chapter splash photo -->
+
+<p>Canvas is a 2D drawing API recently <b>added</b> to HTML and 
+supported by most browsers (even Internet Explorer 9 beta). 
+Canvas allows you to draw anything you want directly in 
+the webbrowser without the use of plugins like Flash or 
+Java. With a deceptively simple API, Canvas has the ability 
+to revolutionize how we build web applications for all devices, 
+not just desktops.</p>
+
+<p>And then <i>this session</i> is a three hour workshop that 
+will deep dive into Canvas, starting with the basics and 
+progressing into real world applications. Finally we will 
+take a look at some experimental edges of Canvas, such as 
+webcam and audio visualization.</p>
+
+
+<div class="photo">
+<img src="content/barn.thumb.jpg"/>
+<p><b>Barn</b> The Title of the Movie.</p>
+<p><i>This is a subtext. This is 
+a subtext. This is a subtext. </i></p>
+</div>
+
+
+<p>Now it's important to understand that canvas is for drawing pixels. It doesn't have shapes or vectors. There are no objects that you can attach event handlers to. It just draws pixels to the screen. As we shall see this is both a strength and a weakness.</p>
+
+<h3>So where does it fit in with the rest of the web?</h3>
+
+<p><b>SVG</b>: SVG is a vector API that draws shapes. Each shape has an object that you can attach event handlers to. If you zoom in the shape stays smooth, where as the canvas would start to become pixelated.</p>
+
+<p><b>CSS</b>: CSS is really about styling DOM elements. Since there are no DOM objects for things you draw in the canvas you can't use CSS to style it. CSS will only affect the rectanglar area of the canvas itself, so you can set a border and background color, but that's it.</p>
+
+<p><b>DOM animation</b>: The DOM, or Document Object Model, defines an object for everything on the screen. DOM animation, either by using CSS or javascript to move objects around, can be smoother in some cases than doing it with canvas, but it depends on your browser implementation.</p>
+
+<h3>Which? What? When?</h3>
+
+<p>So when should you use Canvas over SVG, CSS or DOM elements? Well, Canvas is lower level than those others so you can have more control over the drawing and use less memory, but at the cost of having to write more code. Use SVG when you have existing shapes that you want to render to the screen, like a map that came out of Adobe Illustrator. Use CSS or DOM animation when you have large static areas that you wish to animate, or if you want to use 3D transforms. For charts, graphs, dynamic diagrams, and of course video games; Canvas is a great choice. And later on we will discuss a few libraries to let you do the more vector / object oriented stuff using Canvas.</p>
+
+<p>Before we go any further I want to clarify that when I'm talking about Canvas I mean the 2D API. There is also a 3D API in the works called WebGL. I'm not going to cover that here because it is still being developed and the browser support is rather poor. Also, it's essentially OpenGL from JavaScript, making it lower level than Canvas and much harder to use. When WebGL becomes more mature we will revisit it.</p>
+
+<p>Canvas is a 2D drawing API. Essentially the web browser gives you a rectanglar area on the screen that you can draw into. You can draw lines, shapes, images, text; pretty much anything you want. Canvas was originally created by Apple for their Dashboard widgets, but it has since been adopted by every major browser vendor and is now part of the HTML 5 spec. Here's a quick example of what some Canvas code looks like:</p>
+
+<pre><code>&lt;html&gt;
+&lt;body&gt;
+  &lt;canvas width=&quot;800&quot; height=&quot;600&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
+  &lt;script&gt;
+    var canvas = document.getElementById('canvas');
+    var c = canvas.getContext('2d');
+    c.fillStyle = &quot;red&quot;;
+    c.fillRect(100,100,400,300);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+<p>The code above, when rendered in the browser, looks like <i>figure 1.2</i></p>
+
+
+<div class="photo">
+<img class="border" src="content/redrect.png" width="50%">
+<p><b>Photo</b> Rectangle drawn with canvas</p>
+<p><i>Figure 1.2</i></p>
+</div>
+
+
+<h3>Browser Support</h3>
+
+<p>And lastly, before we dive into working with Canvas, let's talk about where you can use it? Fortunately Canvas is now a stable API and most modern browsers support it to some extent. Even Internet Explorer supports it starting with IE 9, and their implementation is very good.</p>
+
+<p>On the mobile side most smartphone platforms support it because most of them are based on WebKit, which has long had good support. I know for sure that webOS, iOS, and Android support it. I believe BlackBerry does, at least on the PlayBook. Windows Phone 7 does not, but it may come in a future update.
+
+</p>
+
+
+</body>
+</html>
