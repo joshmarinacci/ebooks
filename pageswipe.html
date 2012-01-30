@@ -3,9 +3,9 @@
 <script src="scripts/jquery.js"></script>
 <script src="scripts/swipeview.js"></script>
 <style type="text/css">
+
 #content {
 	border: 1px solid red;
-	height: 100%;
 }
 
 </style>
@@ -34,7 +34,7 @@ carousel = new SwipeView('#content', {
 // Load initial data
 for (i=0; i<3; i++) {
 	page = i==0 ? slides.length-1 : i-1;
-	el = document.createElement('span');
+	el = document.createElement('div');
 	el.innerHTML = "foo"+i;
 	var p = i;
 	$(el).load('content/page'+p+'.html',function(){
@@ -51,7 +51,7 @@ carousel.onFlip(function () {
 		upcoming = carousel.masterPages[i].dataset.upcomingPageIndex;
 		//console.log("upcoming = " + upcoming);
 		if (upcoming != carousel.masterPages[i].dataset.pageIndex) {
-			el = carousel.masterPages[i].querySelector('span');
+			el = carousel.masterPages[i].querySelector('div');
 			var p = upcoming;
 			$(el).load('content/page'+p+'.html',function(){
 				console.log("content loaded: " + p);
@@ -60,6 +60,9 @@ carousel.onFlip(function () {
 		}
 	}
 });
+
+carousel.wrapper.style.overflow = 'hidden';
+carousel.wrapper.style.overflowY = 'scroll';
 
 </script>
 </body>
