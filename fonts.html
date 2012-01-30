@@ -9,11 +9,55 @@
     font-family: "Junction";
     src: url("fonts/Junction-webfont.woff");
 }
+@font-face {
+	font-family: "Fanwood";
+	src: url("fonts/fanwood-webfont.woff");
+}
+@font-face {
+	font-family: "Fanwood";
+	font-style: italic;
+	src: url("fonts/fanwood_italic-webfont.woff");
+}
+@font-face {
+	font-family: "Linden";
+	src: url("fonts/LindenHill-webfont.woff");
+}
+@font-face {
+	font-family: "Linden";
+	font-style: italic;
+	src: url("fonts/LindenHill-Italic-webfont.woff");
+}
+@font-face {
+	font-family: "Goudy";
+	src: url("fonts/GoudyStM-webfont.woff");
+}
+@font-face {
+	font-family: "Goudy";
+	font-style: italic;
+	src: url("fonts/GoudyStM-Italic-webfont.woff");
+}
+body {
+    padding: 2em;
+}
+
 h1,h2,h3 {
+    font-size: 300%;
+    word-spacing: 3px;
+    text-transform: none;
     font-family: Gothic;
 }
-p {
-    font-family: Junction;
+
+p.p1 {
+/*    line-height: 140%;*/
+	font-family: Goudy;
+}
+p.p2 {
+/*    line-height: 140%;*/
+	font-family: Linden;
+}
+p.p3 {
+/*    line-height: 140%;*/
+	font-family: Fanwood;
 }
 </style>
 </head>
@@ -21,9 +65,14 @@ p {
 
 <h1>Introduction to HTML 5 Canvas</h1>
 
-<p>
-Normally, both your asses would be dead as fucking fried chicken, but you happen to pull this shit while I'm in a transitional period so I don't wanna kill you, I wanna help you. But I can't give you this case, it don't belong to me. Besides, I've already been through too much shit this morning over this case to hand it over to your dumb ass.
-
+<p class="p1">
+Normally, both your asses would be <i>dead as fucking fried</i> chicken, but you happen to pull this shit while I'm in a transitional period so I don't wanna kill you, I wanna help you. But I can't give you this case, it don't belong to me. Besides, I've already been through too much shit this morning over this case to hand it over to your dumb ass.
+</p>
+<p class="p2">
+Normally, both your asses would be <i>dead as fucking fried</i> chicken, but you happen to pull this shit while I'm in a transitional period so I don't wanna kill you, I wanna help you. But I can't give you this case, it don't belong to me. Besides, I've already been through too much shit this morning over this case to hand it over to your dumb ass.
+</p>
+<p class="p3">
+Normally, both your asses would be <i>dead as fucking fried</i> chicken, but you happen to pull this shit while I'm in a transitional period so I don't wanna kill you, I wanna help you. But I can't give you this case, it don't belong to me. Besides, I've already been through too much shit this morning over this case to hand it over to your dumb ass.
 </p>
 
 
