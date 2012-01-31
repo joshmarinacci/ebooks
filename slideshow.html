@@ -1,15 +1,80 @@
 <html>
 <head>
 
-<link href='slideshow.css' rel='stylesheet'/>
-<style>
-#gallery {
-  background:#23282C;
+<!-- 
+<link href='slideshow.css' rel='stylesheet'/> 
+-->
+<style type="text/css">
+
+html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, del, dfn, em, img, ins, kbd, q, samp, small, strong, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, table, tbody, tfoot, thead, tr, th, td, article, aside, footer, header, nav, section {
+  margin:0;
+  padding:0;
+  border:0;
+  outline:0;
+  font-size:100%;
+  vertical-align:baseline;
+  background:transparent;
 }
 
-  #slider {
-    padding:13px 0;
-  }
+body {
+  -webkit-text-size-adjust:none;
+  font-family:sans-serif;
+}
+
+.gallery {
+	background-color: black;
+	border: 1px solid black;
+	border-radius:15px;
+	margin: 1em;
+}
+
+#slider {
+	margin:0;
+	padding:0;
+	border:0;
+	outline:0;
+	vertical-align:baseline;
+	font-size:100%;
+	background-color: white;
+	border: 1px solid red;
+	border-radius: 15px
+/*	height: 100px;*/
+	padding: 2em;
+}
+
+
+.swipe {
+  padding-bottom:20px;
+}
+
+.swipe li div, .swipe div div div {
+  margin:1em;
+  padding:50px 10px;
+  background:#1db1ff;
+  font-weight:bold;
+  color:#fff;
+  font-size:20px;
+  text-align:center;
+}
+
+
+
+
+  
+#gallery {
+	width: 400px;
+	height: 200px;
+}
+
+.gallery nav {
+	color: gray;
+}
+
+.float-left {
+	float:left;
+}
+  
+/*
   #slider li div {
     margin: 0 13px;
     padding: 80px 10px;
@@ -25,7 +90,10 @@
     text-shadow: 0 1px 0 #fff;
     color: #A4AEB7;
   }
-  
+*/
+
+
+  /*
   #gallery nav {
     border-top:1px #3A4146 solid;
     background-image: -webkit-gradient(linear, left top, left bottom, from(#292F34), to(#23282C));
@@ -38,6 +106,8 @@
     height:35px;
     position:relative;
   }
+  */
+  /*
     #position {
       text-align:center;
       font-size:27px;
@@ -50,16 +120,27 @@
       margin-left:-75px;
       width:150px;
     }
+      */
+    
+#position {
+	text-align: center;
+/*	font-size:27px;*/
+}  
       #position em {
+      /*
         display:inline-block;
         padding:0 3px;
         font-style:normal;
         text-shadow: 0 -1px 0 rgba(0,0,0,.35);
         font-family:sans-serif;
+        */
       }
       #position em.on {
         color:#fff;
       }
+      
+      
+      /*
     #prev {
       border-right:1px #232628 solid;
       display:inline-block;
@@ -97,34 +178,54 @@
         letter-spacing:1px;
         text-shadow: 0 -1px 0 rgba(0,0,0,.35);
       }
-  
-  #gallery {
-  	width:400px;
-  }
+  */
 </style>
 </head>
 <body>
 
-<h3>Adapted from <a href="http://swipejs.com/">SwipeJS.com</a></h3>
+<h3>Built using the amazing script at <a href="http://swipejs.com/">SwipeJS.com</a></h3>
 
-<div id='gallery'>
-<div id='slider' class='swipe'>
-  <ul>
-    <li style='display:block'><div>1</div></li>
-    <li style='display:none'><div>2</div></li>
-    <li style='display:none'><div>3</div></li>
-    <li style='display:none'><div>4</div></li>
-    <li style='display:none'><div>5</div></li>
-  </ul>
+
+<p>
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Phasellus hendrerit. Pellentesque aliquet nibh nec urna. 
+In nisi neque, aliquet vel, dapibus id, mattis vel, nisi. Sed pretium, ligula sollicitudin laoreet 
+
+
+
+viverra, tortor libero sodales leo, eget blandit nunc tortor eu nibh. Nullam mollis. Ut justo. 
+Suspendisse potenti.
+</p>
+
+<div id='gallery' class='gallery float-left'>
+	<div id='slider' class='swipe'>
+	  <ul>
+	    <li style='display:block'><div>1</div></li>
+	    <li style='display:none'><div>2</div></li>
+	    <li style='display:none'><div>3</div></li>
+	    <li style='display:none'><div>4</div></li>
+	    <li style='display:none'><div>5</div></li>
+	  </ul>
+	</div>
+
+	<nav>
+		<a href='#' id='prev' onclick='slider.prev();return false;'><em>prev</em></a>
+	<span id='position'><em class='on'>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em></span>
+		<a href='#' id='next' onclick='slider.next();return false;'><em>next</em></a>
+	</nav>
 </div>
 
-  <nav>
-    <a href='#' id='prev' onclick='slider.prev();return false;'><em>prev</em></a>
-    <span id='position'><em class='on'>&bull;</em><em>&bull;</em><em>&bull;</em></span>
-    <a href='#' id='next' onclick='slider.next();return false;'><em>next</em></a>
-  </nav>
-
-</div>
+<p>
+Sed egestas, ante et vulputate volutpat, eros pede semper est, vitae luctus metus libero eu augue. Morbi purus libero, faucibus adipiscing, commodo quis, gravida id, est. Sed lectus. Praesent elementum hendrerit tortor. Sed semper lorem at felis. Vestibulum volutpat, lacus a ultrices sagittis, mi neque euismod dui, eu pulvinar nunc sapien ornare nisl. Phasellus pede arcu, dapibus eu, fermentum et, dapibus sed, urna.
+</p>
+<p>
+Morbi interdum mollis sapien. Sed ac risus. Phasellus lacinia, magna a ullamcorper laoreet, lectus arcu pulvinar risus, vitae facilisis libero dolor a purus. Sed vel lacus. Mauris nibh felis, adipiscing varius, adipiscing in, lacinia vel, tellus. Suspendisse ac urna. Etiam pellentesque mauris ut lectus. Nunc tellus ante, mattis eget, gravida vitae, ultricies ac, leo. Integer leo pede, ornare a, lacinia eu, vulputate vel, nisl.
+</p>
+<p>
+Suspendisse mauris. Fusce accumsan mollis eros. Pellentesque a diam sit amet mi ullamcorper vehicula. Integer adipiscing risus a sem. Nullam quis massa sit amet nibh viverra malesuada. Nunc sem lacus, accumsan quis, faucibus non, congue vel, arcu. Ut scelerisque hendrerit tellus. Integer sagittis. Vivamus a mauris eget arcu gravida tristique. Nunc iaculis mi in ante. Vivamus imperdiet nibh feugiat est.
+</p>
+<p>
+Ut convallis, sem sit amet interdum consectetuer, odio augue aliquam leo, nec dapibus tortor nibh sed augue. Integer eu magna sit amet metus fermentum posuere. Morbi sit amet nulla sed dolor elementum imperdiet. Quisque fermentum. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque adipiscing eros ut libero. Ut condimentum mi vel tellus. Suspendisse laoreet. Fusce ut est sed dolor gravida convallis. Morbi vitae ante. Vivamus ultrices luctus nunc. Suspendisse et dolor. Etiam dignissim. Proin malesuada adipiscing lacus. Donec metus. Curabitur gravida.
+</p>
 
 
 
