@@ -2,13 +2,113 @@
 <head>
 
 <link href='slideshow.css' rel='stylesheet'/>
+<style>
+#gallery {
+  background:#23282C;
+}
 
+  #slider {
+    padding:13px 0;
+  }
+  #slider li div {
+    margin: 0 13px;
+    padding: 80px 10px;
+    border-radius: 4px;
+    border-top: 1px #fff solid;
+    background: #F7F9FA;
+    -webkit-box-shadow: 0px 1px 2px #0D0F11;
+    -moz-box-shadow: 0px 1px 2px #0D0F11;
+    box-shadow: 0px 1px 2px #0D0F11;
+    color: #DDE1E4;
+    font-size: 12px;
+    text-align: center;
+    text-shadow: 0 1px 0 #fff;
+    color: #A4AEB7;
+  }
+  
+  #gallery nav {
+    border-top:1px #3A4146 solid;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#292F34), to(#23282C));
+    background-image: -webkit-linear-gradient(top, #292F34, #23282C);
+    background-image:    -moz-linear-gradient(top, #292F34, #23282C);
+    background-image:     -ms-linear-gradient(top, #292F34, #23282C);
+    background-image:      -o-linear-gradient(top, #292F34, #23282C);
+    background-image:         linear-gradient(top, #292F34, #23282C);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#292F34', EndColorStr='#23282C'); 
+    height:35px;
+    position:relative;
+  }
+    #position {
+      text-align:center;
+      font-size:27px;
+      line-height:1.3;
+      color:#697279;
+      display:block;
+      position:absolute;
+      top:0;
+      left:50%;
+      margin-left:-75px;
+      width:150px;
+    }
+      #position em {
+        display:inline-block;
+        padding:0 3px;
+        font-style:normal;
+        text-shadow: 0 -1px 0 rgba(0,0,0,.35);
+        font-family:sans-serif;
+      }
+      #position em.on {
+        color:#fff;
+      }
+    #prev {
+      border-right:1px #232628 solid;
+      display:inline-block;
+      text-decoration:none;
+    }
+      #prev em {
+        display:block;
+        border-right:1px #30373C solid;
+        padding:10px 13px 8px;
+        font-style:normal;
+        font-weight:bold;
+        font-size:11px;
+        text-transform:uppercase;
+        color:#697279;
+        letter-spacing:1px;
+        text-shadow: 0 -1px 0 rgba(0,0,0,.35);
+      }
+    #next {
+      border-left:1px #232628 solid;
+      display:inline-block;
+      text-decoration:none;
+      position:absolute;
+      right:0;
+      top:0;
+    }
+      #next em {
+        display:block;
+        border-left:1px #30373C solid;
+        padding:10px 13px 8px;
+        font-style:normal;
+        font-weight:bold;
+        font-size:11px;
+        text-transform:uppercase;
+        color:#697279;
+        letter-spacing:1px;
+        text-shadow: 0 -1px 0 rgba(0,0,0,.35);
+      }
+  
+  #gallery {
+  	width:400px;
+  }
+</style>
 </head>
 <body>
 
-<h2>Full width</h2>
+<h3>Adapted from <a href="http://swipejs.com/">SwipeJS.com</a></h3>
 
-<div id='slider3' class='swipe' style='width:200px'>
+<div id='gallery'>
+<div id='slider' class='swipe'>
   <ul>
     <li style='display:block'><div>1</div></li>
     <li style='display:none'><div>2</div></li>
@@ -18,17 +118,62 @@
   </ul>
 </div>
 
-<a href='#' onclick='slider3.prev();return false;'>prev</a> 
-<a href='#' onclick='slider3.next();return false;'>next</a>
-<br><br>
+  <nav>
+    <a href='#' id='prev' onclick='slider.prev();return false;'><em>prev</em></a>
+    <span id='position'><em class='on'>&bull;</em><em>&bull;</em><em>&bull;</em></span>
+    <a href='#' id='next' onclick='slider.next();return false;'><em>next</em></a>
+  </nav>
+
+</div>
+
 
 
 <script src='scripts/swipe.js'></script>
-<script>
-new Swipe(document.getElementById('slider'));
-new Swipe(document.getElementById('slider2'));
-var slider3 = new Swipe(document.getElementById('slider3'));
-var slider4 = new Swipe(document.getElementById('slider4'));
+<script type="text/javascript">
+
+// slider
+var slider = new Swipe(document.getElementById('slider'), {
+      callback: function(e, pos) {
+        
+        var i = bullets.length;
+        while (i--) {
+          bullets[i].className = ' ';
+        }
+        bullets[pos].className = 'on';
+
+      }
+    }),
+    bullets = document.getElementById('position').getElementsByTagName('em'),
+
+// tabs
+    tabs = new Swipe(document.getElementById('tabs'), {
+      callback: function(event,index,elem) {
+        setTab(selectors[index]);
+      }
+    })
+    //,
+    
+    ;
+    
+    //selectors = document.getElementById('tabSelector').children;
+/*
+for (var i = 0; i < selectors.length; i++) {
+  var elem = selectors[i];
+  elem.setAttribute('data-tab', i);
+  elem.onclick = function(e) {
+    e.preventDefault();
+    setTab(this);
+    tabs.slide(parseInt(this.getAttribute('data-tab'),10),300);
+  }
+}
+
+function setTab(elem) {
+  for (var i = 0; i < selectors.length; i++) {
+    selectors[i].className = selectors[i].className.replace('on',' ');
+  }
+  elem.className += ' on';
+}
+*/
 </script>
 
 </body>
