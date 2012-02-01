@@ -1,0 +1,128 @@
+/* ========= fonts =========== */
+@font-face {
+    font-family: "Gothic";
+    src: url("../fonts/League_Gothic-webfont.woff");
+}
+@font-face {
+	font-family: "Goudy";
+	src: url("../fonts/GoudyStM-webfont.woff");
+}
+@font-face {
+	font-family: "Goudy";
+	font-style: italic;
+	src: url("../fonts/GoudyStM-Italic-webfont.woff");
+}
+body {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 13pt;
+}
+p {
+/*	font-family: serif;*/
+	line-height: 140%;
+}
+h1,h2,h3 {
+    font-size: 300%;
+    word-spacing: 3px;
+    text-transform: none;
+    font-family: Gothic, Helvetica, Verdana, Arial, sans-serif;
+}
+h2 {
+	color: #ff2b0d;
+	font-style: normal;
+	font-weight: normal;
+	text-transform: uppercase;
+	font-size: 130%;
+}
+h3 {
+	font-size: 200%;
+}
+
+/* ============ colors ============ */
+body {
+	background-color: white;
+}
+
+
+
+
+/*  ==========  basic structure  =========  */
+body {
+	margin-left: 6em;
+	margin-bottom: 5em;
+	margin-right: 6em;
+	margin-top: 1em;
+}
+h1 {
+	margin-top: 0.3em;
+}
+h2 {
+	padding: 0px;
+	margin: 0px;
+	margin-top: 4em;
+}
+
+#footer {
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	color: #555555;
+	border-left-width: 0px;
+	border-bottom-width: 0px;
+	border-right-width: 0px;
+	border-top-width: 1px;
+	border-style: solid;
+	border-color: #c9c9c9;
+	position: fixed;
+	left: 0;
+	width: 100%;
+	bottom: 0;
+	display: block;
+	background-color: #f0f0f0;
+	padding: 1em;
+	margin: 0em;
+	background-image: url(../content/graytexture.png);
+
+}
+#footer li {
+	display: inline;
+}
+#footer b {
+	font-style: normal;
+	font-weight: normal;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+
+
+/*  ==========  code  =========  */
+pre {
+	background-image: url(../content/graytexture.png);
+	background-color: #e1e2db;
+	padding: 0.8em;
+	border-color: #e1dedb;
+	border-style: solid;
+	border-width: 1px;
+}
+
+/* ========== tables =========== */
+table {
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	border-collapse: collapse;
+	border: 1px solid gray;
+	
+}
+td, th {
+	padding-left: 0.5em;
+	padding-bottom: 0.3em;
+	padding-right: 0.5em;
+	padding-top: 0.3em;
+	border: 1px solid gray;
+}
+
+th {
+	font-style: normal;
+	font-weight: normal;
+	color: white;
+	background-color: #9f9f9f;
+}
+
+
