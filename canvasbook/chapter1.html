@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
 <title>Chapter 1: Overview</title>
 <script src="../scripts/jquery.js"></script>
 
@@ -27,7 +28,7 @@ body {
 	font-size: 13pt;
 }
 p {
-	font-family: Georgia;
+/*	font-family: serif;*/
 	line-height: 140%;
 }
 h1,h2,h3 {
@@ -47,16 +48,20 @@ h3 {
 	font-size: 200%;
 }
 
+/* ============ colors ============ */
+body {
+	background-color: white;
+}
+
 
 
 
 /*  ==========  basic structure  =========  */
 body {
 	margin-left: 6em;
-	margin-bottom: 1em;
+	margin-bottom: 5em;
 	margin-right: 6em;
 	margin-top: 1em;
-	background-color: white;
 }
 h1 {
 	margin-top: 0.3em;
@@ -67,6 +72,24 @@ h2 {
 	margin-top: 4em;
 }
 
+#footer {
+	position: fixed;
+	left: 0;
+	width: 100%;
+	bottom: 0;
+	display: block;
+	background-color: white;
+	padding: 1em;
+	margin: 0em;
+	border: 1px solid black;
+}
+#footer li {
+	display: inline;
+}
+#footer b {
+	padding-left: 1em;
+	padding-right: 1em;
+}
 
 
 
@@ -88,12 +111,11 @@ table {
 	
 }
 td, th {
-
-padding-left: 0.5em;
-padding-bottom: 0.3em;
-padding-right: 0.5em;
-padding-top: 0.3em;
-border: 1px solid gray;
+	padding-left: 0.5em;
+	padding-bottom: 0.3em;
+	padding-right: 0.5em;
+	padding-top: 0.3em;
+	border: 1px solid gray;
 }
 
 th {
@@ -138,16 +160,27 @@ th {
 }
 
 .photo i {
-	font-family: Georgia, "Times New Roman", Times, serif;
+/*	font-family: Georgia, "Times New Roman", Times, serif;*/
+	font-style: italic;
 }
 
 
 /* ======== adapt for mobile ======== */
 @media all and (max-width:800px) {
 	.photo img {
-		width: 100%;
+/*		width: 100%;*/
+		max-width: 100%;
 	}
 
+	body {
+		margin: 1em;
+	}
+	h1 { font-size: 200%; }
+	h2 { font-size: 100%; }
+	h3 { font-size: 150%; }
+	pre {
+		overflow: auto;
+	}
 }
 
 
@@ -170,7 +203,7 @@ th {
 and supported by most browsers (even Internet Explorer 
 9 beta). Canvas allows you to draw anything you want 
 directly in the web browser without the use of plugins 
-like Flash or Java. With a deceptively simple API, Canvas 
+like Flash or Java. With its deceptively simple API, Canvas 
 has the ability to revolutionize how we build web applications 
 for all devices, not just desktops. This session is a 
 three hour workshop that will deep dive into Canvas, 
@@ -460,6 +493,12 @@ off the top of the screen.</p>
 <nav>
 <a href="chapter2.html">Chapter 2</a>
 </nav>
+
+<ul id="footer">
+<li><a href="#">TOC</a></li>
+<li><b>HTML Canvas Deep Dive</b></li>
+<li><b>Chapter 1</b></li>
+</ul>
 
 </body>
 </html>
