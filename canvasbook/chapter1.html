@@ -3,7 +3,7 @@
 <title>Chapter 1: Overview</title>
 <script src="../scripts/jquery.js"></script>
 
-<style type='text/css'>
+<style type="text/css">
 
 
 
@@ -80,9 +80,34 @@ pre {
 	border-width: 1px;
 }
 
+/* ========== tables =========== */
+table {
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	border-collapse: collapse;
+	border: 1px solid gray;
+	
+}
+td, th {
+
+padding-left: 0.5em;
+padding-bottom: 0.3em;
+padding-right: 0.5em;
+padding-top: 0.3em;
+border: 1px solid gray;
+}
+
+th {
+	font-style: normal;
+	font-weight: normal;
+	color: white;
+	background-color: #9f9f9f;
+}
+
+
 
 
 /* ===== photos ==== */
+
 
 .photo {
 	font-size: 90%;
@@ -90,22 +115,31 @@ pre {
 	border-color: black;
 	border-style: solid;
 	border-width: 0px;
+	margin-bottom: 3em;
+}
+
+.photo p {
+	border: 0px solid red;
+	padding: 0;
+	padding-top: 0.3em;
+	margin: 0;
 }
 
 .photo img {
+	width: 100%;
 	border: 1px solid black;
 }
 
 .photo b {
 	font-style: normal;
 	font-weight: normal;
+	padding-right: 1em;
 	color: #ff0f0c;
 }
 
 .photo i {
 	font-family: Georgia, "Times New Roman", Times, serif;
 }
-
 
 </style>
 
@@ -168,9 +202,11 @@ c.fillRect(100,100,400,300);
 
 <div class="photo">
 <img src="../content/redrect.png"/>
-<p><b>Photo</b> Simple red rectangle</p>
+<p><b>screenshot</b> Simple red rectangle</p>
 <p><i>This rectangle is drawn with the context.fillRect() function.</i></p>
 </div>
+
+
 
 <p>Now it's important to understand that canvas is for drawing pixels. It doesn't have shapes or vectors. There are no objects that you can attach event handlers to. It just draws pixels to the screen.  As we shall see this is both a strength and a weakness. </p>
 
@@ -198,25 +234,27 @@ c.fillRect(100,100,400,300);
 <p>And lastly, before we dive into working with Canvas, let's talk about <b>where</b> you can use it?  Fortunately Canvas is now a stable API and most modern browsers support it to some extent. Even Internet Explorer supports it starting with IE 9, and their implementation is very good.
 </p>
 
-<pre>
-Safari >= 3
-Chrome >= 10
-Opera >= 9 
-FireFox >=4
-Internet Explorer >=9
-</pre>
+<table>
+<tr><th>Desktop Browser</th><th>Version</th></tr>
+<tr><td>Safari</td><td>3.0+</td></tr>
+<tr><td>Chrome</td><td>10+</td></tr>
+<tr><td>Opera</td><td>9+</td></tr>
+<tr><td>FireFox</td><td>4.0+</td></tr>
+<tr><td>Internet Explorer</td><td>9.0+</td></tr>
+</table>
 
 
 <p>On the mobile side most smartphone platforms support it because most of them are based on WebKit, which has long had good support. I know for sure that webOS, iOS, and Android support it. I believe BlackBerry does, at least on the PlayBook. Windows Phone 7 does not, but it may come in a future update.
 </p>
 
-<pre>
-webOS
-iOS
-Android
-BlackBerry (PlayBook and OS 6.0+)
-NOT WP7
-</pre>
+<table>
+<tr><th>Mobile Browser</th><th>Version</th></tr>
+<tr><td>iOS</td><td>all</td></tr>
+<tr><td>webOS</td><td>all</td></tr>
+<tr><td>Android</td><td>2.0+</td></td></tr>
+<tr><td>BlackBerry</td><td>Playbook and OS 6.0+</td></tr>
+<tr><td>Windows Phone 7</td><td>none</td></tr>
+</table>
 
 <p>Now, not every mobile device has very complete or <i>fast</i> support for canvas, so we'll look at how to optimize our code for mobile devices later in the performance section of this session.
 </p>
@@ -229,12 +267,16 @@ NOT WP7
 <p>As I said before, Canvas is a simple 2D API. If you've done any coding work with Flash or Java 2D it should seem pretty familar. You get a reference to a graphics context, set some properties like the current fill or stroke color, then draw some shapes.  Here's a couple of examples.
 </p>
 
-<pre><code>
-c.fillStyle = "red";
+<pre><code>c.fillStyle = "red";
 c.fillRect(100,100,400,300);
 </code></pre>
 
-<p><img src="images/redrect.png"/></p>
+<div class='photo'>
+<img src="images/redrect.png"/>
+<p><b>screenshot</b> Simple red rectangle</p>
+<p><i>This rectangle is drawn with the context.fillRect() function.</i></p>
+</div>
+
 
 <p>In this example we set the current color to red and draw a rectangle. Here's another one.</p>
 
@@ -252,7 +294,7 @@ c.lineWidth = 5.0;
 c.stroke();
 </code></pre>
 
-<p><img src="images/basicpath.png"/></p>
+<p class='photo'><img src="images/basicpath.png"/></p>
 
 
 
@@ -390,7 +432,7 @@ c.font = "italic 96pt Arial ";
 c.fillText("this is text", 50,300);
 </code></pre>
 
-<p><img src="images/basic_text.png"/></p>
+<p class='photo'><img src="images/basic_text.png"/></p>
 
 <p>You can draw text with Canvas too. The font 
 attribute is the same as its CSS equivalent, so you can 
@@ -402,7 +444,7 @@ off the top of the screen.</p>
 
 <h2>Hands On 1</h2>
 
-<p>So that's it for basic drawing.  Let's stop there and do some exercises.  You should already have a webbrowser and text editor installed. I recommend using Chrome because it has nice debugging tools, and jEdit because it's free and cross platform; but you can use the browser and editor of your choice.  Note that since we are loading code from the local harddrive you may need to disable security in Chrome during development. The handout notes describe how to do this.  The notes can be viewed here:
+<p>So that's it for basic drawing.  Let's stop there and do some exercises in the next chapter.  You should already have a webbrowser and text editor installed. I recommend using Chrome because it has nice debugging tools, and jEdit because it's free and cross platform; but you can use the browser and editor of your choice.  Note that since we are loading code from the local harddrive you may need to disable security in Chrome during development. The handout notes describe how to do this.  The notes can be viewed here:
 </p>
 
 <nav>
