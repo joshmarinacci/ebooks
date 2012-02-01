@@ -90,6 +90,13 @@ h2 {
 	padding-left: 1em;
 	padding-right: 1em;
 }
+#fchapter {
+	border: 1px solid #f0f0f0;
+}
+#fchapter:hover {
+	border: 1px solid #606060;
+	background-color: #ddd;
+}
 
 
 
@@ -125,4 +132,67 @@ th {
 	background-color: #9f9f9f;
 }
 
+/* ========= table of contents menu =========== */
 
+#toc {
+	border-left-width: 0px;
+	border-bottom-width: 1px;
+	border-right-width: 1px;
+	border-top-width: 1px;
+	border-style: solid;
+	border-color: #aaa;
+	color: #9b9b9b;
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+	visibility: hidden;
+	position: fixed;
+	left: 0;
+	bottom: 3em;
+	background-color: white;
+	margin: 0;
+	padding: 1em;
+}
+#toc li {
+	list-style: none;
+	margin: 0em;
+	padding: 1em;
+	border: 0px solid #aaa;
+	border-bottom-width: 1px;
+}
+#toc li:last-child {
+	border: 0px;
+}
+#toc li a {
+	text-decoration: none;
+	color: #676767;
+}
+
+
+
+/* ==== general utility stuff ==== */
+.float-left { float:left; }
+.float-right { float:right; }
+
+
+
+/* ======== adapt for mobile ======== */
+@media all and (max-width:800px) {
+	.photo img {
+/*		width: 100%;*/
+		max-width: 100%;
+	}
+
+	body {
+		margin: 1em;
+	}
+	h1 { font-size: 200%; }
+	h2 { font-size: 100%; }
+	h3 { font-size: 150%; }
+	pre {
+		overflow: auto;
+	}
+	.gallery {
+		float: none;
+		margin-left: auto; margin-right: auto;
+		max-width: 100%;
+	}
+}
