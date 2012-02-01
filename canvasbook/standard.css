@@ -92,6 +92,7 @@ h2 {
 }
 #fchapter {
 	border: 1px solid #f0f0f0;
+	padding: 0.3em;
 }
 #fchapter:hover {
 	border: 1px solid #606060;
@@ -132,6 +133,29 @@ th {
 	background-color: #9f9f9f;
 }
 
+
+/* ==== chapter navigation ==== */
+
+#chapternav {
+	border:0px solid black;
+	text-align: right;
+}
+#chapternav a {
+	padding: 0.3em;
+	margin: 0.5em;
+	text-decoration: none;
+	color: #666;
+	border: 1px solid black;
+	border-color: #aaa;
+	border: 1px solid #f0f0f0;
+}
+#chapternav a:hover {
+	border: 1px solid #606060;
+	background-color: #ddd;
+}
+
+
+
 /* ========= table of contents menu =========== */
 
 #toc {
@@ -165,6 +189,9 @@ th {
 	text-decoration: none;
 	color: #676767;
 }
+
+
+
 
 
 
