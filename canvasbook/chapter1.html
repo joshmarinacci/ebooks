@@ -3,6 +3,7 @@
 <meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
 <title>Chapter 1: Overview</title>
 <script src="../scripts/jquery.js"></script>
+<script src='../scripts/swipe.js'></script>
 
 <style type="text/css">
 
@@ -164,6 +165,9 @@ th {
 	font-style: italic;
 }
 
+/* ==== general utility stuff ==== */
+.float-left { float:left; }
+
 
 /* ======== adapt for mobile ======== */
 @media all and (max-width:800px) {
@@ -181,12 +185,106 @@ th {
 	pre {
 		overflow: auto;
 	}
+	.gallery {
+		float: none;
+		margin-left: auto; margin-right: auto;
+		max-width: 100%;
+	}
 }
+
+
+
+
+
+/* ======== gallery stuff ========== */
+.swipe {
+  padding-bottom:20px;
+  padding: 0em;
+  border: 2px solid black;
+}
+
+
+.gallery {
+	background-color: black;
+	border: 1px solid black;
+	border-radius:15px;
+	margin: 1em;
+	padding: 0;
+}
+
+.gallery nav {
+	color: gray;
+	border: 1px solid red;
+}
+
+.gallery .swipe {
+	margin:0;
+	padding:0;
+	border:0;
+	background-color: white;
+	border: 1px solid black;
+	border-radius: 15px;
+}
+
+
+/* content wrapper */
+.swipe ul {
+	border: 0px solid purple;
+	padding: 0;
+	margin: 0;
+}
+/* actual content */
+.swipe ul li {
+	text-align: center;
+	border: 0px solid black;
+	border-radius: 15px;
+	padding: 0;
+	margin: 0;
+	vertical-align: middle;
+}
+
+
+/* nav stuff */
+.gallery nav {
+	border: 0px solid green;
+	padding: 0;
+	margin: 0;
+	text-align: center;
+}
+#position {	
+	text-align: center;
+	font-size: 30pt;
+	line-height: 60%;
+	padding: 0;
+	margin: 0;
+	color: white;
+}  
+.gallery nav a {
+	color: white;
+	text-decoration: none;
+	font-family: sans-serif;
+	font-weight: normal;
+}
+.gallery nav em {
+	font-style: normal;
+	}
+#position em { 
+	border: 0px solid red; 
+	margin: 0; padding: 0;
+	vertical-align: bottom;
+}
+#position em.on {color:#fff;}
+
+
+
+
 
 
 </style>
 
-<script src="../script/basic.css"></script>
+<!--
+	 <script src="../script/basic.css"></script>
+-->
 
 </head>
 <body>
@@ -198,6 +296,25 @@ th {
 
 
 <h3>Overview</h3>
+
+<div id='gallery' class='gallery float-left'
+style="width:480px;">
+<div id='slider' class='swipe'>
+<ul>
+<li><img src="images/screenshot1.png"/></li>
+<li style='display:none;'><img src="images/screenshot2.png"/></li>
+<li style='display:none;'><img src="images/screenshot3.png"/></li>
+<li style='display:none;'><img src="images/screenshot4.png"/></li>
+<li style='display:none;'><img src="images/screenshot5.png"/></li>
+<li style='display:none;'><img src="images/screenshot6.png"/></li>
+</ul>
+</div>
+	<nav>
+		<a href='#' id='prev' onclick='slider.prev();return false;'><em>prev</em></a>
+	<span id='position'><em class='on'>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em></span>
+		<a href='#' id='next' onclick='slider.next();return false;'><em>next</em></a>
+	</nav>
+</div>
 
 <p>Canvas is a 2D drawing API recently added to HTML 
 and supported by most browsers (even Internet Explorer 
@@ -213,10 +330,7 @@ experimental edges of Canvas, such as webcam and audio
 visualization.</p>
 
 
-
-<h3>Introduction</h3>
-
-<p>Hi. Welcome to the HTML Canvas Deep Dive. Today we will dive very deep into the Canvas API and learn how to make both useful and graphically intense effects using pure web technology, no plugins required. My name is Josh Marinacci and I'm joined by Robert Burdick. We are from the webOS evangelism team at HP. We are teaching this class on HTML 5 Canvas because we built webOS on web standards and really feel that it's the way most apps will be built in the future. I'm also happy to say that our recently released HP TouchPad (hold it up) was reviewed by the Sencha team and they said it has the fastest mobile Canvas implementation they have seen, hands down. So we really do practice what we preach.</p>
+<p>Today we will dive very deep into the Canvas API and learn how to make both useful and graphically intense effects using pure web technology, no plugins required. I'm from the webOS evangelism team at HP. I am teaching this class on HTML 5 Canvas because we built webOS on web standards and really feel that it's the way most apps will be built in the future. I'm also happy to say that our recently released HP TouchPad (hold it up) was reviewed by the Sencha team and they said it has the fastest mobile Canvas implementation they have seen, hands down. So we really do practice what we preach.</p>
 
 <p>This class will have three lecture sections where we will learn about the Canvas API, how to do animation and pixel effects, and some real world tools to help you. In between the lecture sections we have hands on lessons for you to walk through and build your own canvas apps. During these parts Robert and I will walk around to help you and answer questions. In terms of skill you only need to know some basic javascript and HTML. All you need on your computer is a copy of Chrome or Safari and your favorite text editor. Canvas is very easy to work with. No IDEs required.</p>
 
@@ -499,6 +613,26 @@ off the top of the screen.</p>
 <li><b>HTML Canvas Deep Dive</b></li>
 <li><b>Chapter 1</b></li>
 </ul>
+
+
+<script type="text/javascript">
+
+// slider
+var slider = new Swipe(document.getElementById('slider'), {
+      callback: function(e, pos) {
+        
+        var i = bullets.length;
+        while (i--) {
+          bullets[i].className = ' ';
+        }
+        bullets[pos].className = 'on';
+
+      }
+    }),
+    bullets = document.getElementById('position').getElementsByTagName('em')
+
+    ;
+</script>
 
 </body>
 </html>
