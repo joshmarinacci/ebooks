@@ -66,7 +66,8 @@ body {
 	border-radius: 15px;
 	padding: 0;
 	margin: 0;
-	height: 100px;
+	height: 200px;
+	vertical-align: middle;
 }
 
 
@@ -89,8 +90,12 @@ vertical-align: bottom;
 font-style: normal;
 }
 #position em.on {color:#fff;}
-.gallery nav #prev, .gallery nav #next {
-	display: none;
+
+
+@media all and (max-width: 1025) {
+	.gallery nav #prev, .gallery nav #next {
+		display: none;
+	}
 }
 
 
@@ -123,10 +128,10 @@ Suspendisse potenti.
 	<div id='slider' class='swipe'>
 	  <ul>
 	    <li style='display:block; background-color: red;'>1</li>
-	    <li style='display:none'>2</li>
-	    <li style='display:none'>3</li>
-	    <li style='display:none'>4</li>
-	    <li style='display:none'>5</li>
+	    <li style='display:none; background-color: green;'>2</li>
+	    <li style='display:none; background-color: blue;'>3</li>
+	    <li style='display:none; background-color: purple;'>4</li>
+	    <li style='display:none; background-color: yellow;'>5</li>
 	  </ul>
 	</div>
 
