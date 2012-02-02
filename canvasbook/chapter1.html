@@ -1,7 +1,5 @@
 <html>
 <head>
-<meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
-<title>Chapter 1: Overview</title>
 <script src="../scripts/jquery.js"></script>
 <script src='../scripts/swipe.js'></script>
 
@@ -9,9 +7,11 @@
 <link rel="stylesheet" href="gallery.css"/>
 <link rel="stylesheet" href="photos.css"/>
 
+<meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
+<title>Chapter 1: Overview</title>
+
 <style type="text/css">
 </style>
-
 </head>
 <body>
 
@@ -19,28 +19,22 @@
 
 <h1>Introduction to Canvas</h1>
 
-
-
 <h3><a id="overview">Overview</a></h3>
 
 <div id='gallery' class='gallery float-left' style="width:480px;">
-<h5>Games made with HTML Canvas</h5>
-
-<div id='slider' class='swipe'>
-<ul>
-	<li><img src="images/screenshot1.png"/></li>
-	<li style='display:none;'><img src="images/screenshot2.png"/></li>
-	<li style='display:none;'><img src="images/screenshot3.png"/></li>
-	<li style='display:none;'><img src="images/screenshot4.png"/></li>
-	<li style='display:none;'><img src="images/screenshot5.png"/></li>
-	<li style='display:none;'><img src="images/screenshot6.png"/></li>
-</ul>
-</div>
-	<nav>
-		<a href='#' id='prev' onclick='slider.prev();return false;'><em>prev</em></a>
-	<span id='position'><em class='on'>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em></span>
-		<a href='#' id='next' onclick='slider.next();return false;'><em>next</em></a>
-	</nav>
+	<h5>Games made with HTML Canvas</h5>
+	
+	<div id='slider' class='swipe'>
+	<ul>
+		<li><img src="images/screenshot1.png"/></li>
+		<li style='display:none;'><img src="images/screenshot2.png"/></li>
+		<li style='display:none;'><img src="images/screenshot3.png"/></li>
+		<li style='display:none;'><img src="images/screenshot4.png"/></li>
+		<li style='display:none;'><img src="images/screenshot5.png"/></li>
+		<li style='display:none;'><img src="images/screenshot6.png"/></li>
+	</ul>
+	</div>
+	
 </div>
 
 <p>Canvas is a 2D drawing API recently added to HTML 
@@ -85,9 +79,9 @@ c.fillRect(100,100,400,300);
 
 
 <div class="photo">
-<img src="images/redrect.png"/>
-<p><b>screenshot</b> Simple red rectangle</p>
-<p><i>This rectangle is drawn with the context.fillRect() function.</i></p>
+	<img src="images/redrect.png"/>
+	<p><b>screenshot</b> Simple red rectangle</p>
+	<p><i>This rectangle is drawn with the context.fillRect() function.</i></p>
 </div>
 
 
@@ -340,33 +334,73 @@ off the top of the screen.</p>
 	<li><a href="chapter1.html">Chapter 1 : Overview</a></li>
 	<li><a href="chapter2.html">Chapter 2 : Hands On</a></li>
 </ul>
-
+<!--
+	<nav>
+		<a href='#' id='prev' onclick='slider.prev();return false;'><em>prev</em></a>
+		<span id='position'><em class='on'>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em><em>&bull;</em></span>
+		<a href='#' id='next' onclick='slider.next();return false;'><em>next</em></a>
+	</nav>
+-->
 
 <script type="text/javascript">
 
-// slider
-var slider = new Swipe(document.getElementById('slider'), {
-      callback: function(e, pos) {
-        
-        var i = bullets.length;
-        while (i--) {
-          bullets[i].className = ' ';
-        }
-        bullets[pos].className = 'on';
+setupPhotoGallery("gallery");
 
-      }
-    }),
-    bullets = document.getElementById('position').getElementsByTagName('em'),
-// tabs
-    tabs = new Swipe(document.getElementById('tabs'), {
-      callback: function(event,index,elem) {
-        setTab(selectors[index]);
-      }
-    })
+function setupPhotoGallery(id) {
+	
+	var gal = document.getElementById(id);
+	var nav = document.createElement("nav")
+	gal.appendChild(nav);
+	
+	
+	//add previous button
+	var prev = document.createElement("a");
+	prev.innerHTML = "&lt; prev"
+	$(prev).click(function(e) { 
+		slider.prev();
+	});
+	nav.appendChild(prev);
+	
+	
+	//create span with the bullets
+	var span = document.createElement("span");
+	span.id="position";
+	var imageCount = gal.getElementsByTagName("ul")[0].getElementsByTagName("img").length;
+	span.innerHTML = "<em class='on'>&bull;</em>";
+	for(var i=1; i<imageCount; i++) {
+		span.innerHTML += "<em>&bull;</em>";
+	}
+	nav.appendChild(span);
+	
+	
+	//add next button
+	var next = document.createElement("a");
+	next.innerHTML = "next &gt;";
+	$(next).click(function(e) { 
+		slider.next();
+	});
+	
+	nav.appendChild(next);
+	
+	// slider
+    //var bullets = document.getElementById('position').getElementsByTagName('em');
+	var bullets = span.getElementsByTagName('em');
+    console.log("bullets num = " + bullets.length);
+	var slider = new Swipe(document.getElementById('slider'), {
+	      callback: function(e, pos) {
+	        
+	        var i = bullets.length;
+	        while (i--) {
+	          bullets[i].className = ' ';
+	        }
+	        bullets[pos].className = 'on';
+	
+	      }
+	    });
+}
 
-    ;
 </script>
-<script src='toc.js'></script>
+<!-- <script src='toc.js'></script> -->
 
 </body>
 </html>
