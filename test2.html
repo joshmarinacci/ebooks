@@ -3,10 +3,12 @@
 	"width = device-width, initial-scale=1, maximum-scale=1" />
 <script src="scripts/jquery.js"></script>
 <style type="text/css">
+/*
 #overlay, #photo {
     position: static;
     width: 204px;
 }
+*/
 
 #overlay {
 /*    -webkit-transition: opacity 1s ease-in-out;*/
@@ -26,6 +28,7 @@
     width: auto;
     height: auto;
     background-color: transparent;
+    border: 3px solid orange;
 }
 
 #overlay img {
@@ -33,6 +36,7 @@
 	left: 0; right: 0;
 	top: 0; bottom: 0;
 	margin: auto;
+	width: 100%;
 }
 
 #debug {
@@ -60,7 +64,6 @@
 <h3>zooming test</h3>
 <p>
 <img id="photo" src="content/barn.thumb.jpg"/>
-<div id="overlay"><img src="content/barn.thumb.jpg"/></div>
 </p>
 <h3>some text after the zooming</h3>
 <h3>zooming test</h3>
@@ -80,19 +83,31 @@
 <h3>zooming test</h3>
 <h3>zooming test</h3>
 <h3>zooming test</h3>
+<div id="overlay"><p>asdf</p><img src="content/barn.jpg"/></div>
 
 <div id="debug">debug</div>
 
 <script type="text/javascript">
-var zoomed = false;
+$("#photo").load(function(){
+	setupZoom();
+});
 
-var fullImageWidth = 500;
+function setupZoom() {
+
+var photo = $("#photo");
+var zoomed = false;
+var fullImageWidth = 1280;
 var thumbImageWidth = 204;
+
+thumbImageWidth = photo.width();
 var fract = thumbImageWidth/fullImageWidth;
+
 var thumbImageHeight = 135;
-var fullImageHeight = 333;
+var fullImageHeight = 851;
+
 var overlay = document.getElementById("overlay");
 
+console.log("scale = " + fract);
 
 function toggle() {
 	if(zoomed) {
@@ -104,47 +119,25 @@ function toggle() {
 
 
 function grow() {	
-    var scale = 0.4;
+    var scale = fract;
     var pos = $("#photo").offset();
     var scrolltop = $("body").scrollTop();
 
-	//zphoto.top = (window.height-zphoto.height)/2 * scale;
-	//h = photo.top - zphoto.top
 	var zpt = (window.innerHeight-fullImageHeight)/2*scale;
     var phototop = pos.top - scrolltop;
     var h = phototop-zpt;
-
-	//zphoto.left = (window.width - zphoto.width)/2 * scale;
 	var zpl = (window.innerWidth-fullImageWidth)/2*scale;
-	//w = photo.left - zphoto.left;
     var photoleft = pos.left;
     var w = photoleft- zpl;
 
     overlay.style.webkitTransitionDuration = "0s";
-    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale(0.4)';
-    
+    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale('+fract+')';
     overlay.style.opacity = "1";
     
-
-    //var t = pos.top - scrolltop + $("#photo").height()/2;
-    //var per = t/(window.innerHeight);
-    //overlay.style.webkitTransformOrigin = "-4% " + (per*100)+"%";
-    //overlay.style.webkitTransformOrigin = "-4% " + (per*100)+"%";
-/*    overlay.style.top = 0;
-    overlay.style.bottom = 0;
-    overlay.style.left = 0;
-    overlay.style.right = 0;*/
-    //overlay.style.visibility = "visible";
-    
-    //var sx = window.innerWidth/overlay.offsetWidth;
-    //var sy = window.innerHeight/overlay.offsetHeight;
-    //var s = Math.min(sx,sy);
-    //var s = 1;
     setTimeout(function(){
 	    overlay.style.webkitTransitionDuration = "0.3s";
 	    overlay.style.backgroundColor = "white";
 	    overlay.style.webkitTransform ='translate(0px,0px) scale(1)';
-	    //overlay.style.webkitTransform ='translateX(0px) scale(0.5)';
 	    zoomed = true;
     
     },10);
@@ -152,24 +145,19 @@ function grow() {
 };
 
 function shrink() {
-    var scale = 0.4;
+    var scale = fract;
     var pos = $("#photo").offset();
     var scrolltop = $("body").scrollTop();
 
-	//zphoto.top = (window.height-zphoto.height)/2 * scale;
-	//h = photo.top - zphoto.top
 	var zpt = (window.innerHeight-fullImageHeight)/2*scale;
     var phototop = pos.top - scrolltop;
     var h = phototop-zpt;
 
-	//zphoto.left = (window.width - zphoto.width)/2 * scale;
 	var zpl = (window.innerWidth-fullImageWidth)/2*scale;
-	//w = photo.left - zphoto.left;
     var photoleft = pos.left;
     var w = photoleft- zpl;
 
-    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale(0.4)';
-
+    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale('+fract+')';
     overlay.style.backgroundColor = "transparent";
     zoomed = false;
 }
@@ -181,11 +169,7 @@ $("#overlay").click(toggle);
 document.getElementById("overlay").addEventListener('webkitTransitionEnd',
  function( event ) {
     if(!zoomed) {
-	    //console.log("hiding");
-	    //overlay.style.display = "none";
 	    overlay.style.opacity = "0";
-	    //overlay.style.backgroundColor = "transparent";
-        //overlay.style.visibility = "hidden";
     } else {
     }
 }, false );
@@ -206,6 +190,8 @@ document.getElementById("overlay").addEventListener('gestureend',function(e){
             toggle();
         }
 });
+}
+
 
 </script>
 </body>

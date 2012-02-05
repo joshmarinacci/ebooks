@@ -13,11 +13,10 @@
 	src: url("../fonts/GoudyStM-Italic-webfont.woff");
 }
 body {
-	font-family: Georgia, "Times New Roman", Times, serif;
 	font-size: 13pt;
+    font-family: 'Crimson', Georgia, Times, serif;
 }
 p {
-/*	font-family: serif;*/
 	line-height: 140%;
 }
 h1,h2,h3 {
@@ -139,6 +138,7 @@ th {
 #chapternav {
 	border:0px solid black;
 	text-align: right;
+	font-family: Helvetica, Verdana, Arial, sans-serif;
 }
 #chapternav a {
 	padding: 0.3em;
