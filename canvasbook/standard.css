@@ -192,6 +192,37 @@ th {
 
 
 
+/* === chapter footer fontsize ====== */
+.fontsize {
+    float: right;
+    margin: 0;
+    margin-right: 3em;
+}
+.fontsize { 
+    border: 0px solid black; 
+
+}
+.fontsize a { 
+    clear: both;
+    border: 1px solid #444; 
+	border: 1px solid #f0f0f0;
+    padding: 0px; margin: 0px; 
+    color: #222;       
+    text-decoration: none;
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    vertical-align: bottom;
+}
+.fontsize a:hover {
+	border: 1px solid #606060;
+	background-color: #ddd;
+}
+#set-font-small { font-size: 10pt; line-height: 18pt;}
+#set-font-med { font-size: 14pt; line-height: 18pt;}
+#set-font-large { font-size: 18pt; line-height: 18pt;}
+
+
 
 
 
