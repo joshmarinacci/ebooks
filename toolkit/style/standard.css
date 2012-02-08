@@ -266,16 +266,17 @@ th {
 
 
 /* ======== adapt for mobile ======== */
+
+/* ipad portrait size and smaller */
 @media all and (max-width:800px) {
 	.photo img {
-/*		width: 100%;*/
 		max-width: 100%;
 	}
 
 	body {
 		margin: 1em;
 	}
-	h1 { font-size: 200%; }
+	#header h1 { font-size: 200%; }
 	h2 { font-size: 100%; }
 	h3 { font-size: 150%; }
 	pre {
@@ -286,4 +287,13 @@ th {
 		margin-left: auto; margin-right: auto;
 		max-width: 100%;
 	}
+}
+
+/* iphone landscape mode and smaller */
+@media all and (max-width: 480px) {
+	h1 { font-size: 100%; }
+	#header { background-size: 5em;	}
+	#header h1 { font-size:  200%;}
+	h2 { font-size: 100%; }
+	h3 { font-size: 150%; }
 }
