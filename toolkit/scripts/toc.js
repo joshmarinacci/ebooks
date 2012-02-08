@@ -12,16 +12,27 @@ function setupTOC(toc) {
         }
     });
     
+    $("#set-font-med").addClass('selected');
+    
     
     /* font resize commands */
     $("#set-font-small").click(function(e) {
         $("body").css('font-size','10pt');
+        $("#set-font-small").addClass('selected');
+        $("#set-font-med").removeClass('selected');
+        $("#set-font-large").removeClass('selected');
     });
     $("#set-font-med").click(function(e) {
         $("body").css('font-size','13pt');
+        $("#set-font-small").removeClass('selected');
+        $("#set-font-med").addClass('selected');
+        $("#set-font-large").removeClass('selected');
     });
     $("#set-font-large").click(function(e) {
         $("body").css('font-size','18pt');
+        $("#set-font-small").removeClass('selected');
+        $("#set-font-med").removeClass('selected');
+        $("#set-font-large").addClass('selected');
     });
 
 }
