@@ -1,0 +1,132 @@
+<html>
+<head>
+<style type="text/css">
+canvas { border: 1px solid black; }
+</style>
+
+<script src="../toolkit/scripts/amino.js"></</script>
+</head>
+<body>
+<canvas id='canvas' width="500" height="300"></canvas>
+<script type="text/javascript">
+
+    //the dragger makes all shapes draggable
+    function Dragger(runner,node) {
+        var sx = 0;
+        var sy = 0;
+        runner.listen("MOUSE_PRESS", node, function(e) {
+            sx = e.x;
+            sy = e.y;
+        });
+        runner.listen("MOUSE_DRAG", node, function(e) {
+            if(e.node) {
+                var dx = e.x-sx;
+                var dy = e.y-sy;
+                sx = e.x;
+                sy = e.y;
+                
+                var nx = e.node.getX()+dx;
+                if(nx < 65) nx = 65;
+                if(nx > 300) nx = 300;
+                e.node.setX(nx);
+                //e.node.setY(e.node.getY() + dy);
+            }
+        });
+        runner.listen("MOUSE_RELEASE", node, function(e) {
+        });
+        
+    };
+
+
+var engine = new Runner("canvas");
+engine.setCanvas(document.getElementById("canvas"));
+
+var b1 = new Rect()
+	.set(65,200,50,30)
+	.setFill("#d0d0d0")
+	.setCorner(10)
+	;
+var b2 = new Rect()
+	.set(64,199,287,32)
+	.setFill("#303030")
+	.setCorner(12)
+	;
+var t1 = new Text()
+	.setText("year")
+	.setFont("12pt Arial")
+	.setY(220)
+	.setX(0)
+	.setFill("white");
+
+var g = new Group();
+g.setY(20);
+g.setX(10);
+g.add(b2);
+g.add(b1);
+g.add(t1);
+
+
+var g2 = new Group();
+g2.add(g);
+new Dragger(engine,b1);
+
+
+//var max = 3;
+var data = [
+	{ name: "USA", color: "red"
+		, x:   [20,30,40,50,60,70,80,90,100,100]
+		, y:   [20,20,20,25,26,20,18,19, 15, 20]
+		, size:[ 1, 4, 8,16,20,23,24,25, 25, 26] 
+		},
+	{ name: "Eastern Europe", color:"blue"
+		, x:   [50,40,30,50,40,40,40,40, 50, 60]
+		, y:   [60,65,50,50,85,60,65,65, 65, 65] 
+		, size:[ 6, 6, 6, 6, 6, 6, 6, 7,  8,  9] 
+		}
+];
+
+var max = data[0].x.length-1;
+console.log("max = " + max);
+
+var tick = 0;
+var graph = new Node();
+graph.draw = function(ctx) {
+	ctx.fillStyle = "white";
+	ctx.fillRect(0,0,300,200);
+	var t = Math.floor((b1.getX()-30)/30);
+	if(t < 0) t = 0;
+	if(t > max) t = max;
+
+	t1.setText("Year: " + t);
+	for(var i=0; i<data.length; i++) {
+		var c = data[i];
+		ctx.fillStyle = c.color;
+        ctx.beginPath();
+        ctx.arc(c.x[t], c.y[t], c.size[t], 0, Math.PI*2, true); 
+        ctx.closePath();
+        ctx.fill();
+		
+		//ctx.fillRect(c.x[t],c.y[t],20,20);
+		ctx.fillStyle = "black";
+		ctx.fillText(c.name,c.x[t],c.y[t]+30);		
+	}
+	tick++;
+	this.setDirty();
+}
+
+g2.add(graph);
+
+
+
+
+
+engine.setRoot(g2);
+engine.DEBUG = false;
+
+
+//engine.setFPS(1);
+engine.start();
+</script>
+</body>
+
+</html>
