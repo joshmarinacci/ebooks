@@ -1,5 +1,6 @@
 <html>
 <head>
+<meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
 <style type="text/css">
 canvas { border: 1px solid black; }
 </style>
@@ -10,6 +11,8 @@ canvas { border: 1px solid black; }
 <body>
 <canvas id='canvas' width="500" height="300"></canvas>
 <script type="text/javascript">
+ 
+ //http://www.bennadel.com/blog/1504-Ask-Ben-Parsing-CSV-Strings-With-Javascript-Exec-Regular-Expression-Command.htm
  
 	// This will parse a delimited string into an array of
 	// arrays. The default delimiter is the comma, but this
@@ -97,15 +100,48 @@ canvas { border: 1px solid black; }
 	};
 	
 	
+var colors = ['red','green','blue','yellow','purple','orange'];
 	$.ajax({
 		url: "data.csv",
 		context: document.body,
-		success: function() {
-			console.log("got the data");
+		success: function(c) {
+			console.log("got the data ");
+			var csvdata = CSVToArray(c);
+			console.log("got to here " + csvdata[1]);
+			data = [];
+			var count = 0;
+			for(var i=1; i<csvdata.length-1; i+=2) {
+				var row = csvdata[i];
+				var export_row = csvdata[i+1];
+				var birthrates = [];
+				var exports = [];
+				var sizes = [];
+				var prev = 0;
+				for(var j=4; j<row.length-1; j++) {
+					if(row[j]) {
+						prev = row[j];
+					}
+					birthrates.push(prev);
+					var exportr = (export_row[j]/1000/1000/1000/100);
+					console.log('value = ' + exportr);
+					exports.push(exportr);
+					sizes.push(12);
+				}
+				//console.log("birthrates = " + birthrates);
+				data.push({
+					name:csvdata[i][1]
+					, color: colors[count%colors.length]
+					, x:birthrates
+					, y:exports
+					, size: sizes
+				});
+				count++;
+			}
+			max = data[0].x.length-1;
+			console.log("max = " + max);
 		}
 	});
 	
-	//var csvdata = CSVToArray(strData);
 
 
 
@@ -189,27 +225,38 @@ console.log("max = " + max);
 
 var tick = 0;
 var graph = new Node();
+
+var offx = 350;
+var scalex = -6;
+var offy = 160;
+var scaley = -1.8;
+
 graph.draw = function(ctx) {
 	ctx.fillStyle = "white";
 	ctx.fillRect(0,0,300,200);
-	var t = Math.floor((b1.getX()-30)/30);
+	var t = Math.floor((b1.getX()-60)/4);
 	if(t < 0) t = 0;
 	if(t > max) t = max;
 
+	ctx.save();
 	t1.setText("Year: " + t);
 	for(var i=0; i<data.length; i++) {
 		var c = data[i];
 		ctx.fillStyle = c.color;
+		ctx.globalAlpha = 0.5;
         ctx.beginPath();
-        ctx.arc(c.x[t], c.y[t], c.size[t], 0, Math.PI*2, true); 
+        var x = (c.x[t]*1.0*scalex) + offx;
+        var y = (c.y[t]*1.0*scaley) + offy;
+        ctx.arc(x, y, c.size[t], 0, Math.PI*2, true); 
         ctx.closePath();
         ctx.fill();
 		
 		//ctx.fillRect(c.x[t],c.y[t],20,20);
 		ctx.fillStyle = "black";
-		ctx.fillText(c.name,c.x[t],c.y[t]+30);		
+		ctx.fillText(c.name,x-10,y+20);		
 	}
 	tick++;
+	ctx.restore();
 	this.setDirty();
 }
 
