@@ -60,6 +60,17 @@ h2 {
 	margin-top: 4em;
 }
 
+
+#header {
+	border: 1px solid red;
+	padding: 1em;
+	margin: -1em;
+	background-color: red;
+}
+#header h1 { color: white;  font-size:  400%;}
+#header h2 { color: black; margin: 0;}
+
+
 #footer {
 	font-family: Helvetica, Verdana, Arial, sans-serif;
 	color: #555555;
@@ -221,6 +232,25 @@ th {
 #set-font-small { font-size: 10pt; line-height: 18pt;}
 #set-font-med { font-size: 14pt; line-height: 18pt;}
 #set-font-large { font-size: 18pt; line-height: 18pt;}
+
+
+
+/* === glossary notes ==== */
+
+
+.glossary {
+	padding-right: 0.4em;
+	padding-left: 0.4em;
+	border-color: #c2c2c2;
+	border-style: none;
+	border-width: 1px;
+	background-color: #ededed;
+	color: #3d393b;
+	border-radius: 1em;
+}
+.glossary:hover {
+
+}
 
 
 

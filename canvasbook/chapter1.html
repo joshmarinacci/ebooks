@@ -1,22 +1,5 @@
 <html>
 <head>
-<style type="text/css">
-
-.glossary {
-	padding-right: 0.4em;
-	padding-left: 0.4em;
-	border-color: #c2c2c2;
-	border-style: none;
-	border-width: 1px;
-	background-color: #ededed;
-	color: #3d393b;
-	border-radius: 1em;
-}
-.glossary:hover {
-
-}
-
-</style>
 <meta name="viewport" content = "width=device-width; initial-scale=1; maximum-scale=1; user-scalable=no;" />
 <title>Chapter 1: Overview</title>
 <script src="../toolkit/scripts/jquery.js"></script>
@@ -31,14 +14,38 @@
 
 <title>Chapter 1: Overview</title>
 
+<style type="text/css">
+#header {
+	border-width: 0px;
+	background-position: 80% 100%;
+	background-repeat: no-repeat;
+	background-image: url(ch1.png);
+}
+</style>
 </head>
 <body>
 
+<div id="header">
 <h2>Chapter 1</h2>
 
 <h1>Introduction to Canvas</h1>
+</div>
 
 <h3><a id="overview">Overview</a></h3>
+
+
+<p>Canvas is a 2D drawing API recently added to HTML 
+and supported by most browsers (even Internet Explorer 
+9 beta). Canvas allows you to draw anything you want 
+directly in the web browser without the use of plugins 
+like Flash or Java. With its deceptively simple API, Canvas 
+has the ability to revolutionize how we build web applications 
+for all devices, not just desktops. This session is a 
+three hour workshop that will deep dive into <span class='glossary' title="Canvas is an HTML element which allows 2D drawing of shapes, images, and pixels.">Canvas</span>, 
+starting with the basics and progressing into real world 
+applications. Finally we will take a look at some 
+experimental edges of Canvas, such as webcam and audio 
+visualization.</p>
 
 <div id='gallery' class='gallery float-left' style="width:480px;">
 	<h5>Games made with HTML Canvas</h5>
@@ -55,20 +62,6 @@
 	</div>
 	
 </div>
-
-
-<p>Canvas is a 2D drawing API recently added to HTML 
-and supported by most browsers (even Internet Explorer 
-9 beta). Canvas allows you to draw anything you want 
-directly in the web browser without the use of plugins 
-like Flash or Java. With its deceptively simple API, Canvas 
-has the ability to revolutionize how we build web applications 
-for all devices, not just desktops. This session is a 
-three hour workshop that will deep dive into <span class='glossary' title="Canvas is an HTML element which allows 2D drawing of shapes, images, and pixels.">Canvas</span>, 
-starting with the basics and progressing into real world 
-applications. Finally we will take a look at some 
-experimental edges of Canvas, such as webcam and audio 
-visualization.</p>
 
 
 <p>Today we will dive very deep into the Canvas API and learn how to make both useful and graphically intense effects using pure web technology, no plugins required. I'm from the webOS evangelism team at HP. I am teaching this class on HTML 5 Canvas because we built webOS on web standards and really feel that it's the way most apps will be built in the future. I'm also happy to say that our recently released HP TouchPad (hold it up) was reviewed by the Sencha team and they said it has the fastest mobile Canvas implementation they have seen, hands down. So we really do practice what we preach.</p>
