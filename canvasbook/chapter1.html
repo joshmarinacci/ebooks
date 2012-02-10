@@ -2,31 +2,23 @@
 <head>
 <meta name="viewport" content = "width=device-width; initial-scale=1; maximum-scale=1; user-scalable=no;" />
 <title>Chapter 1: Overview</title>
+
 <script src="../toolkit/scripts/jquery.js"></script>
 <script src='../toolkit/scripts/swipe.js'></script>
 <script src='../toolkit/scripts/toc.js'></script>
 <script src='setup.js'></script>
 
-<link rel="stylesheet" href="../toolkit/fonts/crimson/stylesheet.css" type="text/css" charset="utf-8">
-<link rel="stylesheet" href="../toolkit/style/standard.css"/>
-<link rel="stylesheet" href="../toolkit/style/gallery.css"/>
-<link rel="stylesheet" href="../toolkit/style/photos.css"/>
-
-
+<link rel="stylesheet" href="master.css"/>
 <style type="text/css">
-#header {
-	border-width: 0px;
-	background-position: 100% 100%;
-	background-repeat: no-repeat;
-	background-image: url(ch1.png);
-}
+#header { background-image: url(ch1.png); }
 </style>
+
+
 </head>
 <body>
 
 <div id="header">
 <h2>Chapter 1</h2>
-
 <h1>Introduction to Canvas</h1>
 </div>
 
@@ -343,65 +335,11 @@ off the top of the screen.</p>
 
 </div>
 
-<style type="text/css">
-#glossary_popup {
-	position: fixed;
-	top: 0;
-	left: 0;
-	border: 2px solid #000000;
-	border-radius: 0.5em;
-	background-color: #fefffe;
-	width: 15em;
-	padding: 0.5em;
-	margin: 0;
-	background-color: rgba(255,255,255,0.95);
-}
-#glossary_popup h4 {
-	padding: 0; margin: 0;
-	font-family: Helvetica;
-	text-align: center;
-}
-#glossary_popup p {
-	padding: 0; margin: 0;
-}
-</style>
 
 <script type="text/javascript">
-
 setupPhotoGallery("gallery");
 
-
-$(document).ready(function () {
-	$(document).click(function() {
-		var pop = $("#glossary_popup");
-		pop.hide();
-	});
-	$("#glossary_popup").hide();
-	$(".glossary").click(function(e) {
-		//e.preventDefault();
-		e.stopPropagation();
-		var th = $(this);
-		var pop = $("#glossary_popup");
-		$("#glossary_popup h4").text(th.text());
-		$("#glossary_popup p").text(th.attr("title"));
-	    var scrolltop = $("body").scrollTop();
-	    
-	    var yoff = th.offset().top-scrolltop;
-		yoff += th.height();
-		yoff += 20;
-
-	    var xoff = th.offset().left;
-	    xoff += th.width()/2;
-		xoff = xoff - pop.width()/2;
-		
-		pop.toggle();
-		pop.css("top",yoff+"px");
-		pop.css("left",xoff+"px");
-	});
-});
-
 function setupPhotoGallery(id) {
-	
 	var gal = document.getElementById(id);
 	var nav = document.createElement("nav")
 	gal.appendChild(nav);
@@ -437,9 +375,7 @@ function setupPhotoGallery(id) {
 	nav.appendChild(next);
 	
 	// slider
-    //var bullets = document.getElementById('position').getElementsByTagName('em');
 	var bullets = span.getElementsByTagName('em');
-    console.log("bullets num = " + bullets.length);
 	var slider = new Swipe(document.getElementById('slider'), {
 	      callback: function(e, pos) {
 	        

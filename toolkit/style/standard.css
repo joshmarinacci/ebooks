@@ -66,6 +66,9 @@ h2 {
 	padding: 1em;
 	margin: -1em;
 	background-color: red;
+	border-width: 0px;
+	background-position: 100% 100%;
+	background-repeat: no-repeat;	
 }
 #header h1 { color: white;  font-size:  400%;}
 #header h2 { color: black; margin: 0;}
@@ -254,6 +257,28 @@ th {
 .glossary:hover {
 
 }
+
+#glossary_popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	border: 2px solid #000000;
+	border-radius: 0.5em;
+	background-color: #fefffe;
+	width: 15em;
+	padding: 0.5em;
+	margin: 0;
+	background-color: rgba(255,255,255,0.95);
+}
+#glossary_popup h4 {
+	padding: 0; margin: 0;
+	font-family: Helvetica;
+	text-align: center;
+}
+#glossary_popup p {
+	padding: 0; margin: 0;
+}
+
 
 
 
