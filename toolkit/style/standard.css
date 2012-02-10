@@ -122,6 +122,7 @@ pre {
 	border-color: #e1dedb;
 	border-style: solid;
 	border-width: 1px;
+	overflow: auto;
 }
 
 /* ========== tables =========== */
@@ -294,14 +295,11 @@ th {
 
 /* ipad portrait size and smaller */
 @media all and (max-width:800px) {
-	.photo img {
-		max-width: 100%;
-	}
+	.photo img { max-width: 100%; }
 
-	body {
-		margin: 1em;
-	}
-	#header h1 { font-size: 200%; }
+	body { margin: 1em; }
+	#header h1 { font-size: 250%; }
+	#header { background-size: 8em; }
 	h2 { font-size: 100%; }
 	h3 { font-size: 150%; }
 	pre {
@@ -316,9 +314,21 @@ th {
 
 /* iphone landscape mode and smaller */
 @media all and (max-width: 480px) {
+	body { font-size: 10pt; }
 	h1 { font-size: 100%; }
-	#header { background-size: 5em;	}
-	#header h1 { font-size:  200%;}
+	#header { background-size: 4em;	}
+	#header h1 { font-size:  120%;}
 	h2 { font-size: 100%; }
 	h3 { font-size: 150%; }
+
+	#chapternav {
+		font-size: 80%;
+		padding: 0; margin: 0;
+		white-space: nowrap;
+	}
+	#chapternav a {
+		padding: 0.4em;
+		margin: 0;
+	}
+
 }
