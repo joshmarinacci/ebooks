@@ -12,8 +12,8 @@
 
 #overlay {
 /*    -webkit-transition: opacity 1s ease-in-out;*/
-    -webkit-transition: background-color 1s ease-in-out;
-    -webkit-transition: all 1s ease-in-out; 
+    -webkit-transition: background-color 3s ease-in-out;
+    -webkit-transition: all 3s ease-in-out; 
 /*    -webkit-transition: -webkit-transform 1s ease-in-out; */
     -webkit-transform-origin: -0% 0%;
     -webkit-transform: translate(0px, 0px) scale(0.4);
@@ -28,15 +28,30 @@
     width: auto;
     height: auto;
     background-color: transparent;
-    border: 3px solid orange;
+    border: 1px solid orange;
 }
+
+
 
 #overlay img {
 	position: absolute;
-	left: 0; right: 0;
-	top: 0; bottom: 0;
 	margin: auto;
+	top: 0;
+	bottom: 0;
 	width: 100%;
+}
+#overlay .above, #overlay .below {
+	position: absolute;
+	width: 100%;
+}
+#overlay .below {
+	bottom: 0;
+}
+
+/* debugging */
+
+#overlay, #overlay .above, #overlay .below, #overlay #overlayphoto {
+	border: 0px solid red;
 }
 
 #debug {
@@ -83,7 +98,16 @@
 <h3>zooming test</h3>
 <h3>zooming test</h3>
 <h3>zooming test</h3>
-<div id="overlay"><p>asdf</p><img src="content/barn.jpg"/></div>
+
+
+<div id="overlay">
+<div class='above'>
+<h3>This is a barn.</h3>
+<p>It has been in continuous use since the great editor wars of 1920.</p>
+</div>
+<p><img id="overlayphoto" src="content/barn.jpg"/></p>
+<div class='below'>Copyright Ben Franklin, 2020</div>
+</div>
 
 <div id="debug">debug</div>
 
@@ -97,13 +121,14 @@ function setupZoom() {
 var photo = $("#photo");
 var zoomed = false;
 var fullImageWidth = 1280;
-var thumbImageWidth = 204;
+var fullImageHeight = 851;
 
-thumbImageWidth = photo.width();
+var thumbImageWidth = 500;
+var thumbImageHeight = 332;
+
+//thumbImageWidth = photo.width();
 var fract = thumbImageWidth/fullImageWidth;
 
-var thumbImageHeight = 135;
-var fullImageHeight = 851;
 
 var overlay = document.getElementById("overlay");
 
@@ -119,19 +144,21 @@ function toggle() {
 
 
 function grow() {	
-    var scale = fract;
+	var scale = thumbImageWidth/window.innerWidth;
+	var ophoto = $("#overlayphoto");
     var pos = $("#photo").offset();
     var scrolltop = $("body").scrollTop();
 
-	var zpt = (window.innerHeight-fullImageHeight)/2*scale;
+	var zpt = (window.innerHeight-ophoto.height())/2*scale;
     var phototop = pos.top - scrolltop;
     var h = phototop-zpt;
-	var zpl = (window.innerWidth-fullImageWidth)/2*scale;
+	var zpl = (window.innerWidth-ophoto.width())/2*scale;
     var photoleft = pos.left;
-    var w = photoleft- zpl;
+    var w = -photoleft+ zpl;
+    w = photoleft;
 
     overlay.style.webkitTransitionDuration = "0s";
-    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale('+fract+')';
+    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale('+scale+')';
     overlay.style.opacity = "1";
     
     setTimeout(function(){
@@ -145,21 +172,26 @@ function grow() {
 };
 
 function shrink() {
-    var scale = fract;
+	var scale = thumbImageWidth/window.innerWidth;
+	var ophoto = $("#overlayphoto");
     var pos = $("#photo").offset();
     var scrolltop = $("body").scrollTop();
 
-	var zpt = (window.innerHeight-fullImageHeight)/2*scale;
+	var zpt = (window.innerHeight-ophoto.height())/2*scale;
     var phototop = pos.top - scrolltop;
     var h = phototop-zpt;
-
-	var zpl = (window.innerWidth-fullImageWidth)/2*scale;
+	var zpl = (window.innerWidth-ophoto.width())/2*scale;
     var photoleft = pos.left;
-    var w = photoleft- zpl;
-
-    overlay.style.webkitTransform =  'translate('+w+'px, '+h+'px) scale('+fract+')';
+    var w = -(photoleft+ zpl);
+    w = photoleft;
+    
+    overlay.style.webkitTransform =
+      'translate('+w+'px, '+h+'px) scale('+scale+')';
     overlay.style.backgroundColor = "transparent";
     zoomed = false;
+    
+    
+    
 }
 
 $("#photo").click(toggle);
