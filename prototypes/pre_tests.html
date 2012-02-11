@@ -1,0 +1,86 @@
+<html>
+<head>
+<script src="../toolkit/scripts/jquery.js"></script>
+<style type='text/css'>
+pre {
+    border: 1px solid brown;
+    background-color: lightgray;
+	width: 500px;                          /* specify width  */
+	/*
+	font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+	*/
+	}
+	
+	#pre1 {
+	white-space: pre-wrap;                 /* CSS3 browsers  */
+	white-space: -moz-pre-wrap !important; /* 1999+ Mozilla  */
+	white-space: -pre-wrap;                /* Opera 4 thru 6 */
+	white-space: -o-pre-wrap;              /* Opera 7 and up */
+	word-wrap: break-word;                 /* IE 5.5+ and up */
+	/* overflow-x: auto; */                /* Firefox 2 only */
+	/* width: 99%; */		       /* only if needed */
+	    
+	}
+	
+	#pre2 {
+        -webkit-hyphens: auto;
+	}
+	
+	
+	
+	
+	#pre3 {
+		background-color: #ccc;
+		padding: 1em;
+	}
+	#pre3 span {
+		display:block;
+		white-space: pre-wrap;
+	}
+	#pre3 span {
+		padding-left: 2em;
+		text-indent: -2em;
+		background-image: url(code_wrap.png);
+		background-repeat: no-repeat;
+		background-position: left top;
+		line-height: 16px;
+	}
+</style>
+</head>
+
+<body>
+
+<pre id="pre1">This is some pre text.
+Another line
+this is a really super long crazy razy brazy long line that will not fit into the pre block so we hope it gets fixed somehow.
+</pre>
+
+<pre id="pre2">This is some pre text.
+Another line
+this is a really super longcrazyrazybrazylonglinethatwillnotfitintothepreblocksowehopeit gets fixed somehow.
+</pre>
+
+<p>This is a paragraph of text with a quote: <q>Hey! I'm a quote!</q> What a bastard he was.</p>
+
+
+<pre id="pre3">This is some pre text. 
+Another line
+this is a really super long crazy razy brazy long line that will not fit into the pre block so we hope it gets fixed somehow.
+</pre>
+
+<script  type="text/javascript">
+$(document).ready(function(){
+	var text = $("#pre3").text();
+	var lines = text.split("\n"); 
+	console.log("text = " + text.length + " lines = " + lines[3]);
+	var newText = "";
+	for(var i=0; i<lines.length; i++) {
+		newText += "<span>"+lines[i]+"</span>";
+	}
+	
+	$("#pre3").html(newText);
+});
+</script>
+
+</body>
+</html>
