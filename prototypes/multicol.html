@@ -1,0 +1,78 @@
+<html>
+<head>
+<script src="../toolkit/scripts/jquery.js"></script>
+<style type="text/css">
+
+#wrapper {
+	border: 1px solid red;
+	width: 400px;
+	overflow: hidden;
+}
+#content {
+	-webkit-column-count: 2;
+	-webkit-column-gap: 1em;
+	height: 300px;
+	width: 400px;
+/*	-webkit-transform: translate(-50px,0);*/
+}
+
+p {
+	padding: 0.5em;
+}
+
+</style>
+
+<script type="text/javascript">
+var x = 0;
+$(document).ready(function() {
+	var content = $("#content");
+	var wrapper = $("#wrapper");
+	var sx = 0;
+	var dx = 0;
+	var soff = 0;
+	var down = false;
+	wrapper.mousedown(function(e){
+		down = true;
+		sx = e.clientX;
+	});
+	wrapper.mouseup(function(e){
+		down = false;
+		soff = dx;
+	});
+	wrapper.mousemove(function(e){
+		if(down & !(e.which==0) ) {
+			dx =  e.clientX-sx + soff;
+			if(dx > 0) return;
+			if(dx < -content.width()) return;
+			content.css("-webkit-transform",
+			'translate('+dx+'px,0)');
+			e.stopPropagation();
+		}
+	});
+});
+</script>
+
+</head>
+<body>
+
+<div id="wrapper">
+<div id="content">
+<p>"I saw him almost that same instant, sir, that Captain Ahab did, and I cried out," said Tashtego.</p>
+
+<p>"Not the same instant; not the same&mdash;no, the doubloon is mine, Fate reserved the doubloon for me. I only; none of ye could have raised the White Whale first. There she blows!&mdash;there she blows!&mdash;there she blows! There again!&mdash;there again!" he cried, in long-drawn, lingering, methodic tones, attuned to the gradual prolongings of the whale's visible jets. "He's going to sound! In stunsails! Down top-gallant-sails! Stand by three boats. Mr. Starbuck, remember, stay on board, and keep the ship. Helm there! Luff, luff a point! So; steady, man, steady! There go flukes! No, no; only black water! All ready the boats there? Stand by, stand by! Lower me, Mr. Starbuck; lower, lower,&mdash;quick, quicker!" and he slid through the air to the deck.</p>
+
+<p>"He is heading straight to leeward, sir," cried Stubb, "right away from us; cannot have seen the ship yet."</p>
+
+<p>"Be dumb, man! Stand by the braces! Hard down the helm!&mdash;brace up! Shiver her!&mdash;shiver her!&mdash;So; well that! Boats, boats!"</p>
+
+<p>Soon all the boats but Starbuck's were dropped; all the boat-sails set&mdash;all the paddles plying; with rippling swiftness, shooting to leeward; and Ahab heading the onset. A pale, death-glimmer lit up Fedallah's sunken eyes; a hideous motion gnawed his mouth.</p>
+
+<p>Like noiseless nautilus shells, their light prows sped through the sea; but only slowly they neared the foe. As they neared him, the ocean grew still more smooth; seemed drawing a carpet over its waves; seemed a noon-meadow, so serenely it spread. At length the breathless hunter came so nigh his seemingly unsuspecting prey, that his entire dazzling hump was distinctly visible, sliding along the sea as if an isolated thing, and continually set in a revolving ring of finest, fleecy, greenish foam. He saw the vast, involved wrinkles of the slightly projecting head beyond. Before it, far out on the soft Turkish-rugged waters, went the glistening white shadow from his broad, milky forehead, a musical rippling playfully accompanying the shade; and behind, the blue waters interchangeably flowed over into the moving valley of his steady wake; and on either hand bright bubbles arose and danced by his side. But these were broken again by the light toes of hundreds of gay fowl softly feathering the sea, alternate with their fitful flight; and like to some flag-staff rising from the painted hull of an argosy, the tall but shattered pole of a recent lance projected from the white whale's back; and at intervals one of the cloud of soft-toed fowls hovering, and to and fro skimming like a canopy over the fish, silently perched and rocked on this pole, the long tail feathers streaming like pennons.</p>
+
+<p>A gentle joyousness&mdash;a mighty mildness of repose in swiftness, invested the gliding whale. Not the white bull Jupiter swimming away with ravished Europa clinging to his graceful horns; his lovely, leering eyes sideways intent upon the maid; with smooth bewitching fleetness, rippling straight for the nuptial bower in Crete; not Jove, not that great majesty Supreme! did surpass the glorified White Whale as he so divinely swam.</p>
+</div>
+</div>
+
+
+</body>
+</html>
