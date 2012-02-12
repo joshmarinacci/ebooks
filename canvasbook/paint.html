@@ -57,7 +57,7 @@ body {
 }
 
 canvas { 
-	border: 0px solid black; position: absolute; right: 0; top: 0;
+	border: 0px solid black; position: absolute; right: auto; top: 0; left: auto;
 }
 
 </style>
@@ -89,14 +89,14 @@ apps with it.</p>
 
 <p><i>HTML Canvas Deep Dive</i> is a hands on introduction to Canvas. Code 
 along with the book and play with interactive examples. When you finish
-reading this short tome you will have the skills to make charts, 
+readying this short tome you will have the skills to make charts, 
 effects, diagrams, and games that integrate into your existing web content.
 </p>
 
 
 </div>
 
-<canvas id="sim" width="250" height="370"></canvas>
+<canvas id="sim" width="800" height="800"></canvas>
 
 
 <script type="text/javascript">
@@ -106,37 +106,31 @@ engine.setCanvas(canvas);
 
 
 var sim = new ParticleSimulator();
-sim.max = 10;
-var rate = 10;
+sim.max = 20;
 sim.create = function() {
-	if(this.tick % (60*4) != 0) return null;
 	return { 
-		  x:30+Math.random()*190,
-		  y:400,
-		  v: 2+Math.random()*2 
+		  x:Math.random()*800,
+		  y:-30,
+		  v: 1+Math.random()*2 
 		}
 };
 sim.update = function(p) {
-	p.y -= p.v/8.6;
+	p.y+=p.v;
 };
 sim.render = function(ctx,p) {
-	ctx.fillStyle = "white";
-	ctx.globalAlpha = 0.9;
+	ctx.fillStyle = "blue";
+	ctx.globalAlpha = 0.5;
 	ctx.beginPath();
-	ctx.arc(p.x,p.y,p.v*7,0,360);
+	ctx.arc(p.x,p.y,20,0,360);
 	ctx.closePath();
 	ctx.fill();
-	ctx.globalAlpha = 1.0;
-	ctx.lineWidth = 3;
-	ctx.strokeStyle = "white";
-	ctx.stroke();
 } 
 sim.recycle = function(p) {
-	if(p.y < -30) p.y = 400;
+	if(p.y > 800) p.y = -30;
 } 
-engine.transparentBackground = true;
+engine.setBackground("transparent");
 engine.setRoot(sim);
-engine.DEBUG = false;
+
 engine.start();
 </script>
 

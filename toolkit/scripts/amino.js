@@ -2923,5 +2923,39 @@ PathNode.extend(Shape);
 
 
 
+function ParticleSimulator() {
+	Node.call(this);
+	this.parts = [];
+	this.max = 50;
+	this.tick = 0;
+	this.draw = function(ctx) {
+		//create
+		if(this.parts.length < this.max) {
+			var p = this.create();
+			if(p != null) {
+				this.parts.push(p);
+			}
+		}
+		
+		//update
+		for(var i=0; i<this.parts.length; i++) {
+			this.update(this.parts[i]);
+		}
+		
+		//draw
+		ctx.save();
+		for(var i=0; i<this.parts.length; i++) {
+			this.render(ctx,this.parts[i]);
+		}
+		ctx.restore();
+		
+		//destroy / recycle
+		for(var i=0; i<this.parts.length; i++) {
+			this.recycle(this.parts[i]);
+		}
+		this.tick++;
+	};
+}
+ParticleSimulator.extend(Node);
 
 

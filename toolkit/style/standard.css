@@ -46,11 +46,23 @@ body {
 
 /*  ==========  basic structure  =========  */
 body {
-	margin-left: 6em;
-	margin-bottom: 5em;
-	margin-right: 6em;
+
+	margin-left: 1em;
+
+	margin-right: 1em;
+
+
+
 	margin-top: 1em;
+	margin-bottom: 5em;
 }
+
+#content {
+	margin-left: auto;
+	margin-right: auto;
+	width: 40em;
+}
+#content {max-width: 100%;}
 h1 {
 	margin-top: 0.3em;
 }
@@ -89,14 +101,26 @@ h2 {
 	bottom: 0;
 	display: block;
 	background-color: #f0f0f0;
-	padding: 1em;
+	padding: 0.2em;
 	margin: 0em;
 	background-image: url(../images/graytexture.png);
 
 }
 #footer li {
-	display: inline;
+	display: block;
+	float: right;
+	padding: 1em;
+	border: 0px solid black;
+	vertical-align: top;
+	margin: 0;
 }
+#footer li:last-child {
+	float: none;
+}
+#footer li a {
+	text-decoration: none;
+}
+
 #footer b {
 	font-style: normal;
 	font-weight: normal;
@@ -207,16 +231,18 @@ th {
 
 
 
+
+
 /* === chapter footer fontsize ====== */
 .fontsize {
-    float: right;
+/*    float: right;
     margin: 0;
-    margin-right: 3em;
+    margin-right: 3em;*/
 }
 .fontsize { 
     border: 0px solid black; 
-
 }
+
 .fontsize a { 
     clear: both;
     border: 1px solid #444; 
@@ -332,3 +358,4 @@ th {
 	}
 
 }
+
