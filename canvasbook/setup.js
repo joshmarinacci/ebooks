@@ -2,13 +2,15 @@ $(document).ready(function() {
     
 /* ==== add the footer ==== */
 $("body").append("<ul id='footer'>"
-    +"<li><b id='fchapter'>Chapter N</b></li>"
     //+"<li><b>HTML Canvas Deep Dive</b></li>"
+    +"<li><a href='#' id='nextchapter'>next &gt;</a></li>"
+    +"<li><a href='#' id='prevchapter'>&lt; prev</a></li>"
     +"<li class='fontsize'>"
         +"<a id='set-font-small'>A</a> "
         +"<a id='set-font-med'>A</a> "
         +"<a id='set-font-large'>A</a>"
     +"</li>"
+    +"<li><b id='fchapter'>Chapter N</b></li>"
     +"</ul>"
     );
     
@@ -31,7 +33,25 @@ var toc = [
     { src:"end.html", name: "Appendix and Back Matter"},
 ];
 
+console.log("url = " + document.location);
 setupTOC(toc);
+
+for(var i=0; i<toc.length; i++) {
+	var loc = ""+document.location;
+	if(loc.indexOf(toc[i].src) >= 0) {
+		console.log("found it");
+		if(i > 0) {
+			$("#prevchapter").attr("href",toc[i-1].src);
+		}
+		if(i < toc.length-1) {
+			$("#nextchapter").attr("href",toc[i+1].src);
+		}
+	}
+	console.log("sub = " + (""+document.location).indexOf(toc[i].src));
+	if((""+document.location).indexOf("foo.html") > 0) {
+		console.log("on foo");
+	}
+}
 
 $("#fchapter").text($("h1").text());
 console.log("h1 = " + $("h1").text());

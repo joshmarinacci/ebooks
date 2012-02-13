@@ -1,0 +1,46 @@
+<html>
+<head>
+<script src="../toolkit/scripts/amino.js"></script>
+</head>
+
+<body>
+<h1>this is a test of particles on canvas</h1>
+
+<canvas id="canvas" width="500" height="400"></canvas>
+<script type="text/javascript">
+var canvas = document.getElementById("canvas");
+var engine = new Runner();
+engine.setCanvas(canvas);
+
+
+var sim = new ParticleSimulator();
+sim.max = 500;
+sim.create = function() {
+	return { 
+		  x:Math.random()*500,
+		  y:-30,
+		  v: 1+Math.random()*2 
+		}
+};
+sim.update = function(p) {
+	p.y+=p.v;
+};
+sim.render = function(ctx,p) {
+	ctx.fillStyle = "blue";
+	ctx.globalAlpha = 0.5;
+	ctx.beginPath();
+	ctx.arc(p.x,p.y,20,0,360);
+	ctx.closePath();
+	ctx.fill();
+} 
+sim.recycle = function(p) {
+	if(p.y > 430) p.y = -30;
+} 
+engine.setBackground("black");
+engine.setRoot(sim);
+
+engine.start();
+</script>
+</body>
+
+</html>
