@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>Tangle Test</title>
+
+<script src="Tangle-0.1.0/Tangle.js"></script>
+    <link rel="stylesheet" href="Tangle-0.1.0/TangleKit/TangleKit.css" type="text/css">
+    <script type="text/javascript" src="Tangle-0.1.0/TangleKit/mootools.js"></script>
+    <script type="text/javascript" src="Tangle-0.1.0/TangleKit/sprintf.js"></script>
+    <script type="text/javascript" src="Tangle-0.1.0/TangleKit/BVTouchable.js"></script>
+    <script type="text/javascript" src="Tangle-0.1.0/TangleKit/TangleKit.js"></script>
+
+<style type="text/css">
+canvas {
+    border: 1px solid black;
+}
+</style>
+</head>
+
+<body onload='setup();'>
+
+<h1>This is a test of the <a href="http://worrydream.com/Tangle/">Tangle</a> framework</h1>
+
+
+<h3>Test 1</h3>
+<p id="test1">If you have <b data-var='cookies' class="TKAdjustableNumber" data-min='0' data-max='100'> cookies</b> and eat half of them you are left with <b data-var='remaining'> cookies</b></p>
+
+
+<h3>Test 2</h3>
+<p>Drag <code>x</code> to update the drawing</p>
+<pre id="test2"><code>
+ctx.drawRect(<b data-var='x' class='TKAdjustableNumber' data-min='-100' data-max='100'></b>,<b data-var='y' class='TKAdjustableNumber' data-min='-100' data-max='100'></b>,<b data-var='w' class='TKAdjustableNumber' data-min='-100' data-max='100'></b>,<b data-var='h' class='TKAdjustableNumber' data-min='-100' data-max='100'></b>);
+</code></pre>
+<canvas id="canvas" width="300" height="200"></canvas>
+
+<script type="text/javascript">
+
+function setup() {
+
+var test1 = document.getElementById("test1");
+var tangle1 = new Tangle(test1, {
+        initialize: function() {
+            this.cookies = 4;
+            this.half = 0.5;
+        },
+        update: function() {
+            this.remaining = this.cookies * this.half;
+        },
+});
+
+var test2 = document.getElementById("test2");
+var tangle2 = new Tangle(test2, {
+        initialize: function() {
+            this.x = 50;
+            this.y = 20;
+            this.w = 40;
+            this.h = 60;
+        },
+        update: function() {
+            var ctx = document.getElementById("canvas").getContext('2d');
+            ctx.fillStyle = "white"; ctx.fillRect(0,0,200,200);
+            ctx.fillStyle = "red";
+            ctx.fillRect(this.x,this.y,this.w,this.h);
+        },
+});
+
+}
+</script>
+
+</body>
+</html>
