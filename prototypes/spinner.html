@@ -1,6 +1,8 @@
 <html>
 <head>
 
+<meta name="viewport" content = 
+	"width = device-width, initial-scale=1, maximum-scale=1" />
 <style type="text/css">
 #container {
     border: 1px solid black;
@@ -11,6 +13,9 @@
 
 </head>
 <body>
+<h2><a href="https://github.com/mrdoob/three.js/">Three.js Demo</a></h2>
+<h3>Drag left and right with mouse or finger.</h3>
+
 <div id="container"></div>
 <script src="../toolkit/scripts/Three.js"></script>
 <script src="../toolkit/scripts/Stats.js"></script>
@@ -39,18 +44,8 @@ var parent;
 
 function init() {
 
-
-
 container = document.createElement( 'div' );
 document.getElementById("container").appendChild( container );
-
-var info = document.createElement( 'div' );
-info.style.position = 'absolute';
-info.style.top = '10px';
-info.style.width = '100%';
-info.style.textAlign = 'center';
-info.innerHTML = 'Drag to spin the cube';
-container.appendChild( info );
 
 scene = new THREE.Scene();
 
@@ -62,44 +57,32 @@ scene.add( camera );
 
 
 parent = new THREE.Object3D();
-parent.position.y = 50;
+parent.position.y = 150;
 scene.add( parent );
 
+var extrudeSettings = {	amount: 20,  bevelEnabled: true, bevelSegments: 2, steps: 2 };
 
-
-var extrudeSettings = {	amount: 20,  bevelEnabled: true, bevelSegments: 2, steps: 2 }; // bevelSegments: 2, steps: 2 , bevelSegments: 5, bevelSize: 8, bevelThickness:5,
-
-var sqLength = 80;
+var sqLength = 200;
 var squareShape = new THREE.Shape();
-squareShape.moveTo( 0,0 );
-squareShape.lineTo( 0, sqLength );
-squareShape.lineTo( sqLength+20, sqLength );
-squareShape.lineTo( sqLength, 0 );
-squareShape.lineTo( 0, 0 );
+squareShape.moveTo( -sqLength,-sqLength );
+squareShape.lineTo( -sqLength, sqLength );
+squareShape.lineTo( sqLength, sqLength );
+squareShape.lineTo( sqLength, -sqLength );
+squareShape.lineTo( -sqLength, -sqLength );
 var squarePoints = squareShape.createPointsGeometry();
 var squareSpacedPoints = squareShape.createSpacedPointsGeometry();
 var square3d = squareShape.extrude( extrudeSettings );
-//addGeometry( square3d, squarePoints, squareSpacedPoints,				0x0055ff,  150,  100, 0,     0, 0, 0, 1 );
-//				function addGeometry( geometry, points, spacedPoints, color, x, y, z, rx, ry, rz, s ) {
 var geometry = square3d;
 var points = squarePoints;
 var spacedPoints = squareSpacedPoints;
 var color = 0x0055ff;
 var x = 0; var y = 0; var z = 0; var rx = 0; var ry = 0; var rz = 0; var s = 1;
 
-//var mesh = THREE.SceneUtils.createMultiMaterialObject( geometry, [ new THREE.MeshLambertMaterial( { color: 0xff0000,
-//	      shading: THREE.SmoothShading,
-// } )
-//, new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } )
-// ] );
-
-//var material = new THREE.MeshBasicMaterial( { color: 0x00ff00, shading: THREE.SmoothShading } );
 var material = new THREE.MeshLambertMaterial( { color: 0xff0000, shading: THREE.FlatShading, overdraw: true });
-//var material = new THREE.MeshLambertMaterial( { color: 0xff0000, shading: THREE.FlatShading, overdraw: true } );
 
 var mesh = new THREE.Mesh(geometry, material);
 
-mesh.position.set( x, y, z - 75 );
+mesh.position.set( x, y, z );
 mesh.rotation.set( rx, ry, rz );
 mesh.scale.set( s, s, s );
 parent.add( mesh );
@@ -149,48 +132,15 @@ parent.add( particles2 );
 */
 
 
-/*
-// create a point light
-var pointLight =
-  new THREE.PointLight(0xFFFFFF);
-
-// set its position
-pointLight.position.x = 100;
-pointLight.position.y = 200;
-pointLight.position.z = 100;
-
-// add to the scene
-scene.add(pointLight);
-*/
-
-
 var light = new THREE.DirectionalLight( 0xffffff );
 light.position.set( 0, 0, 1 );
 scene.add( light );
-
-
-
-/*
-var pointLight =
-  new THREE.PointLight(0xFFFFFF);
-
-// set its position
-pointLight.position.x = 10;
-pointLight.position.y = 50;
-pointLight.position.z = 130;
-
-// add to the scene
-scene.add(pointLight);
-*/
-
-
 
 //create a renderer
 renderer = new THREE.CanvasRenderer();
 //renderer.setSize( 500,400);
 
-//renderer = new THREE.WebGLRenderer( { antialias: true } );
-renderer.setSize( 500, 400);//window.innerWidth, window.innerHeight );
+renderer.setSize( 500, 400);
 
 
 //add renderer to the screen
@@ -198,26 +148,88 @@ container.appendChild( renderer.domElement );
 
 //add stats for debugging
 /*
-stats = new Stats();
-stats.domElement.style.position = 'absolute';
-stats.domElement.style.top = '0px';
-container.appendChild( stats.domElement );
-*/
-
 $("#container").mousedown(function(e){
     targetRotation += 0.2;
 })
 $("#container").mousemove(function(e){
     targetRotation += 0.1;
 })
-
-	container.addEventListener('touchmove', function(event) {
-	    event.preventDefault();
-	    var touch = event.touches[0];
-	   	targetRotation -= 0.1;
-	    //func({x:touch.pageX});
-	    //dx = -touch.pageX/7.0;
-	});
+*/
+var down = false;
+var px = 0;
+var py = 0;
+var tx = 0;
+var ty = 0;
+	/*
+     engine.listen('MOUSE_PRESS',node,function(e) {
+     	down = true;
+     	px = e.x;
+     	py = e.y;
+     });
+     engine.listen('MOUSE_DRAG',node,function(e) {
+     	if(down) {
+     		var dx2 = e.x - px;
+     		var dy2 = e.y - py;
+     		tx += dx2;
+     		ty += dy2;
+     		px = e.x;
+     		py = e.y;
+     		self.onDrag({totalX:tx,totalY:ty,x:e.x,y:e.y});
+     	}
+     });
+     engine.listen('MOUSE_RELEASE',node,function(e) {
+     	down = false;
+     });
+     this.onDrag = function(e){}
+     */
+	
+var can = document.getElementById("container");
+can.addEventListener('mousedown',function(e){
+    e.preventDefault();
+ 	px = e.clientX;
+ 	py = e.clientY;
+ 	down = true;
+});
+can.addEventListener('mousemove',function(e){
+    e.preventDefault();
+ 	if(down) {
+ 		var dx2 = e.clientX - px;
+ 		var dy2 = e.clientY - py;
+ 		tx += dx2;
+ 		ty += dy2;
+ 		px = e.clientX;
+ 		py = e.clientY;
+	    targetRotation = tx/60;
+ 		//self.onDrag({totalX:tx,totalY:ty,x:e.x,y:e.y});
+ 	}
+});
+can.addEventListener('mouseup',function(e){
+    event.preventDefault();
+ 	down = false;
+});
+ can.addEventListener('touchstart', function(event) {
+    event.preventDefault();
+    var touch = event.touches[0];
+    
+    px = event.targetTouches[0].pageX;
+    py = event.targetTouches[0].pageY;
+ });
+ can.addEventListener('touchmove', function(event) {
+    event.preventDefault();
+    var touch = event.touches[0];
+    var dx2 = touch.pageX - px;
+    var dy2 = touch.pageY - py;
+    tx += dx2;
+    ty += dy2;
+    px = touch.pageX;
+    py = touch.pageY;
+    targetRotation = tx/100;
+		//self.onDrag({totalX:tx,totalY:ty,x:touch.pageX,y:touch.pageY});
+ });
+ can.addEventListener('touchend', function(event) {
+    event.preventDefault();
+    var touch = event.touches[0];
+ });
 
 }
 

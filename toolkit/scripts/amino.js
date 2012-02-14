@@ -1442,6 +1442,12 @@ function Runner() {
     };
     
     this.update = function() {
+        //drop to 1fps if in bg
+        if(self.inBackground) {
+            setTimeout(function() { self.doNext(); }, 1000);
+        } else {
+            self.doNext();
+        }
         
         var time = new Date().getTime();
         self.processInput(time);
@@ -1451,12 +1457,6 @@ function Runner() {
         
         self.processRepaint(time, ctx);
         self.processDebugOverlay(time, ctx);
-        //drop to 4fps if in bg
-        if(self.inBackground) {
-            setTimeout(function() { self.doNext(); }, 1000);
-        } else {
-            self.doNext();
-        }
     };
     
     this.interv = -1;

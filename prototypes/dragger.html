@@ -1,18 +1,20 @@
 <html>
 <head>
+<meta name="viewport" content = 
+	"width = device-width, initial-scale=1, maximum-scale=1" />
+
 <script src='../toolkit/scripts/amino.js'></script>
 </head>
 <body>
 
 
-<canvas id="canvas" width="300" height="300"></canvas>
+<canvas id="canvas" width="600" height="500"></canvas>
 
+<div id="log"></div>
 <script type='text/javascript'>
 
 var engine = new Runner();
 
-var node = new Rect().set(0,0,200,50);
-node.setFill("blue");
 
 function Dragger(node) {
 	var down = false;
@@ -20,13 +22,11 @@ function Dragger(node) {
 	var py = 0;
 	var tx = 0;
 	var ty = 0;
+	var target = node;
      engine.listen('MOUSE_PRESS',node,function(e) {
      	down = true;
      	px = e.x;
      	py = e.y;
-     });
-     engine.listen('MOUSE_RELEASE',node,function(e) {
-     	down = false;
      });
      var self = this;
      engine.listen('MOUSE_DRAG',node,function(e) {
@@ -37,22 +37,74 @@ function Dragger(node) {
      		ty += dy2;
      		px = e.x;
      		py = e.y;
-     		self.onDrag({totalX:tx,totalY:ty});
+     		self.onDrag({totalX:tx,totalY:ty,x:e.x,y:e.y});
      	}
      });
+     engine.listen('MOUSE_RELEASE',node,function(e) {
+     	down = false;
+     });
      this.onDrag = function(e){}
+     
+     var can = document.getElementById("canvas");
+     can.addEventListener('touchstart', function(event) {
+	    event.preventDefault();
+	    var touch = event.touches[0];
+        var node = engine.findNode(engine.root,touch.pageX,touch.pageY);
+        if(node != target) return;
+	    
+	    px = event.targetTouches[0].pageX;
+	    py = event.targetTouches[0].pageY;
+	    //log("touch start: px = " + px + " " + py);
+     });
+     can.addEventListener('touchmove', function(event) {
+	    event.preventDefault();
+	    var touch = event.touches[0];
+        var node = engine.findNode(engine.root,touch.pageX,touch.pageY);
+        if(node != target) return;
+        //log("node = " + node);
+	    var dx2 = touch.pageX - px;
+	    var dy2 = touch.pageY - py;
+	    tx += dx2;
+	    ty += dy2;
+	    px = touch.pageX;
+	    py = touch.pageY;
+ 		self.onDrag({totalX:tx,totalY:ty,x:touch.pageX,y:touch.pageY});
+     });
+     can.addEventListener('touchend', function(event) {
+	    event.preventDefault();
+	    var touch = event.touches[0];
+        var node = engine.findNode(engine.root,touch.pageX,touch.pageY);
+        if(node != target) return;
+     });
+     
 }
 
-var dragger = new Dragger(node);
+function log(str) {
+	var log = document.getElementById("log");
+	log.innerHTML += (str+"<br/>");
+}
 
+var node = new Rect().set(0,0,200,50);
+node.setFill("blue");
+var dragger = new Dragger(node);
 dragger.onDrag = function(e) {
      node.x = e.totalX;
      node.y = e.totalY;
 }
 
+var node2 = new Rect().set(0,0,100,100).setFill("green");
+var dragger2 = new Dragger(node2);
+dragger2.onDrag = function(e) {
+     node2.x = e.totalX;
+     node2.y = e.totalY;
+}
+
+
+var group = new Group();
+group.add(node).add(node2)
 
 engine.setCanvas(document.getElementById("canvas"));
-engine.setRoot(node);
+engine.setRoot(group);
 engine.start();
 
 </script>
