@@ -1436,7 +1436,7 @@ function Runner() {
             window.mozRequestAnimationFrame(self.update);
             return;
         }
-        console.log("can't repaint! not webkit");
+        //console.log("can't repaint! not webkit");
         setTimeout(self.update,1000/self.fps);
         return;
     };

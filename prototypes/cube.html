@@ -16,7 +16,7 @@
 <script src="../toolkit/scripts/Stats.js"></script>
 <script src="../toolkit/scripts/jquery.js"></script>
 
-<script>
+<script type="text/javascript">
 var container, stats;
 
 var camera, scene, renderer;
@@ -58,33 +58,69 @@ function init() {
 
     // Cube
 
+	//random materials (colors) for the sides of the cube
     var materials = [];
-
     for ( var i = 0; i < 6; i ++ ) {
-
         materials.push( new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } ) );
-
     }
 
-    cube = new THREE.Mesh( new THREE.CubeGeometry( 200, 200, 200, 1, 1, 1, materials ), new THREE.MeshFaceMaterial() );
+	var radius =100;
+	var segments = 16;
+	var rings = 16;
+	var sphereMaterial =
+	  new THREE.MeshLambertMaterial(
+	    {
+	      color: 0xCC0000,
+	      shading: THREE.FlatShading,
+	      wireframe:false,
+	    });
+	    sphereMaterial.overdraw = true;
+	    
+	//create cube geometry
+    cube = new THREE.Mesh( 
+    	//new THREE.CubeGeometry( 200, 200, 200, 1, 1, 1, materials )
+	  new THREE.SphereGeometry(
+	    radius,
+	    segments,
+	    rings)
+    	, sphereMaterial);
     cube.position.y = 150;
-    cube.overdraw = true;
+    cube.overdraw = false;
     scene.add( cube );
 
-    // Plane
-
-    plane = new THREE.Mesh( new THREE.PlaneGeometry( 200, 200 ), new THREE.MeshBasicMaterial( { color: 0xe0e0e0 } ) );
+	
+    // create plane geometry
+    plane = new THREE.Mesh( 
+    	new THREE.PlaneGeometry( 200, 200 )
+    	, new THREE.MeshBasicMaterial( { color: 0xc0e0e0 } ) );
     plane.rotation.x = - 90 * ( Math.PI / 180 );
     plane.overdraw = true;
     scene.add( plane );
+    
 
+
+// create a point light
+var pointLight =
+  new THREE.PointLight(0xFFFFFF);
+
+// set its position
+pointLight.position.x = 100;
+pointLight.position.y = 200;
+pointLight.position.z = 430;
+
+// add to the scene
+scene.add(pointLight);
+
+
+
+	//create a renderer
     renderer = new THREE.CanvasRenderer();
-    //renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.setSize( 500,400);
-    //window.innerWidth, window.innerHeight );
 
+	//add renderer to the screen
     container.appendChild( renderer.domElement );
 
+	//add stats for debugging
     stats = new Stats();
     stats.domElement.style.position = 'absolute';
     stats.domElement.style.top = '0px';
@@ -96,8 +132,7 @@ function init() {
     document.addEventListener( 'touchmove', onDocumentTouchMove, false );
     */
     $("#container").mousedown(function(e){
-        console.log("clicked");
-        targetRotation += 1;
+        targetRotation += 0.2;
     })
 }
 
@@ -163,7 +198,7 @@ function init() {
     //
 
 function animate() {
-    requestAnimationFrame( animate );
+    //requestAnimationFrame( animate );
     render();
     stats.update();
 }

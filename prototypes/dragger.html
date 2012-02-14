@@ -1,0 +1,59 @@
+<html>
+<head>
+<script src='../toolkit/scripts/amino.js'></script>
+</head>
+<body>
+
+
+<canvas id="canvas" width="300" height="300"></canvas>
+
+<script type='text/javascript'>
+
+var engine = new Runner();
+
+var node = new Rect().set(0,0,200,50);
+node.setFill("blue");
+
+function Dragger(node) {
+	var down = false;
+	var px = 0;
+	var py = 0;
+	var tx = 0;
+	var ty = 0;
+     engine.listen('MOUSE_PRESS',node,function(e) {
+     	down = true;
+     	px = e.x;
+     	py = e.y;
+     });
+     engine.listen('MOUSE_RELEASE',node,function(e) {
+     	down = false;
+     });
+     var self = this;
+     engine.listen('MOUSE_DRAG',node,function(e) {
+     	if(down) {
+     		var dx2 = e.x - px;
+     		var dy2 = e.y - py;
+     		tx += dx2;
+     		ty += dy2;
+     		px = e.x;
+     		py = e.y;
+     		self.onDrag({totalX:tx,totalY:ty});
+     	}
+     });
+     this.onDrag = function(e){}
+}
+
+var dragger = new Dragger(node);
+
+dragger.onDrag = function(e) {
+     node.x = e.totalX;
+     node.y = e.totalY;
+}
+
+
+engine.setCanvas(document.getElementById("canvas"));
+engine.setRoot(node);
+engine.start();
+
+</script>
+</body></html>
