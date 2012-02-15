@@ -20,6 +20,7 @@
 <script src="../toolkit/scripts/Three.js"></script>
 <script src="../toolkit/scripts/Stats.js"></script>
 <script src="../toolkit/scripts/jquery.js"></script>
+<script src='Dragger.js'></script>
 
 <script type="text/javascript">
 var container, stats;
@@ -160,30 +161,17 @@ var px = 0;
 var py = 0;
 var tx = 0;
 var ty = 0;
-	/*
-     engine.listen('MOUSE_PRESS',node,function(e) {
-     	down = true;
-     	px = e.x;
-     	py = e.y;
-     });
-     engine.listen('MOUSE_DRAG',node,function(e) {
-     	if(down) {
-     		var dx2 = e.x - px;
-     		var dy2 = e.y - py;
-     		tx += dx2;
-     		ty += dy2;
-     		px = e.x;
-     		py = e.y;
-     		self.onDrag({totalX:tx,totalY:ty,x:e.x,y:e.y});
-     	}
-     });
-     engine.listen('MOUSE_RELEASE',node,function(e) {
-     	down = false;
-     });
-     this.onDrag = function(e){}
-     */
 	
 var can = document.getElementById("container");
+
+var dragger = new Dragger();
+dragger.onDrag = function(e) {
+	console.log('drag callback ' + JSON.stringify(e) );
+	targetRotation = e.totalX/60;
+}
+dragger.register(null,null,can);
+
+/*
 can.addEventListener('mousedown',function(e){
     e.preventDefault();
  	px = e.clientX;
@@ -207,6 +195,64 @@ can.addEventListener('mouseup',function(e){
     event.preventDefault();
  	down = false;
 });
+
+
+     var points = [];
+     var lastTime = -1;
+     var lastTouch = null;
+     can.addEventListener('touchstart', function(event) {
+	    event.preventDefault();
+	    var touch = event.touches[0];
+	    px = event.targetTouches[0].pageX;
+	    py = event.targetTouches[0].pageY;
+	    points = [];
+     });
+     can.addEventListener('touchmove', function(event) {
+	    event.preventDefault();
+	    var touch = event.touches[0];
+	    var dx2 = touch.pageX - px;
+	    var dy2 = touch.pageY - py;
+	    tx += dx2;
+	    ty += dy2;
+	    px = touch.pageX;
+	    py = touch.pageY;
+ 		//self.onDrag({totalX:tx,totalY:ty,x:touch.pageX,y:touch.pageY});
+ 		targetRotation = tx/100.0;
+ 		lastTime = new Date().getTime();
+ 		points.push({x:touch.pageX,y:touch.pageY,time: new Date().getTime()});
+ 		lastTouch = touch;
+     });
+     can.addEventListener('touchend', function(event) {
+	    event.preventDefault();
+	    var touch = event.changedTouches[0];
+ 		var currentTime = new Date().getTime();
+ 		var t1 = points[points.length-1];
+ 		var t2 = points[points.length-2];
+ 		var diffTime = t1.time - t2.time;
+ 		var dx = t1.x - t2.x;
+ 		var dy = t1.y - t2.y;
+ 		log("diff time = " + diffTime + " " + dx + " " + dy);
+ 		var vector = {x:dx,y:dy};
+ 		momentumSlide(vector);
+//    	var dx = touch.pageX - px;
+// 		var dy = touch.pageY - py;
+// 		log("diffs = " + diffTime + " " + dx + " " + dy);
+     });
+function momentumSlide(vector) {
+    targetRotation = vector.x;
+	vector.x *= 0.95;
+	vector.y *= 0.95;
+	//slow enough. bail!
+	if(Math.abs(vector.x) <1 || Math.abs(vector.y) < 1) {
+		return;
+	}
+	setTimeout(function() {
+		momentumSlide(vector);
+	},30);
+}
+*/
+
+/*
  can.addEventListener('touchstart', function(event) {
     event.preventDefault();
     var touch = event.touches[0];
@@ -230,7 +276,7 @@ can.addEventListener('mouseup',function(e){
     event.preventDefault();
     var touch = event.touches[0];
  });
-
+*/
 }
 
 function animate() {
