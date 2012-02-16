@@ -1,4 +1,5 @@
 /* ========= fonts =========== */
+
 @font-face {
     font-family: "Gothic";
     src: url("../fonts/League_Gothic-webfont.woff");
@@ -35,59 +36,30 @@ h2 {
 h3 {
 	font-size: 200%;
 }
+#footer {
+	font-family: Helvetica, Verdana, Arial, sans-serif;
+}
 
-/* ============ colors ============ */
+
+
+
+
+/* ============ colors and backgrounds ============ */
+
 body {
 	background-color: white;
 }
 
-
-
-
-/*  ==========  basic structure  =========  */
-body {
-
-	margin-left: 1em;
-
-	margin-right: 1em;
-
-
-
-	margin-top: 1em;
-	margin-bottom: 5em;
-}
-
-#content {
-	margin-left: auto;
-	margin-right: auto;
-	width: 40em;
-}
-#content {max-width: 100%;}
-h1 {
-	margin-top: 0.3em;
-}
-h2 {
-	padding: 0px;
-	margin: 0px;
-	margin-top: 4em;
-}
-
-
 #header {
 	border: 1px solid red;
-	padding: 1em;
-	margin: -1em;
 	background-color: red;
 	border-width: 0px;
 	background-position: 100% 100%;
 	background-repeat: no-repeat;	
 }
-#header h1 { color: white;  font-size:  400%;}
-#header h2 { color: black; margin: 0;}
-
-
+#header h1 { color: white; }
+#header h2 { color: black; }
 #footer {
-	font-family: Helvetica, Verdana, Arial, sans-serif;
 	color: #555555;
 	border-left-width: 0px;
 	border-bottom-width: 0px;
@@ -95,16 +67,70 @@ h2 {
 	border-top-width: 1px;
 	border-style: solid;
 	border-color: #c9c9c9;
+	background-color: #f0f0f0;
+	background-image: url(../images/graytexture.png);
+}
+
+
+
+
+
+
+
+/*  ==========  basic structure  =========  */
+body {
+	margin: 0em 5em 5em 5em;
+}
+#content, #header {
+	margin: 0;
+	padding: 0;
+}
+#content {
+	margin: 0;
+	padding: 0;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0rem;
+	width: 100%;
+	max-width: 40rem;
+}
+#header {
+	margin-left: -5em;
+	margin-right: -5em;
+	padding-left: 5em;
+	padding-right: 5em;
+}
+#header * {
+	margin: auto;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0rem;
+	width: 100%;
+	max-width: 40rem;
+}
+
+#header h1 { font-size:  400%; }
+#header h2 { padding-top: 4em; }
+
+
+
+/* debugging */
+/*
+#content, #header, #header * { border: 3px solid purple; }
+*/
+
+
+
+/* =========== footer structure ============ */
+
+#footer {
 	position: fixed;
 	left: 0;
 	width: 100%;
 	bottom: 0;
 	display: block;
-	background-color: #f0f0f0;
 	padding: 0.2em;
 	margin: 0em;
-	background-image: url(../images/graytexture.png);
-
 }
 #footer li {
 	display: block;
@@ -138,7 +164,15 @@ h2 {
 
 
 
-/*  ==========  code  =========  */
+
+
+
+/* ============= GENERAL DOCUMENT STYLES ============== */
+
+
+
+
+/*  ==========  inline code  =========  */
 pre {
 	background-image: url(../images/graytexture.png);
 	background-color: #e1e2db;
@@ -323,11 +357,19 @@ th {
 @media all and (max-width:800px) {
 	.photo img { max-width: 100%; }
 
-	body { margin: 1em; }
-	#header h1 { font-size: 250%; }
+/*	body { margin: 1em; }*/
+
+	#header h1 { font-size: 350%; }
+	#header h2 { font-size: 100%; }
 	#header { background-size: 8em; }
+	/*
 	h2 { font-size: 100%; }
-	h3 { font-size: 150%; }
+	h3 { font-size: 150%; }*/
+	
+	body {
+		font-size: 11pt;
+	}
+	/*
 	pre {
 		overflow: auto;
 	}
@@ -336,17 +378,27 @@ th {
 		margin-left: auto; margin-right: auto;
 		max-width: 100%;
 	}
+	*/
 }
 
 /* iphone landscape mode and smaller */
+
 @media all and (max-width: 480px) {
+	body {
+		font-size: 10pt;
+	}
+	#header h1 { font-size: 250%; }
+	#header h2 { font-size: 80%; }
+	#header { background-size: 4em; }
+	
+/*
 	body { font-size: 10pt; }
 	h1 { font-size: 100%; }
 	#header { background-size: 4em;	}
 	#header h1 { font-size:  120%;}
 	h2 { font-size: 100%; }
 	h3 { font-size: 150%; }
-
+	*/
 	#chapternav {
 		font-size: 80%;
 		padding: 0; margin: 0;
