@@ -183,6 +183,23 @@ pre {
 	overflow: auto;
 }
 
+pre {
+	background-color: #ccc;
+	padding: 1em;
+	}
+pre span {
+	display:block;
+	white-space: pre-wrap;
+	}
+pre span {
+	padding-left: 2em;
+	text-indent: -2em;
+	background-image: url(../images/code_wrap.png);
+	background-repeat: no-repeat;
+	background-position: left top;
+	line-height: 16px;
+}
+
 /* ========== tables =========== */
 table {
 	font-family: Helvetica, Verdana, Arial, sans-serif;
