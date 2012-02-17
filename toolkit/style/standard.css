@@ -199,8 +199,8 @@ pre {
 	padding: 1em;
 	color: #484848;
 	}
-	/*
-pre span {
+	
+pre.wrap span {
 	display:block;
 	white-space: pre-wrap;
 	padding-left: 2em;
@@ -212,7 +212,7 @@ pre span {
 	font-size: 75%;
 	border: 0px solid red;
 }
-*/
+
 
 
 /* ========== tables =========== */

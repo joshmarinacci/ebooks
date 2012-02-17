@@ -25,7 +25,7 @@
 
 <p>If you are having issues with chrome loading images or other files directly from disk, try adding this to the commmand line: <code>--allow-file-access-from-files --disable-web-security</code></p>
 <p>On Mac OS X this would be</p>
-<pre><code>/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --allow-file-access-from-files --disable-web-security</code></pre>
+<pre class='wrap'><code>/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --allow-file-access-from-files --disable-web-security</code></pre>
 
 <p>In this first hands on lesson we will graph some data by drawing a custom chart. It will show you basic drawing of lines, shapes, and text.</p>
 
@@ -33,7 +33,7 @@
 
 <p>Start by creating a new webpage called <code>barchart.html</code> and type this in:</p>
 
-<pre><code>&lt;html&gt;
+<pre class='wrap'><code>&lt;html&gt;
 &lt;body&gt;
 &lt;canvas width=&quot;500&quot; height=&quot;500&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
 &lt;script&gt;
@@ -53,7 +53,7 @@ var data = [ 16, 68, 20, 30, 54 ];
 <p>Now lets get a reference to the canvas and and fill the background with gray. Add this to the script tag after the data variable.
 </p>
 
-<pre><code>//get a reference to the canvas
+<pre class='wrap'><code>//get a reference to the canvas
 var canvas = document.getElementById('canvas');
 
 //get a reference to the drawing context
@@ -67,7 +67,7 @@ c.fillRect(0,0,500,500);</code></pre>
 
 <p>Now you can draw some data.  Do this by looping over the data array. For each data point fill in a rectangle with the x determined by the array index and the hefight is determined by the data value.</p>
 
-<pre><code>//draw data
+<pre><code class='wrap'>//draw data
 c.fillStyle = &quot;blue&quot;;
 for(var i=0; i&lt;data.length; i++) {
     var dp = data[i];

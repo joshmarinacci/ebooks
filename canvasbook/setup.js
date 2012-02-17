@@ -89,9 +89,9 @@ $(document).ready(function () {
 
 
 /* restyle the pre code */
-/*
+
 $(document).ready(function(){
-	$("pre code").each(function(){
+	$(".wrap code").each(function(){
 		var text = $(this).text();
 		var lines = text.split("\n"); 
 		var newText = "";
@@ -106,7 +106,7 @@ $(document).ready(function(){
 		
 	});
 });
-*/
+
 
     
     
