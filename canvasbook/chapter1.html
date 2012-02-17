@@ -10,7 +10,7 @@
 
 <link rel="stylesheet" href="master.css"/>
 <style type="text/css">
-#header { background-image: url(ch1.png); }
+/*#header { background-image: url(ch1.png); }*/
 </style>
 
 
@@ -72,16 +72,18 @@ visualization.</p>
 
 <pre><code>&lt;html&gt;
 &lt;body&gt;
-&lt;canvas width=&quot;800&quot; height=&quot;600&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
-&lt;script&gt;
-var canvas = document.getElementById('canvas');
-var c = canvas.getContext('2d');
-c.fillStyle = &quot;red&quot;;
-c.fillRect(100,100,400,300);
-&lt;/script&gt;
+
+    &lt;canvas width=&quot;800&quot; height=&quot;600&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
+    
+    &lt;script&gt;
+        var canvas = document.getElementById('canvas');
+        var c = canvas.getContext('2d');
+        c.fillStyle = &quot;red&quot;;
+        c.fillRect(100,100,400,300);
+    &lt;/script&gt;
+    
 &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
+&lt;/html&gt;</code></pre>
 
 
 
@@ -153,8 +155,7 @@ c.fillRect(100,100,400,300);
 </p>
 
 <pre><code>c.fillStyle = "red";
-c.fillRect(100,100,400,300);
-</code></pre>
+c.fillRect(100,100,400,300);</code></pre>
 
 <div class='photo'>
 	<img src="images/redrect.png"/>
@@ -274,8 +275,7 @@ c.fill();
  
 c.lineWidth = 4;
 c.strokeStyle = &quot;black&quot;;
-c.stroke();
-</code></pre>
+c.stroke();</code></pre>
 
 <p class='photo'><img src="images/basic_path.png"/></p>
 
@@ -296,8 +296,7 @@ img.onload = function() {
         250,50,250,50//dest coords
         );
 }
-img.src = 'smile.png';
-</code></pre>
+img.src = 'smile.png';</code></pre>
 
 <p class='photo'><img src="images/image_stretched.png"/></p>
 
@@ -309,8 +308,7 @@ normal scale, or you can stretch or slice it how you like. Slicing and stretchin
 
 <pre><code>c.fillStyle = "black";
 c.font = "italic 96pt Arial ";
-c.fillText("this is text", 50,300);
-</code></pre>
+c.fillText("this is text", 50,300);</code></pre>
 
 <p class='photo'><img src="images/basic_text.png"/></p>
 

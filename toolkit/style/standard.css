@@ -48,14 +48,16 @@ h3 {
 
 body {
 	background-color: white;
+	background-image: url(../images/graytexture.png);
 }
 
 #header {
+	background-image: url(../images/bluenoise.png);
 	border: 1px solid red;
-	background-color: red;
+	background-color: #00ebe7;
 	border-width: 0px;
 	background-position: 100% 100%;
-	background-repeat: no-repeat;	
+	background-repeat: repeat;	
 }
 #header h1 { color: white; }
 #header h2 { color: black; }
@@ -167,25 +169,33 @@ body {
 
 
 
-/* ============= GENERAL DOCUMENT STYLES ============== */
+/* ============= GENERAL CONTENT STYLES ============== */
 
+
+/* ==== links ==== */
+#content a {
+	color: black;
+	text-decoration: none;
+	border: 1px solid #009994;
+	border-width: 0 0 1px 0;
+}
+#content h3 a {
+	border-width: 0;
+}
 
 
 
 /*  ==========  inline code  =========  */
 pre {
-	background-image: url(../images/graytexture.png);
-	background-color: #e1e2db;
+	/*background-image: url(../images/graytexture.png);*/
+	background-color: white;
 	padding: 0.8em;
 	border-color: #e1dedb;
 	border-style: solid;
 	border-width: 1px;
 	overflow: auto;
-}
-
-pre {
-	background-color: #ccc;
 	padding: 1em;
+	color: #484848;
 	}
 pre span {
 	display:block;
@@ -198,7 +208,11 @@ pre span {
 	background-repeat: no-repeat;
 	background-position: left top;
 	line-height: 16px;
+	font-size: 75%;
+	border: 0px solid red;
 }
+
+
 
 /* ========== tables =========== */
 table {
