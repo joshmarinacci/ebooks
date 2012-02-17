@@ -89,6 +89,7 @@ $(document).ready(function () {
 
 
 /* restyle the pre code */
+/*
 $(document).ready(function(){
 	$("pre code").each(function(){
 		var text = $(this).text();
@@ -105,7 +106,7 @@ $(document).ready(function(){
 		
 	});
 });
-
+*/
 
     
     

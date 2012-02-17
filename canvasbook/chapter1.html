@@ -1,25 +1,31 @@
 <html>
 <head>
-<meta name="viewport" content = "width=device-width; initial-scale=1; maximum-scale=1; user-scalable=no;" />
-<title>Chapter 1: Overview</title>
-
+<meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
+<title>Table Of Contents</title>
 <script src="../toolkit/scripts/jquery.js"></script>
 <script src='../toolkit/scripts/swipe.js'></script>
 <script src='../toolkit/scripts/toc.js'></script>
 <script src='setup.js'></script>
 
-<link rel="stylesheet" href="master.css"/>
-<style type="text/css">
-/*#header { background-image: url(ch1.png); }*/
-</style>
 
+<script src="../toolkit/Tangle/Tangle.js"></script>
+<link rel="stylesheet" href="../toolkit/Tangle/TangleKit/TangleKit.css" type="text/css">
+<script type="text/javascript" src="../toolkit/Tangle/TangleKit/mootools.js"></script>
+<script type="text/javascript" src="../toolkit/Tangle/TangleKit/sprintf.js"></script>
+<script type="text/javascript" src="../toolkit/Tangle/TangleKit/BVTouchable.js"></script>
+<script type="text/javascript" src="../toolkit/Tangle/TangleKit/TangleKit.js"></script>
+
+
+<link rel="stylesheet" href="master.css"/>
+
+<title>Chapter 1: Overview</title>
 
 </head>
 <body>
 
 <div id="header">
 <h2>Chapter 1</h2>
-<h1>Introduction to Canvas</h1>
+<h1>Basic Drawing</h1>
 </div>
 
 
@@ -33,16 +39,13 @@ and supported by most browsers (even Internet Explorer
 9 beta). Canvas allows you to draw anything you want 
 directly in the web browser without the use of plugins 
 like Flash or Java. With its deceptively simple API, Canvas 
-has the ability to revolutionize how we build web applications 
-for all devices, not just desktops. This session is a 
-three hour workshop that will deep dive into <span class='glossary' title="Canvas is an HTML element which allows 2D drawing of shapes, images, and pixels.">Canvas</span>, 
-starting with the basics and progressing into real world 
-applications. Finally we will take a look at some 
-experimental edges of Canvas, such as webcam and audio 
-visualization.</p>
+can revolutionize how we build web applications 
+for all devices, not just desktops.</p>
 
-<div id='gallery' class='gallery float-left' style="width:480px;">
-	<h5>Games made with HTML Canvas</h5>
+<p>These screenshots give you just a taste of what is possible with Canvas.</p>
+
+<div id='gallery' class='gallery' style="width:480px;">
+	<h5>Apps made with HTML Canvas</h5>
 	
 	<div id='slider' class='swipe'>
 	<ul>
@@ -58,30 +61,25 @@ visualization.</p>
 </div>
 
 
-<p>Today we will dive very deep into the Canvas API and learn how to make both useful and graphically intense effects using pure web technology, no plugins required. I'm from the webOS evangelism team at HP. I am teaching this class on HTML 5 Canvas because we built webOS on web standards and really feel that it's the way most apps will be built in the future. I'm also happy to say that our recently released HP TouchPad (hold it up) was reviewed by the Sencha team and they said it has the fastest mobile Canvas implementation they have seen, hands down. So we really do practice what we preach.</p>
 
-<p>This class will have three lecture sections where we will learn about the Canvas API, how to do animation and pixel effects, and some real world tools to help you. In between the lecture sections we have hands on lessons for you to walk through and build your own canvas apps. During these parts Robert and I will walk around to help you and answer questions. In terms of skill you only need to know some basic javascript and HTML. All you need on your computer is a copy of Chrome or Safari and your favorite text editor. Canvas is very easy to work with. No IDEs required.</p>
 
-<p>So lets get started!</p>
+
 
 
 
 <h3><a id="what_is_canvas">What is Canvas?</a></h3>
 
-<p>Canvas is a 2D drawing API.  Essentially the web browser gives you a rectanglar area on the screen that you can draw into. You can draw lines, shapes, images, text; pretty much anything you want.   Canvas was originally created by Apple for their Dashboard widgets, but it has since been adopted by every major browser vendor and is now part of the HTML 5 spec. Here's a quick example of what some Canvas code looks like:</p>
+<p>Canvas is a 2D drawing API.  Essentially the browser gives you a rectanglar area on the screen that you can draw into. You can draw lines, shapes, images, text; pretty much anything you want.   Canvas was originally created by Apple for their Dashboard widgets, but it has since been adopted by every major browser vendor and is now part of the HTML 5 spec. Here's a quick example of what some Canvas code looks like:</p>
 
 <pre><code>&lt;html&gt;
 &lt;body&gt;
-
-    &lt;canvas width=&quot;800&quot; height=&quot;600&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
-    
-    &lt;script&gt;
-        var canvas = document.getElementById('canvas');
-        var c = canvas.getContext('2d');
-        c.fillStyle = &quot;red&quot;;
-        c.fillRect(100,100,400,300);
-    &lt;/script&gt;
-    
+&lt;canvas width=&quot;800&quot; height=&quot;600&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
+&lt;script&gt;
+var canvas = document.getElementById('canvas');
+var c = canvas.getContext('2d');
+c.fillStyle = &quot;red&quot;;
+c.fillRect(100,100,400,300);
+&lt;/script&gt;
 &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 
@@ -95,30 +93,32 @@ visualization.</p>
 
 
 
-<p>Now it's important to understand that canvas is for drawing pixels. It doesn't have shapes or vectors. There are no objects that you can attach event handlers to. It just draws pixels to the screen.  As we shall see this is both a strength and a weakness. </p>
+<p>It's important to understand that Canvas is for drawing pixels. It doesn't have shapes or vectors. There are no objects to attach event handlers to. It just draws pixels to the screen.  As we shall see this is both a strength and a weakness. </p>
 
 <h3><a id="canvas_vs_svg_vs_dom">So where does it fit in with the rest of the web?</a></h3>
 
-<p><b>SVG</b>: SVG is a vector API that draws shapes. Each shape has an object that you can attach event handlers to. If you zoom in the shape stays smooth, where as the canvas would start to become pixelated.
+<p>There are four ways to draw things on the web: Canvas, SVG, CSS, and direct DOM animation. Canvas differ from the other three:</p>
+
+<p><b>SVG</b>: SVG is a vector API that draws shapes. Each shape has an object that you can attach event handlers to. If you zoom in the shape stays smooth, whereas Canvas would become pixelated.
 </p>
 
-<p><b>CSS</b>: CSS is really about styling DOM elements. Since there are no DOM objects for things you draw in the canvas you can't use CSS to style it. CSS will only affect the rectanglar area of the canvas itself, so you can set a border and background color, but that's it.
+<p><b>CSS</b>: CSS is really about styling DOM elements. Since there are no DOM objects for things you draw in Canvas you can't use CSS to style it. CSS will only affect the rectanglar area of the Canvas itself, so you can set a border and background color, but that's it.
 </p>
 
-<p><b>DOM animation</b>: The DOM, or Document Object Model, defines an object for everything on the screen. DOM animation, either by using CSS or javascript to move objects around, can be smoother in some cases than doing it with canvas, but it depends on your browser implementation.
+<p><b>DOM animation</b>: The DOM, or Document Object Model, defines an object for everything on the screen. DOM animation, either by using CSS or JavaScript to move objects around, can be smoother in some cases than doing it with Canvas, but it depends on your browser implementation.
 </p>
 
 <h3>Which? What? When?</h3>
 
-<p>So when should you use Canvas over SVG, CSS or DOM elements?  Well, Canvas is lower level than those others so you can have more control over the drawing and use less memory, but at the cost of having to write more code.  Use SVG when you have existing shapes that you want to render to the screen, like a map that came out of Adobe Illustrator. Use CSS or DOM animation when you have large static areas that you wish to animate, or if you want to use 3D transforms.  For charts, graphs, dynamic diagrams, and of course video games; Canvas is a great choice.  And later on we will discuss a few libraries to let you do the more vector / object oriented stuff using Canvas.
+<p>So when should you use Canvas over SVG, CSS or DOM elements?  Well, Canvas is lower level than those others so you can have more control over the drawing and use less memory, but at the cost of having to write more code.  Use SVG when you have existing shapes that you want to render to the screen, like a map that came out of Adobe Illustrator. Use CSS or DOM animation when you have large static areas that you wish to animate, or if you want to use 3D transforms.  For charts, graphs, dynamic diagrams, and of course video games, Canvas is a great choice.  And later on we will discuss a few libraries to let you do the more vector / object oriented stuff using Canvas.
 </p>
 
-<p>Before we go any further I want to clarify that when I'm talking about Canvas I mean the <b>2D</b> API.  There is also a 3D API in the works called WebGL.  I'm not going to cover that here because it is still being developed and the browser support is rather poor. Also, it's essentially OpenGL from JavaScript, making it lower level than Canvas and much harder to use.  When WebGL becomes more mature we will revisit it.
+<p>Before we go any further I want to clarify that when I'm talking about Canvas I mean the <b>2D</b> API.  There is also a 3D API in the works called WebGL.  I'm not going to cover that here because it is still being developed and the browser support is rather poor. Also, it's essentially OpenGL from JavaScript, making it lower level than Canvas and much harder to use.  When WebGL becomes more mature we will revisit it in later chapters.
 </p>
 
 <h3><a id="browser_support">Browser Support</a></h3>
 
-<p>And lastly, before we dive into working with Canvas, let's talk about <b>where</b> you can use it?  Fortunately Canvas is now a stable API and most modern browsers support it to some extent. Even Internet Explorer supports it starting with IE 9, and their implementation is very good.
+<p>And lastly, before we dive into working with Canvas, let's talk about <b>where</b> you can use it.  Fortunately Canvas is now a stable API and most modern browsers support it to some extent. Even Internet Explorer supports it starting with IE 9, and their implementation is very good.
 </p>
 
 <table>
@@ -147,49 +147,183 @@ visualization.</p>
 </p>
 
 
-<h2>The Basics</h2>
-
 <h3><a id="drawing_rectangles">Drawing Rectangles</a></h3>
 
-<p>As I said before, Canvas is a simple 2D API. If you've done any coding work with Flash or Java 2D it should seem pretty familar. You get a reference to a graphics context, set some properties like the current fill or stroke color, then draw some shapes.  Here's a couple of examples.
+<p>As I said before, Canvas is a simple 2D API. If you've done any coding work with Flash or Java 2D it should seem pretty familar. You get a reference to a graphics context, set some properties like the current fill or stroke color, then draw some shapes.  Here are a few of examples.
 </p>
+<p>In this example we set the current color to red and draw a rectangle.
+Drag the numbers in the code to change the values and see how it affects
+the rectangle.</p>
 
-<pre><code>c.fillStyle = "red";
-c.fillRect(100,100,400,300);</code></pre>
+
+<pre id="simpleredrect_code"><code>c.fillStyle = "red";
+c.fillRect(<b data-var='x' class='TKAdjustableNumber' data-min='-100' data-max='300'></b>,<b data-var='y' class='TKAdjustableNumber' data-min='0' data-max='100'></b>,<b data-var='w' class='TKAdjustableNumber' data-min='-100' data-max='300'></b>,<b data-var='h' class='TKAdjustableNumber' data-min='-50' data-max='200'></b>);</code></pre>
 
 <div class='photo'>
-	<img src="images/redrect.png"/>
-	<p><b>screenshot</b> Simple red rectangle</p>
-	<p><i>This rectangle is drawn with the context.fillRect() function.</i></p>
+<canvas id="simpleredrect_canvas" width="400" height="200" style='border:1px solid black'></canvas>
+	<p><b>interactive</b> Simple red rectangle</p>
+	<p><i>Drag numbers to change x, y, width and height</i></p>
 </div>
 
 
-<p>In this example we set the current color to red and draw a rectangle. Here's another one.</p>
+<script type="text/javascript">
+$(document).ready(function() { 
+        console.log("setting up red rect");
+    var simpleredrect_code = document.getElementById("simpleredrect_code");
+    var simpleredrect_tangle = new Tangle(simpleredrect_code, {
+            initialize: function() {
+                this.x = 100;
+                this.y = 50;
+                this.w = 200;
+                this.h = 100;
+            },
+            update: function() {
+                var can = document.getElementById("simpleredrect_canvas");
+                var ctx = can.getContext('2d');
+                ctx.fillStyle = "white"; 
+                ctx.fillRect(0,0,can.width,can.height);
+                ctx.fillStyle = "red";
+                ctx.fillRect(this.x,this.y,this.w,this.h);
+            },
+    });
+    
+});
+</script>
 
 
-<pre><code>c.fillStyle = &quot;#ccddff&quot;;
+
+
+<p>Here's another one.</p>
+
+
+
+
+
+
+<pre id="simple_triangle_code"><code>c.fillStyle = &quot;#ccddff&quot;;
 c.beginPath();
 c.moveTo(100,100);
 c.lineTo(400,50);
-c.lineTo(400,300);
+c.lineTo(<b data-var='x' class='TKAdjustableNumber' data-min='300' data-max='500'></b>,<b data-var='y' class='TKAdjustableNumber' data-min='100' data-max='300'></b>);
 c.closePath();
 c.fill();
 c.strokeStyle = &quot;rgb(0,128,0)&quot;;
-c.lineWidth = 5.0;
+c.lineWidth = <b data-var='w' class='TKAdjustableNumber' data-min='0' data-max='30'></b>;
 c.stroke();</code></pre>
 
-<div class='photo'><img src="images/basicpath.png"/></div>
 
+<div class='photo'>
+<canvas id="simple_triangle_canvas" width="500" height="300" style='border:1px solid black'></canvas>
+	<p><b>INTERACTIVE</b> Triangle with stroke</p>
+	<p><i>Drag numbers to change the line point and stroke width</i></p>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function() { 
+    var simple_triangle_code = document.getElementById("simple_triangle_code");
+    var simple_triangle = new Tangle(simple_triangle_code, {
+            initialize: function() {
+                this.x = 400;
+                this.y = 200;
+                this.w = 5.0;
+            },
+            update: function() {
+                var can = document.getElementById("simple_triangle_canvas");
+                var c = can.getContext('2d');
+                c.fillStyle = "white"; 
+                c.fillRect(0,0,can.width,can.height);
+                c.fillStyle = '#ccddff';
+                c.beginPath();
+                c.moveTo(100,100);
+                c.lineTo(400,50);
+                //c.lineTo(400,300);
+                c.lineTo(this.x,this.y);
+                c.closePath();
+                c.fill();
+                c.strokeStyle = 'rgb(0,128,0)';
+                c.lineWidth = this.w;
+                c.stroke();
+            },
+    });
+    
+    });
+</script>
 
 
 <p>In this example we set the current fill color, create a path, then fill and stroke it. Note that the context keeps track of the fill color and the stroke color separately. Also notice the different forms of specifying colors. <code>fillStyle</code> and <code>strokeStyle</code> can be any valid CSS color notation like hex, names, or <code>rgb()</code> functions.</p>
+
+
+<h3><a id="paths">Paths</a></h3>
+
+<p>Canvas only directly supports the rectangle shape. To draw any other shape you must draw it yourself using a path. Paths are shapes created by a bunch of straight or curved line segments. In Canvas you must first define a path with beginPath(), then you can fill it, stroke it, or use it as a clip. You define each line segment with fuctions like moveTo(), lineTo(), and bezierCurveTo(). This example draws a shape with a move to, followed by a bezier curve segment, then some lines.  After creating the path it fills and strokes it with the current fill and stroke styles.
+
+<pre id="simple_curve_code"><code>c.fillStyle = &quot;red&quot;;
+ 
+c.beginPath();
+c.moveTo(100,100);
+c.bezierCurveTo(<b data-var='x' class='TKAdjustableNumber' data-min='0' data-max='200'></b>,<b data-var='y' class='TKAdjustableNumber' data-min='100' data-max='300'></b>, <b data-var='cx1' class='TKAdjustableNumber' data-min='300' data-max='500'></b>,<b data-var='cy1' class='TKAdjustableNumber' data-min='100' data-max='300'></b>, <b data-var='cx2' class='TKAdjustableNumber' data-min='300' data-max='500'></b>,<b data-var='cy2' class='TKAdjustableNumber' data-min='0' data-max='200'></b>,
+500,100);
+c.lineTo(400,300);
+c.lineTo(100,300);
+c.closePath();
+c.fill();
+ 
+c.lineWidth = 4;
+c.strokeStyle = &quot;black&quot;;
+c.stroke();
+</code></pre>
+
+<div class='photo'>
+<canvas id="simple_curve_canvas" width="500" height="300"></canvas>
+	<p><b>INTERACTIVE</b> Triangle with stroke</p>
+	<p><i>Drag numbers to change the line point and stroke width</i></p>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() { 
+    var simple_curve_code = document.getElementById("simple_curve_code");
+    var simple_curve = new Tangle(simple_curve_code, {
+            initialize: function() {
+                this.x = 100;
+                this.y = 200;
+                this.cx1 = 400;
+                this.cy1 = 200;
+                this.cx2 = 400;
+                this.cy2 = 100;
+            },
+            update: function() {
+                var can = document.getElementById("simple_curve_canvas");
+                var c = can.getContext('2d');
+                c.fillStyle = "white"; 
+                c.fillRect(0,0,can.width,can.height);
+                c.fillStyle = 'red';
+                c.beginPath();
+                c.moveTo(100,100);
+                c.bezierCurveTo(this.x,this.y, this.cx1,this.cy1, this.cx2,this.cy2);
+                c.lineTo(400,300);
+                c.lineTo(100,300);
+                c.closePath();
+                c.fill();
+                 
+                c.lineWidth = 4;
+                c.strokeStyle = 'black';
+                c.stroke();            
+            },
+            });
+    
+    });
+</script>
+
+
+
 
 <h3><a id="coordinate_system">Coordinate System</a></h3>
 <p>
 A quick word on coordinate systems. Canvas has the origin in the upper left corner with the y axis going down. This is traditional for computer graphics, but if you want a different origin you can do that with transforms, which we will cover later.  Another important thing is that the Canvas spec defines coordinates at the upper left corner of a pixel.  This means that if you draw a one pixel wide vertical line starting at 5,0  then it will actually span half of the adjacent pixels (4.5 to 5.5).  To address this offset your x coordinate by 0.5.  Then it will span 0.5 to the left and right of 5.5, giving you a line that goes from 5.0 to 6.0.  Alternately, you could use an even width line, such as 2 or 4.</p>
 
 <h3><a id="gradient_fills">Gradient Fills</a></h3>
-<p>Canvas can fill shapes with things other than colors, BTW.  We can also fill with an image or gradient.
+<p>Canvas can fill shapes with things other than colors.  We can also fill them with an image or a gradient. Here's a linear gradient:
 </p>
 
 <pre><code>var grad = c.createLinearGradient(0,0,200,200);
@@ -217,72 +351,12 @@ c.fillRect(100,100,400,300);</code></pre>
 
 <p>So if you get into a case where you think you are filling a shape with a gradient but only see a single color, it might be because your coordinates are off.</p>
 
-<h3><a id="image_fills">Image Fills</a></h3>
-
-<p>You can also fill shapes with images by defining a pattern. You can control how the pattern is repeated the same as you would with background images in CSS.</p>
-
-<pre><code>var img = new Image();
-img.onload = function() {
-    
-    var canvas = document.getElementById('can');
-    var c = canvas.getContext('2d');
-    var pat = c.createPattern(img,'repeat');    
-    c.fillStyle = pat;
-    c.fillRect(10,10,80,80);    
-    
-    var canvas2 = document.getElementById('can2');
-    var c2 = canvas2.getContext('2d');
-    var pat2 = c2.createPattern(img,'repeat-y');    
-    c2.fillStyle = pat2;
-    c2.fillRect(10,10,80,80);    
-    
-}
-img.src = 'smile.png';</code></pre>
-
-<div class='photo'><img src="images/image_fill.png"/></div>
-
-<p>Note that this filling with an image texture only works if the image has already been loaded, so up here I'm only doing the drawing from the image's <code>onload</code> callback.</p>
-
-<h3><a id="opacity">Opacity</a></h3>
-
-<p>In addition to these different fills we can control the opacity when we draw. Suppose we wanted to draw a red rectangle and then a white but 50% translucent rectangle on top of it. Here's how we would do it:</p>
-
-<pre><code>c.fillStyle = &quot;red&quot;;
-c.fillRect(100,100,400,300);
-c.globalAlpha = 0.5;
-c.fillStyle = &quot;white&quot;;
-c.fillRect(100,100,400,300);
-c.globalAlpha = 1.0;</code></pre>
-
-
-<p class='photo'><img src="images/global_alpha.png"/></p>
-
-<p>This opacity setting works with all drawing operations. Be sure to set it back to 1.0 when you are done so that it won't affect later drawing.</p>
-
-<h3><a id="paths">Paths</a></h3>
-
-<p>Paths are shapes created by a bunch of straight or curved line segments. In Canvas you must first define a path with beginPath(), then you can fill it, stroke it, or use it as a clip. You define each line segment with fuctions like moveTo(), lineTo(), and bezierCurveTo(). This example draws a shape with a move to, followed by a bezier curve segment, then some lines.  After creating the path it fills and strokes it with the current fill and stroke styles.
-
-<pre><code>c.fillStyle = &quot;red&quot;;
- 
-c.beginPath();
-c.moveTo(10,100);
-c.bezierCurveTo(20,200, 500,200, 500,100);
-c.lineTo(500,300);
-c.lineTo(10,300);
-c.closePath();
-c.fill();
- 
-c.lineWidth = 4;
-c.strokeStyle = &quot;black&quot;;
-c.stroke();</code></pre>
-
-<p class='photo'><img src="images/basic_path.png"/></p>
-
 
 <h3><a id="images">Images</a></h3>
 
-<p>In addition to using images as patterns you can simply draw them to the screen with drawImage. 
+<p>Canvas can also draw images using the <code>drawImage</code> function. </p>
+
+<p>There are several forms of <code>drawImage</code>.  You can draw the image directly to the screen at normal scale, or you can stretch or slice it how you like. Slicing and stretching images can be very handy first special effects in games because image interpolation is often much faster than other ways of doing scaling.</p>
 
 <pre><code>var img = new Image();
 img.onload = function() {
@@ -296,21 +370,13 @@ img.onload = function() {
         250,50,250,50//dest coords
         );
 }
-img.src = 'smile.png';</code></pre>
+img.src = 'smile.png';
+</code></pre>
 
 <p class='photo'><img src="images/image_stretched.png"/></p>
 
-<p>As you can see there are several forms of drawImage. 
-You can draw the image directly to the screen at 
-normal scale, or you can stretch or slice it how you like. Slicing and stretching images can be very handy first special effects in games because image interpolation is often much faster than other ways of doing scaling.</p>
 
 <h3><a id="text">Text</a></h3>
-
-<pre><code>c.fillStyle = "black";
-c.font = "italic 96pt Arial ";
-c.fillText("this is text", 50,300);</code></pre>
-
-<p class='photo'><img src="images/basic_text.png"/></p>
 
 <p>You can draw text with Canvas too. The font 
 attribute is the same as its CSS equivalent, so you can 
@@ -320,13 +386,20 @@ y value for the <b>baseline</b> of the text, not the
 top. If you put your text at 0,0 then it will be drawn 
 off the top of the screen.</p>
 
-<h2>Hands On 1</h2>
+<pre><code>c.fillStyle = "black";
+c.font = "italic 96pt Arial ";
+c.fillText("this is text", 50,300);
+</code></pre>
 
-<p>So that's it for basic drawing.  Let's stop there and do some exercises in the next chapter.  You should already have a webbrowser and text editor installed. I recommend using Chrome because it has nice debugging tools, and jEdit because it's free and cross platform; but you can use the browser and editor of your choice.  Note that since we are loading code from the local harddrive you may need to disable security in Chrome during development. The handout notes describe how to do this.  The notes can be viewed here:
+<p class='photo'><img src="images/basic_text.png"/></p>
+
+
+
+<p>So that's it for basic drawing.  Let's stop there and do some exercises in the next chapter.  You should already have a webbrowser and text editor installed. I recommend using <a target="blank"  href="https://www.google.com/chrome">Chrome</a> because it has nice debugging tools, and <a target="blank" href="http://www.jedit.org/">jEdit</a> because it's free and cross platform; but you can use the browser and editor of your choice.  
 </p>
 
 <nav id="chapternav">
-<a href="toc.html">&lt; Table of Contents</a><a href="chapter2.html">Chapter 2 : Hands On &gt;</a>
+<a href="toc.html">&lt; Table of Contents</a><a href="chapter2.html">Chapter 2 &gt;</a>
 </nav>
 
 
@@ -336,14 +409,11 @@ off the top of the screen.</p>
 
 </div>
 
-
-</div>
-
-
 <script type="text/javascript">
 setupPhotoGallery("gallery");
 
 function setupPhotoGallery(id) {
+	
 	var gal = document.getElementById(id);
 	var nav = document.createElement("nav")
 	gal.appendChild(nav);
@@ -379,7 +449,9 @@ function setupPhotoGallery(id) {
 	nav.appendChild(next);
 	
 	// slider
+    //var bullets = document.getElementById('position').getElementsByTagName('em');
 	var bullets = span.getElementsByTagName('em');
+//    console.log("bullets num = " + bullets.length);
 	var slider = new Swipe(document.getElementById('slider'), {
 	      callback: function(e, pos) {
 	        
@@ -394,6 +466,7 @@ function setupPhotoGallery(id) {
 }
 
 </script>
+
 
 </body>
 </html>

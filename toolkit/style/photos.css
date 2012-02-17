@@ -23,12 +23,17 @@
 	width: auto;
 	border: 1px solid black;
 }
+.photo canvas {
+	border: 1px solid black;
+}
 
 .photo b {
 	font-style: normal;
 	font-weight: normal;
-	padding-right: 1em;
+	padding-right: 0.5em;
 	color: #ff0f0c;
+	text-transform: uppercase;
+	font-size: 85%;
 }
 
 .photo i {

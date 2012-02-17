@@ -145,6 +145,9 @@ body {
 #footer li:last-child {
 	float: none;
 }
+#footer a {
+	border-width: 0;
+}
 #footer li a {
 	text-decoration: none;
 }
@@ -173,7 +176,7 @@ body {
 
 
 /* ==== links ==== */
-#content a {
+a {
 	color: black;
 	text-decoration: none;
 	border: 1px solid #009994;
@@ -187,7 +190,6 @@ body {
 
 /*  ==========  inline code  =========  */
 pre {
-	/*background-image: url(../images/graytexture.png);*/
 	background-color: white;
 	padding: 0.8em;
 	border-color: #e1dedb;
@@ -197,11 +199,10 @@ pre {
 	padding: 1em;
 	color: #484848;
 	}
+	/*
 pre span {
 	display:block;
 	white-space: pre-wrap;
-	}
-pre span {
 	padding-left: 2em;
 	text-indent: -2em;
 	background-image: url(../images/code_wrap.png);
@@ -211,7 +212,7 @@ pre span {
 	font-size: 75%;
 	border: 0px solid red;
 }
-
+*/
 
 
 /* ========== tables =========== */
@@ -388,28 +389,13 @@ th {
 @media all and (max-width:800px) {
 	.photo img { max-width: 100%; }
 
-/*	body { margin: 1em; }*/
-
 	#header h1 { font-size: 350%; }
 	#header h2 { font-size: 100%; }
 	#header { background-size: 8em; }
-	/*
-	h2 { font-size: 100%; }
-	h3 { font-size: 150%; }*/
 	
 	body {
 		font-size: 11pt;
 	}
-	/*
-	pre {
-		overflow: auto;
-	}
-	.gallery {
-		float: none;
-		margin-left: auto; margin-right: auto;
-		max-width: 100%;
-	}
-	*/
 }
 
 /* iphone landscape mode and smaller */
@@ -421,15 +407,6 @@ th {
 	#header h1 { font-size: 250%; }
 	#header h2 { font-size: 80%; }
 	#header { background-size: 4em; }
-	
-/*
-	body { font-size: 10pt; }
-	h1 { font-size: 100%; }
-	#header { background-size: 4em;	}
-	#header h1 { font-size:  120%;}
-	h2 { font-size: 100%; }
-	h3 { font-size: 150%; }
-	*/
 	#chapternav {
 		font-size: 80%;
 		padding: 0; margin: 0;
@@ -439,6 +416,5 @@ th {
 		padding: 0.4em;
 		margin: 0;
 	}
-
 }
 
