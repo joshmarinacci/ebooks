@@ -1,6 +1,6 @@
 function setupTOC(toc) {
     for(var i =0; i<toc.length; i++) {
-        $("#toc").append('<li><a href="'+toc[i].src+'">'+toc[i].name+'</a></li>');
+        $("#toc").append('<li><a href="#" onclick="gotoPage('+i+');">'+toc[i].name+'</a></li>');
     }
 
     $("#fchapter").click(function(){

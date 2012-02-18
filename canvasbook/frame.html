@@ -1,0 +1,137 @@
+<html>
+<head>
+<meta name="viewport" content = 
+	"width = device-width, initial-scale=1, maximum-scale=1" />
+<title>HTML Canvas Deep Dive</title>
+<script src="../toolkit/scripts/jquery.js"></script>
+<script src='../toolkit/scripts/toc.js'></script>
+<link rel="stylesheet" href="../toolkit/style/standard.css"/>
+<style type="text/css">
+body, iframe { margin: 0px; padding: 0px;}
+
+iframe {
+    border: 0px solid black;
+    left: 0px; 
+    right: 0px;
+    width: 100%;
+    background-color: red;
+    margin-top: 0px;
+    margin-bottom: 50px;
+    height: 90%;
+    bottom: 50px;
+}
+
+#footer {
+    background-color: #eee;
+    width: 100%;
+    height: 50px;
+    position: fixed;
+    bottom: 0px;
+}
+
+
+</style>
+</head>
+<body>
+
+<iframe id="frame" src="title.html"></iframe>
+
+
+<ul id="footer">
+    <li><a id='nextchapter'>next &gt;</a></li>
+    <li><a id='prevchapter'>&lt; prev</a></li>
+    <li class='fontsize'>
+        <a id='set-font-small'>A</a>
+        <a id='set-font-med'>A</a>
+        <a id='set-font-large'>A</a>
+    </li>
+    <li><b id='fchapter'>Chapter N</b></li>
+</ul>
+
+<ul id='toc'></ul>
+
+<script type="text/javascript">
+var toc = [
+    { src:"title.html", name: "Cover and Introduction"},
+    { src:"toc.html", name: "Table Of Contents"},
+    { src:"chapter1.html", name: "Chapter 1 : Basic Drawing"},
+    { src:"chapter2.html", name: "Chapter 2 : Charts and Graphs"},
+    /*
+    { src:"chapter3.html", name: "Chapter 3 : Advanced Drawing"},
+    { src:"chapter4.html", name: "Chapter 4 : Animation"},
+    { src:"chapter5.html", name: "Chapter 5 : Space N Vaders Game"},
+    { src:"chapter6.html", name: "Chapter 6 : Advanced Graphics ++"},
+    { src:"chapter7.html", name: "Chapter 7 : Real World Usage"},
+    { src:"chapter8.html", name: "Chapter 8 : Mobile Devices and Performance Optimizations"},*/
+    { src:"end.html", name: "Appendix and Back Matter"},
+];
+
+function gotoPage(i) {
+    console.log("i = " + i);
+    var frame = $("#frame");
+    frame.attr("src",toc[i].src);
+    frame.scrollTop(0);
+    $("#fchapter").text(toc[i].name);
+    var t = document.getElementById("toc");
+    t.style.visibility = "hidden";
+    
+    
+}
+$(document).ready(function(){
+/*
+
+    $("body").append("<ul id='footer'>"
+        //+"<li><b>HTML Canvas Deep Dive</b></li>"
+        +"<li><a id='nextchapter'>next &gt;</a></li>"
+        +"<li><a id='prevchapter'>&lt; prev</a></li>"
+        +"<li class='fontsize'>"
+            +"<a id='set-font-small'>A</a> "
+            +"<a id='set-font-med'>A</a> "
+            +"<a id='set-font-large'>A</a>"
+        +"</li>"
+        +"<li><b id='fchapter'>Chapter N</b></li>"
+        +"</ul>"
+        );
+  */      
+        
+//    $("body").append('<ul id="toc"></ul>');
+    
+setupTOC(toc);
+var currentPage = 0;
+/*
+for(var i=0; i<toc.length; i++) {
+	var loc = ""+document.location;
+	if(loc.indexOf(toc[i].src) >= 0) {
+		console.log("found it");
+		if(i > 0) {
+			$("#prevchapter").attr("href",toc[i-1].src);
+		}
+		if(i < toc.length-1) {
+			$("#nextchapter").attr("href",toc[i+1].src);
+		}
+	}
+	console.log("sub = " + (""+document.location).indexOf(toc[i].src));
+	if((""+document.location).indexOf("foo.html") > 0) {
+		console.log("on foo");
+	}
+}
+*/
+
+$("#fchapter").text(toc[currentPage].name);
+$("#prevchapter").click(function(e){
+    if(currentPage <= 0) return;
+    currentPage--;
+    gotoPage(currentPage);
+});
+$("#nextchapter").click(function(e){
+    if(currentPage >= toc.length-1) return;
+    currentPage++;
+    gotoPage(currentPage);
+});
+
+
+});
+</script>
+
+</body>
+</html>
