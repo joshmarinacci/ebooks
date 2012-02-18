@@ -1,0 +1,33 @@
+<html>
+<head>
+<title>switch test</title>
+<script src="../toolkit/scripts/jquery.js"></script>
+<style type=text/css>
+body, iframe, h1 { margin: 0; padding: 0;}
+
+iframe {
+    position: absolute;
+    top: 40px;
+    height: 500px;
+    width: 90%;
+    bottom: 0px;
+}
+</style>
+</head>
+<body>
+
+<h1><a href="#" onclick="nextPage();">next</a></h1>
+
+<iframe id="frame" src="t1.html"></iframe>
+
+<script type="text/javascript">
+function nextPage() {
+    $("#frame").attr("src","t2.html");
+}
+$(document).ready(function(){
+    console.log("doing ready");
+});
+</script>
+
+</body>
+</html>
