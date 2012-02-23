@@ -189,7 +189,7 @@ a {
 
 
 /*  ==========  inline code  =========  */
-pre {
+pre, canvas {
 	background-color: white;
 	padding: 0.8em;
 	border-color: #e1dedb;

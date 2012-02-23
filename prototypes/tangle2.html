@@ -3,41 +3,24 @@
 <meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
 <script src='../toolkit/scripts/jquery.js'></script>
 <script src='../toolkit/scripts/jangle.js'></script>
-<style type="text/css">
-.example { 
-    border: 1px solid #888;
-    float: left;
-    padding: 1em;
-    }
-.example pre {
-    padding-right: 1em;
-
-}
-.example pre b {
-    color: red;
-}
-.example .popup { 
-    position: absolute; left: 0px; top: 100px; 
-    background-color: white;
-    border: 2px solid #444;
-    padding: 15px;
-    font-size: 15pt;
-    border-radius: 9px;
-}
-.shadow {
-    box-shadow: 0px 3px 7px #888;
-}
-</style>
+<link rel=stylesheet href='../toolkit/style/jangle.css'/>
 </head>
 <body>
 
 <h1>This is a Canvas Tangle Example</h1>
+<h1>This is a Canvas Tangle Example</h1>
+<h1>This is a Canvas Tangle Example</h1>
+<h1>This is a Canvas Tangle Example</h1>
+<h1>This is a Canvas Tangle Example</h1>
+<h1>This is a Canvas Tangle Example</h1>
+<h1>This is a Canvas Tangle Example</h1>
+<h1>This is a Canvas Tangle Example</h1>
 <p>Drag the red numbers left and right to adjust.</p>
 
-<div id="example" class='example'>
-    <canvas id="canvas" width="300" height="100"></canvas>
-    <pre id="code" class='snippet'></pre>
-    <div id="popup" class='popup shadow'>000</div>
+<div id="e1" class='jangle'>
+    <canvas width="300" height="100"></canvas>
+    <pre></pre>
+    <div class='popup shadow'>000</div>
 </div>
 
 <script type="text/javascript">
@@ -46,13 +29,30 @@ function drawit(ctx, var1, var2, var3, var4) {
     //x, y, width, height
     ctx.fillRect(var1,var2,var3,var4);
 }
-
 var tangle = new Jangle();
 tangle.drawfun = drawit;
 tangle.vars = { var1:20, var2:30, var3:40,  var4:50, };
-tangle.canvas = document.getElementById("canvas");
-tangle.code = document.getElementById("code");
-tangle.setup();
+tangle.setup("e1");
+
+</script>
+
+<div id="e2" class='jangle'>
+    <canvas width="300" height="100"></canvas>
+    <pre></pre>
+    <div class='popup shadow'>000</div>
+</div>
+
+<script type="text/javascript">
+function drawit2(ctx, var1, var2, var3, var4) {
+    ctx.fillStyle = "red";
+    //x, y, width, height
+    ctx.fillRect(var1,var2,var3,var4);
+}
+var tangle2 = new Jangle();
+tangle2.drawfun = drawit2;
+tangle2.vars = { var1:20, var2:30, var3:40,  var4:50, };
+tangle2.setup("e2");
+
 </script>
 </body>
 </html>

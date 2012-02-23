@@ -4,13 +4,15 @@ function Jangle() {
     this.vars = {novar:0};
     this.startX = 0;
     this.startValue = 0;
-    var self = this;
     this.drawfun = null;
     this.code = null;
     this.down = false;
     this.ai = -1;
+    this.exampleid = null;
+    var self = this;
+    
     this.clear = function(ctx) {
-        ctx.fillStyle = "#f0f0f0";
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(0,0,300,100);
     }
 
@@ -23,8 +25,17 @@ function Jangle() {
         }
         self.drawfun.apply(this,values);
     }
-    this.setup = function() {
+    this.setup = function(exampleid) {
+        self.exampleid = exampleid;
+        var newvars = {};
+        for(var id in self.vars) {
+            var newid=exampleid+"_"+id;
+            newvars[newid] = self.vars[id];
+        }
+        self.canvas = $("#"+exampleid+" canvas")[0];
+        self.code = $("#"+exampleid+" pre")[0];
         self.invokeFunction();
+        
         //console.log("arg length = " + self.drawfun.length);
         //console.log('constructor = ' + self.drawfun.name);
         var src = self.drawfun.toString().split("\n");
@@ -37,14 +48,19 @@ function Jangle() {
         }
         
         for(var id in self.vars) {
-            val = val.replace(new RegExp(id),"<b id='"+id+"'>"+self.vars[id]+"</b>");
+            var newid=exampleid+"_"+id;
+            val = val.replace(new RegExp(id),"<b id='"+newid+"'>"+self.vars[id]+"</b>");
         }
+        self.vars = newvars;
         self.code.innerHTML = val;
-        $("#popup").hide();
+        $("#"+exampleid+" .popup").hide();
         
         for(var id in self.vars) {
             var varx = document.getElementById(""+id);
-            varx.addEventListener('mousedown',function(e){
+            console.log("varx = " + varx);
+            $(varx).bind('mousedown',function(e){
+                console.log("in mouse down");
+                var popup = $("#"+exampleid+" .popup");
                 var id = $(this).attr("id");
                 //console.log("mousedown on " + id );
                 e.preventDefault();
@@ -53,12 +69,14 @@ function Jangle() {
                 self.down = true;
                 self.addListeners();
                 self.activeID = id;
-                $("#popup").show();
-                $("#popup").css("top",(e.clientY-80)+"px");
-                $("#popup").css("left",(e.clientX-30)+"px");
-                //console.log("set startx to : " + self.startX + " " + self.startValue  + " for var " + id);
-            },true);
+                popup.show();
+                var ppos = $("#"+exampleid).offset();
+                var tpos = $(this).offset();
+                popup.css("top",(tpos.top-ppos.top-80)+"px");
+                popup.css("left",(e.pageX-ppos.left-30)+"px");
+            });
             varx.addEventListener('touchstart', function(e) {
+                var popup = $("#"+exampleid+" .popup");
                 var id = $(this).attr("id");
                 e.preventDefault();
                 var touch = e.touches[0];
@@ -69,10 +87,12 @@ function Jangle() {
                 self.down = true;
                 self.addListeners();
                 self.activeID = id;
-                $("#popup").show();
-                $("#popup").css("top",(y-80)+"px");
-                $("#popup").css("left",(x-30)+"px");
-                $("#popup").text(""+self.startValue);
+                popup.show();
+                var ppos = $("#"+exampleid).offset();
+                var tpos = $(this).offset();
+                popup.css("top",(tpos.top-ppos.top-80)+"px");
+                popup.css("left",(e.pageX-ppos.left-30)+"px");
+                popup.text(""+self.startValue);
             });
         }
     };
@@ -86,15 +106,17 @@ function Jangle() {
                 var elem = document.getElementById(self.activeID);
                 elem.innerHTML = newvalue;
                 self.invokeFunction();
-                $("#popup").css("left",(e.clientX-30)+"px");
-                $("#popup").text(""+newvalue);
+                var popup = $("#"+self.exampleid+" .popup");
+                var ppos = $("#"+self.exampleid).offset();
+                var tpos = $(this).offset();
+                popup.css("left",(e.pageX-ppos.left-30)+"px");
+                popup.text(""+newvalue);
             }
         }
     }; 
     this.doc_touch_move = function(e){
         var touch = e.touches[0];
         var x = touch.pageX;
-        $("#popup").text("touchmove "+ x);
         if(self.down) {
             e.preventDefault();
             var newvalue = (x-self.startX) + self.startValue;
@@ -102,8 +124,12 @@ function Jangle() {
             var elem = document.getElementById(self.activeID);
             elem.innerHTML = newvalue;
             self.invokeFunction();
-            $("#popup").css("left",(x-30)+"px");
-            $("#popup").text(""+newvalue);
+            var popup = $("#"+self.exampleid+" .popup");
+            var ppos = $("#"+self.exampleid).offset();
+            var tpos = $(this).offset();
+            popup.css("left",(e.pageX-ppos.left-30)+"px");
+            //popup.css("left",(x-30)+"px");
+            popup.text(""+newvalue);
         }
     }; 
     
@@ -112,7 +138,8 @@ function Jangle() {
             e.preventDefault();
             self.down = false;
             self.removeListeners();
-            $("#popup").hide();
+            var popup = $("#"+self.exampleid+" .popup");
+            popup.hide();
         }
     };
     this.doc_touch_end = function(e) {
@@ -120,7 +147,8 @@ function Jangle() {
         e.preventDefault();
         self.down = false;
         self.removeListeners();
-        $("#popup").hide();
+        var popup = $("#"+self.exampleid+" .popup");
+        popup.hide();
         var x = touch.pageX;
     }
     

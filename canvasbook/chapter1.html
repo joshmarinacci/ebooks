@@ -4,7 +4,7 @@
 <title>Table Of Contents</title>
 <script src="../toolkit/scripts/jquery.js"></script>
 <script src='../toolkit/scripts/swipe.js'></script>
-<script src='../toolkit/scripts/toc.js'></script>
+<script src='../toolkit/scripts/jangle.js'></script>
 <script src='setup.js'></script>
 
 
@@ -17,6 +17,7 @@
 
 
 <link rel="stylesheet" href="master.css"/>
+<link rel="stylesheet" href="../toolkit/style/jangle.css" type="text/css">
 
 <title>Chapter 1: Overview</title>
 
@@ -155,7 +156,7 @@ c.fillRect(100,100,400,300);
 Drag the numbers in the code to change the values and see how it affects
 the rectangle.</p>
 
-
+<!--
 <pre id="simpleredrect_code"><code>c.fillStyle = "red";
 c.fillRect(<b data-var='x' class='TKAdjustableNumber' data-min='-100' data-max='300'></b>,<b data-var='y' class='TKAdjustableNumber' data-min='0' data-max='100'></b>,<b data-var='w' class='TKAdjustableNumber' data-min='-100' data-max='300'></b>,<b data-var='h' class='TKAdjustableNumber' data-min='-50' data-max='200'></b>);</code></pre>
 
@@ -189,35 +190,65 @@ $(document).ready(function() {
     
 });
 </script>
+-->
 
+<div id="simplerect" class='jangle'>
+    <canvas width="300" height="100"></canvas>
+    <pre></pre>
+    <div class='popup shadow'>000</div>
+</div>
+
+<script type="text/javascript">
+function drawit(ctx, var1, var2, var3, var4) {
+    ctx.fillStyle = "red";
+    //x, y, width, height
+    ctx.fillRect(var1,var2,var3,var4);
+}
+var tangle = new Jangle();
+tangle.drawfun = drawit;
+tangle.vars = { var1:20, var2:30, var3:40,  var4:50, };
+tangle.setup("simplerect");
+</script>
 
 
 
 <p>Here's another one.</p>
 
+<div id="simple_triangle" class='jangle'>
+    <canvas width="300" height="100"></canvas>
+    <pre></pre>
+    <div class='popup shadow'>000</div>
+</div>
+
+<script type="text/javascript">
+function drawit2(c, var1, var2) {
+    c.fillStyle = '#ccddff';
+    c.beginPath();
+    c.moveTo(20,20);
+    c.lineTo(200,50);
+    c.lineTo(var1,var2);
+    //c.lineTo(this.x,this.y);
+    c.closePath();
+    c.fill();
+    c.strokeStyle = 'rgb(0,128,0)';
+    c.lineWidth = 5;//this.w;
+    c.stroke();
+}
+var jangle2 = new Jangle();
+jangle2.drawfun = drawit2;
+jangle2.vars = { var1:150, var2:80, };
+jangle2.setup("simple_triangle");
+</script>
 
 
-
-
-
-<pre id="simple_triangle_code"><code>c.fillStyle = &quot;#ccddff&quot;;
-c.beginPath();
-c.moveTo(100,100);
-c.lineTo(400,50);
-c.lineTo(<b data-var='x' class='TKAdjustableNumber' data-min='300' data-max='500'></b>,<b data-var='y' class='TKAdjustableNumber' data-min='100' data-max='300'></b>);
-c.closePath();
-c.fill();
-c.strokeStyle = &quot;rgb(0,128,0)&quot;;
-c.lineWidth = <b data-var='w' class='TKAdjustableNumber' data-min='0' data-max='30'></b>;
-c.stroke();</code></pre>
-
-
+<!--
 <div class='photo'>
-<canvas id="simple_triangle_canvas" width="500" height="300" style='border:1px solid black'></canvas>
+    <canvas id="simple_triangle_canvas" width="500" height="300" style='border:1px solid black'></canvas>
 	<p><b>INTERACTIVE</b> Triangle with stroke</p>
 	<p><i>Drag numbers to change the line point and stroke width</i></p>
 </div>
-
+-->
+<!--
 
 <script type="text/javascript">
     $(document).ready(function() { 
@@ -249,7 +280,7 @@ c.stroke();</code></pre>
     
     });
 </script>
-
+-->
 
 <p>In this example we set the current fill color, create a path, then fill and stroke it. Note that the context keeps track of the fill color and the stroke color separately. Also notice the different forms of specifying colors. <code>fillStyle</code> and <code>strokeStyle</code> can be any valid CSS color notation like hex, names, or <code>rgb()</code> functions.</p>
 
