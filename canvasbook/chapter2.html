@@ -24,12 +24,17 @@
 <div id="content">
 
 <p>If you are having issues with chrome loading images or other files directly from disk, try adding this to the commmand line: <code>--allow-file-access-from-files --disable-web-security</code></p>
+
 <p>On Mac OS X this would be</p>
+
 <pre class='wrap'><code>/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --allow-file-access-from-files --disable-web-security</code></pre>
+
 
 <p>In this first hands on lesson we will graph some data by drawing a custom chart. It will show you basic drawing of lines, shapes, and text.</p>
 
-<h3>Empty Page</h3>
+
+<h3><a id='empty_page'>Empty Page</a></h3>
+
 
 <p>Start by creating a new webpage called <code>barchart.html</code> and type this in:</p>
 
@@ -63,7 +68,7 @@ var c = canvas.getContext('2d');
 c.fillStyle = "gray";
 c.fillRect(0,0,500,500);</code></pre>
 
-<h3>Add Data</h3>
+<h3><a id='add_data'>Add Data</a></h3>
 
 <p>Now you can draw some data.  Do this by looping over the data array. For each data point fill in a rectangle with the x determined by the array index and the hefight is determined by the data value.</p>
 
@@ -78,7 +83,7 @@ for(var i=0; i&lt;data.length; i++) {
 
 <p class='photo'><img src="images/barchart1.png"/></p>
 
-<p>The first problem is that the bars are coming down from the top instead of the bottom. Remember that the y axis is 0 at the top and increases as you go down.  To make the bars come up from the bottom change the y value to be calculated as the height of the canvas (500) minus the height of the bar (dp*5) and then subtract off an extra 30 to make it fit.
+<p>The first problem is that the bars are coming down from the top instead of the bottom. Remember that the y axis is 0 at the top and increases as you go down.  To make the bars come up from the bottom change the y value to be calculated as the height of the canvas (500) minus the height of the bar (dp*5) and then subtract off an extra 30 to make it fit.</p>
 
 <pre><code>
 //draw data
@@ -151,7 +156,7 @@ for(var i=0; i&lt;data.length; i++) {
 
 <p class='photo'><img src="images/barchart3.png"/></p>
 
-<h3>Piechart</h3>
+<h3><a id='piechart'>Piechart</a></h3>
 
 <p>Now lets take the same data and draw it as a piechart instead.  
 The code is very similar. </p>
@@ -231,7 +236,7 @@ c.fillText(text, 250-metrics.width/2, 400);
 
 <p class='photo'><img src="images/piechart1.png"/></p>
 
-<h3>Gradients</h3>
+<h3><a id='gradients'>Gradients</a></h3>
 
 <p>To make the chart look a little bit snazzier you can fill each slice with a radial gradient like this:</p>
 

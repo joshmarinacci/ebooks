@@ -1,0 +1,99 @@
+<html>
+<head>
+<meta name="viewport" content = "width = device-width, initial-scale=1, maximum-scale=1" />
+<script src="../toolkit/scripts/jquery.js"></script>
+<style type="text/css">
+
+body { font-family: Helvetica, Verdana, Arial, sans-serif; }
+
+.quiz {
+    margin-bottom: 5em;
+}
+.quiz ol {
+	background-color: #fcffe7;
+	padding-bottom: 1em;
+	padding-top: 1em;
+	border-color: #d5c82c;
+	border-width: 2px;
+	border-style: solid;
+	border-radius: 1em;
+}
+.quiz li { padding: 0.5em; }
+.quiz li:hover { background-color: #fbe700; }
+
+.quiz .right, .quiz .wrong {
+    position: absolute;
+    border: 1px solid black;
+    padding: 1em;
+}
+.quiz.unanswered .right, .quiz.unanswered .wrong {
+    visibility: hidden;
+}
+.quiz.unanswered { }
+
+
+/* when the reader chooses the right answer */
+.quiz.right { }
+.quiz.right .right { visibility: visible; }
+.quiz.right .wrong { visibility: hidden;  }
+.quiz.right li.correct { background-color: #5ef5ff;	border-radius: 1em; }
+.quiz.right ol { border-color: blue; }
+
+
+/* when the reader chooses the wrong asnwer */
+.quiz.wrong ol { border-color: red; }
+.quiz.wrong .wrong { visibility: visible; }
+.quiz.wrong .right { visibility: hidden;  }
+.quiz.wrong li.correct { background-color: #ff2a1b; border-radius: 1em; }
+
+
+</style>
+</head>
+<body>
+
+
+
+<div class="quiz unanswered">
+<p>What is the answer? (Hint, it's number 3)</p>
+<ol>
+<li>First answer</li>
+<li>Second answer</li>
+<li class="correct">Third answer</li>
+<li>Fourth answer</li>
+</ol>
+<p class='right'> you are right! The third answer is correct!</p>
+<p class='wrong'> you are wrong! The right answer is the third one.</p>
+</div>
+
+
+<div class="quiz unanswered">
+<p>What is the answer? (Hint, it's number 1)</p>
+<ol>
+<li class="correct">First answer</li>
+<li>Second answer</li>
+<li>Third answer</li>
+<li>Fourth answer</li>
+</ol>
+<p class='right'> you are right! The first answer is correct!</p>
+<p class='wrong'> you are wrong! The right answer is the first one</p>
+</div>
+
+
+
+<script type="text/javascript">
+$(".quiz li").click(function() {
+    var quizdiv = this.parentNode.parentNode;
+    if($(this).hasClass("correct")) {
+        $(quizdiv).addClass("right");
+        $(quizdiv).removeClass("wrong");
+        $(quizdiv).removeClass("unanswered");
+    } else {
+        $(quizdiv).addClass("wrong");
+        $(quizdiv).removeClass("right");
+        $(quizdiv).removeClass("unanswered");
+    }
+});
+</script>
+
+</body>
+</html>
