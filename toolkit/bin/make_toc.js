@@ -1,21 +1,21 @@
 //npm install jsdom
+//node toolkit/bin/make_toc.js canvasbook/toc.html canvasbook
 
 var jsdom = require("jsdom");
 var fs = require("fs");
 var step = require("step");
 
+console.log(" " + __dirname);
 console.log('args = ' + process.argv);
-var toolkitdir = process.argv[2];
-console.log('resources dir = ' + toolkitdir);
-var outfile = process.argv[3];
+var outfile = process.argv[2];
 console.log("writing to file: " + outfile);
-var basedir = process.argv[4];
+var basedir = process.argv[3];
 console.log("using basedir " + basedir);
 
 var fd = fs.createWriteStream(outfile);
 
-var header = fs.readFileSync(toolkitdir+"/bin/header.html","utf8");
-var footer = fs.readFileSync(toolkitdir+"/bin/footer.html","utf8");
+var header = fs.readFileSync(__dirname+"/header.html","utf8");
+var footer = fs.readFileSync(__dirname+"/footer.html","utf8");
 
 
 
@@ -55,7 +55,7 @@ step(
 
 function processFile(file,filename,callback) {
     console.log("processing file: " + file);
-    jsdom.env(file, [toolkitdir+'/scripts/jquery.js'], function(errors, window) {
+    jsdom.env(file, [__dirname+'/../scripts/jquery.js'], function(errors, window) {
         if(errors) {
             console.log("errors = " + errors);
         }
