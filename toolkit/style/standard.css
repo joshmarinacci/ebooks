@@ -200,7 +200,7 @@ pre, canvas {
 	color: #484848;
 	}
 	
-pre.wrap span {
+pre span {
 	display:block;
 	white-space: pre-wrap;
 	padding-left: 2em;

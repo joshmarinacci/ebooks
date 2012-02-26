@@ -8,13 +8,6 @@
 <script src='setup.js'></script>
 
 
-<script src="../toolkit/Tangle/Tangle.js"></script>
-<link rel="stylesheet" href="../toolkit/Tangle/TangleKit/TangleKit.css" type="text/css">
-<script type="text/javascript" src="../toolkit/Tangle/TangleKit/mootools.js"></script>
-<script type="text/javascript" src="../toolkit/Tangle/TangleKit/sprintf.js"></script>
-<script type="text/javascript" src="../toolkit/Tangle/TangleKit/BVTouchable.js"></script>
-<script type="text/javascript" src="../toolkit/Tangle/TangleKit/TangleKit.js"></script>
-
 
 <link rel="stylesheet" href="master.css"/>
 <link rel="stylesheet" href="../toolkit/style/jangle.css" type="text/css">
@@ -72,7 +65,7 @@ for all devices, not just desktops.</p>
 
 <p>Canvas is a 2D drawing API.  Essentially the browser gives you a rectanglar area on the screen that you can draw into. You can draw lines, shapes, images, text; pretty much anything you want.   Canvas was originally created by Apple for their Dashboard widgets, but it has since been adopted by every major browser vendor and is now part of the HTML 5 spec. Here's a quick example of what some Canvas code looks like:</p>
 
-<pre><code>&lt;html&gt;
+<pre class='wrap'><code>&lt;html&gt;
 &lt;body&gt;
 &lt;canvas width=&quot;800&quot; height=&quot;600&quot; id=&quot;canvas&quot;&gt;&lt;/canvas&gt;
 &lt;script&gt;
@@ -156,42 +149,6 @@ c.fillRect(100,100,400,300);
 Drag the numbers in the code to change the values and see how it affects
 the rectangle.</p>
 
-<!--
-<pre id="simpleredrect_code"><code>c.fillStyle = "red";
-c.fillRect(<b data-var='x' class='TKAdjustableNumber' data-min='-100' data-max='300'></b>,<b data-var='y' class='TKAdjustableNumber' data-min='0' data-max='100'></b>,<b data-var='w' class='TKAdjustableNumber' data-min='-100' data-max='300'></b>,<b data-var='h' class='TKAdjustableNumber' data-min='-50' data-max='200'></b>);</code></pre>
-
-<div class='photo'>
-<canvas id="simpleredrect_canvas" width="400" height="200" style='border:1px solid black'></canvas>
-	<p><b>interactive</b> Simple red rectangle</p>
-	<p><i>Drag numbers to change x, y, width and height</i></p>
-</div>
-
-
-<script type="text/javascript">
-$(document).ready(function() { 
-        console.log("setting up red rect");
-    var simpleredrect_code = document.getElementById("simpleredrect_code");
-    var simpleredrect_tangle = new Tangle(simpleredrect_code, {
-            initialize: function() {
-                this.x = 100;
-                this.y = 50;
-                this.w = 200;
-                this.h = 100;
-            },
-            update: function() {
-                var can = document.getElementById("simpleredrect_canvas");
-                var ctx = can.getContext('2d');
-                ctx.fillStyle = "white"; 
-                ctx.fillRect(0,0,can.width,can.height);
-                ctx.fillStyle = "red";
-                ctx.fillRect(this.x,this.y,this.w,this.h);
-            },
-    });
-    
-});
-</script>
--->
-
 <div id="simplerect" class='jangle'>
     <canvas width="300" height="100"></canvas>
     <pre></pre>
@@ -238,48 +195,6 @@ jangle2.drawfun = drawit2;
 jangle2.vars = { var1:150, var2:80, };
 jangle2.setup("simple_triangle");
 </script>
-
-
-<!--
-<div class='photo'>
-    <canvas id="simple_triangle_canvas" width="500" height="300" style='border:1px solid black'></canvas>
-	<p><b>INTERACTIVE</b> Triangle with stroke</p>
-	<p><i>Drag numbers to change the line point and stroke width</i></p>
-</div>
--->
-<!--
-
-<script type="text/javascript">
-    $(document).ready(function() { 
-    var simple_triangle_code = document.getElementById("simple_triangle_code");
-    var simple_triangle = new Tangle(simple_triangle_code, {
-            initialize: function() {
-                this.x = 400;
-                this.y = 200;
-                this.w = 5.0;
-            },
-            update: function() {
-                var can = document.getElementById("simple_triangle_canvas");
-                var c = can.getContext('2d');
-                c.fillStyle = "white"; 
-                c.fillRect(0,0,can.width,can.height);
-                c.fillStyle = '#ccddff';
-                c.beginPath();
-                c.moveTo(100,100);
-                c.lineTo(400,50);
-                //c.lineTo(400,300);
-                c.lineTo(this.x,this.y);
-                c.closePath();
-                c.fill();
-                c.strokeStyle = 'rgb(0,128,0)';
-                c.lineWidth = this.w;
-                c.stroke();
-            },
-    });
-    
-    });
-</script>
--->
 
 <p>In this example we set the current fill color, create a path, then fill and stroke it. Note that the context keeps track of the fill color and the stroke color separately. Also notice the different forms of specifying colors. <code>fillStyle</code> and <code>strokeStyle</code> can be any valid CSS color notation like hex, names, or <code>rgb()</code> functions.</p>
 
