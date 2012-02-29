@@ -1,14 +1,42 @@
 <html>
 <head>
 <script src="../toolkit/scripts/jquery.js"></script>
+<style type='text/css'>
+#header {
+    position: fixed;
+    border: 3px solid black;
+    width: 100%;
+    background-color: white;
+    top: 0;
+    left: 0;
+}
+
+#content {
+    margin-top: 40px;
+}
+</style>
 </head>
 <body>
 
+<div id="header">
+<a href="#" id="page1">load page 1</a>
+<a href="#" id="page2">load page 2</a>
+</div>
+
 <div id="content"></div>
 
+
 <script type="text/javascript">
+$("#page1").click(function() {
+    $("#content").load('content/page1.html',function(){
+    })        
+});
+$("#page2").click(function() {
+    $("#content").load('content/page2.html',function(){
+    })        
+});
 $("#content").load('content/page1.html',function(){
-	console.log("content loaded: " + p);
+	console.log("content loaded: ");
 })
 </script>
 
