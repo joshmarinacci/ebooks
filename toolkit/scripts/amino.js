@@ -1,11 +1,18 @@
 /*
 @overview Amino: JavaScript Scenegraph
 
-Amino is a scenegraph for drawing 2D graphics in JavaScript with the
-HTML 5 Canvas API. By creating a tree of nodes, you can draw shapes, text, images special effects; complete with transforms and animation.
-Amino takes care of all rendering, animation, and event handling
-so you can build *rich* interactive graphics with very little code.
-Using Amino is much more convenient than writing canvas code by hand.
+Amino is a scenegraph for drawing 2D graphics 
+in JavaScript with the
+HTML 5 Canvas API. By creating a tree of nodes,
+you can draw shapes,
+text, images special effects; complete with
+transforms and animation.
+Amino takes care of all rendering, animation, 
+and event handling
+so you can build *rich* interactive graphics 
+with very little code.
+Using Amino is much more convenient than 
+writing Canvas code by hand.
 
 Here's a quick example:    
 
@@ -50,326 +57,560 @@ can set a bunch of properties at once like this:
         .setStrokeWidth(5)
         .setStroke("black")
         ;
-    
 @end
 */
 
-var win = window;
-//@language javascript
-var ROTATE_BACKWARDS = false;
-if (window.PalmSystem) {
-    ROTATE_BACKWARDS = true;
-}
+
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = 
+          window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
 
 
+function attachEvent(node,name,func) {
+    //self.masterListeners.push(func);
+    if(node.addEventListener) {
+        node.addEventListener(name,func,false);
+    } else if(node.attachEvent) {
+        node.attachEvent(name,func);
+    }
+};
 
 // 'extend' is From Jo lib, by Dave Balmer
 // syntactic sugar to make it easier to extend a class
 Function.prototype.extend = function(superclass, proto) {
 	// create our new subclass
 	this.prototype = new superclass();
+	/*
 
 	// optional subclass methods and properties
 	if (proto) {
 		for (var i in proto)
 			this.prototype[i] = proto[i];
 	}
+	*/
 };
-
-
-var DEBUG = true;
-var tabcount = 0;
-function indent() {
-    tabcount++;
-}
-function outdent() {
-    tabcount--;
-}
-function p(s) {
-    if(DEBUG) {
-        var tab = "";
-        for(i=0;i<tabcount;i++) {
-            tab = tab + "  ";
-        }
-        console.log(tab+s);
-    }
-}
-
 
 
 
 /*
-@class Node The base class for all nodes. All nodes have a parent and can potentially have children if they implement *hasChildren*.
-@category shape
+@class Amino 
+
+#category core
+
+The engine that drives the whole system. 
+You generally only need one of these per page. It is
+the first thing you create. Attach canvases to it using
+addCanvas. ex:  
+
+    var amino = new Amino(); 
+    var canvas = amino.addCanvas('canvasid');
+@end
 */
-__node_hash_counter = 0;
-function Node() {
-    __node_hash_counter++;
-    this._hash = __node_hash_counter;
+function Amino() {
+	this.canvases = [];
+	this.anims = [];
+	this.timeout = 1000/30;
+	this.autoPaint = false;
+    this.isTouchEnabled = "ontouchend" in document;
+}
+
+//@function addCanvas(id) adds a new canvas to the engine. Pass in the string id of a canvas element in the page.
+Amino.prototype.addCanvas = function(id) {
+	var canvasElement = document.getElementById(id);
+	var canvas = new Canvas(this,canvasElement);
+	this.canvases.push(canvas);
+	return canvas;
+}
+
+//@function addAnim(anim) adds a new animation to then engine. Note that you must also start the animation as well.
+Amino.prototype.addAnim = function(anim) {
+	anim.engine = this;
+	this.anims.push(anim);
+	return this;
+}
+//@function removeAnim(anim) removes an animation from the engine.
+Amino.prototype.removeAnim = function(anim) {
+    var index = this.anims.indexOf(anim);
+    this.anims.splice(index,1);
+    return this;
+}
+
+//@function start() Starts the Amino engine. You must call this once or else nothing will be drawn on the screen.
+Amino.prototype.start = function() {
     var self = this;
+    var rp = function() {
+        self.repaint();
+        window.requestAnimationFrame(rp);
+    }
     
-    //@property parent Get the parent of this node, or null if there is no parent.  A node not yet put into the scene may not have a parent. The top most node may not have a parent.
-    this.parent = null;
-    this.setParent = function(parent) { this.parent = parent; return this; };
-    this.getParent = function() { return this.parent; };
-    
-    //@property visible Indicates if the node is visible. Non-visible nodes are not drawn on screen.      non visible nodes cannot intercept click events.
-    this.visible = true;
-    this.setVisible = function(visible) {
-        self.visible = visible;
-        self.setDirty();
-        return self;
-    };
-    this.isVisible = function() {
-        return this.visible;
-    };
-    
-    //@property cached Indicates if the node should be automatically cached an a buffer. false by default
-    this.cached = false;
-    this.setCached = function(cached) {
-        self.cached = cached;
-        self.setDirty();
-        return self;
-    };
-    this.isCached = function() {
-        return self.cached;
-    };
-    
-    
-    // @property blocksMouse Indicates if this node will block mouse events from hitting nodes beneath it.
-    this.blocksMouse = false;
-    this.isMouseBlocked = function() {
-        return this.blocksMouse;
-    };
-    this.setMouseBlocked = function(m) {
-        this.blocksMouse = m;
-        return this;
-    };
-    
-    this.dirty = true;
-    //@doc Marks this node as dirty, so it is scheduled to be redrawn
-    this.setDirty = function() {
-        this.dirty = true;
-        if(this.getParent()) {
-            this.getParent().setDirty();
-        }
-    };
-    //@doc Returns if this node is dirty, meaning it still needs to be completely redrawn
-    this.isDirty = function() {
-        return self.dirty;
-    };
-    //@doc Clears the dirty bit. usually this is called by the node itself after it redraws itself
-    this.clearDirty = function() {
-        self.dirty = false;
-    };
-    //@method by default nodes don't contain anything
-    this.contains = function(x,y) { return false; }
-    //@method by default nodes don't have children
-    this.hasChildren = function() { return false; }
-    return true;
+	if(this.autoPaint) {
+		rp();
+	} else {
+		//just paint once
+		this.repaint();
+	}
+}
+
+Amino.prototype.repaint = function() {
+	
+	var animRunning = false;
+	for(var i=0; i<this.anims.length; i++) {
+		var anim = this.anims[i];
+		if(anim.playing) animRunning = true;
+		anim.update();
+	}
+	
+	for(var i=0; i<this.canvases.length; i++) {
+		this.canvases[i].repaint();
+	}
+	
+	if(animRunning && !this.autoPaint) {
+		var self = this;
+		var rp = function() {
+			self.repaint();
+		}
+		window.requestAnimationFrame(rp);
+	}
+}
+
+
+Amino.prototype.animationChanged = function() {
+	this.repaint();
 }
 
 /*
-@class Bounds  Represents the maximum bounds of something, usually the visible bounds of a node.
-@category resource
+@class Canvas 
+Canvas represents a drawable area on the screen, usually
+a canvas tag.  Create it using the Amino class by passing the
+ID of your canvas element to amino.addCanvas(id);
+
+#category core
+
+@end
 */
-function Bounds(x,y,w,h) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    var self = this;
+
+function Canvas(engine,domCanvas) {
+	this.engine = engine;
+	this.domCanvas = domCanvas;
+	this.nodes = [];
+	this.listeners = [];
+	this.mousePressed = false;
+	this.bgfill = "white";
+	this.transparent = false;
+	this.oldwidth = -1;
+	var self = this;
+	
+	this.autoSize = true;
+	this.autoScale = true;
+	
+    this.ratio = this.domCanvas.width / this.domCanvas.height;
+    this.originalWidth = this.domCanvas.width;
+	
+	this.processEvent = function(type,domCanvas,e,et) {
+	    e.preventDefault();
+        var point = self.calcLocalXY(domCanvas,et);
+        var node = self.findNode(point);
+    	for(var i=0; i<self.listeners.length; i++) {
+    		var listener = self.listeners[i];
+    		if(listener.node === node) {
+    		    if(listener.type == type) {
+    		        listener.fn({point:point,target:node});
+    		    }
+    		}
+    	}
+	}
+    attachEvent(domCanvas,'mousedown',function(e){
+        self.processEvent('press',domCanvas,e,e);
+        self.mousePressed = true;
+    });
+    
+    attachEvent(domCanvas,'mousemove',function(e){
+        if(!self.mousePressed) return;
+        self.processEvent('drag',domCanvas,e,e);
+        self.mousePressed = true;
+    });
+    
+    attachEvent(domCanvas,'mouseup',function(e){
+        self.processEvent('release',domCanvas,e,e);
+        self.processEvent('click',domCanvas,e,e);
+        self.mousePressed = false;
+    });
+
+    if(engine.isTouchEnabled) {    
+		domCanvas.addEventListener('touchstart', function(event) {
+            self.processEvent("press",domCanvas,event,event.touches[0]);
+            self.mousePressed = true;
+		});
+		domCanvas.addEventListener('touchmove', function(event) {
+            self.processEvent("drag",domCanvas,event,event.touches[0]);
+            /*
+			event.preventDefault();
+			var touch = event.touches[0];
+			var x = touch.pageX;
+			var y = touch.pageY;
+			//self.drag(x,y);
+			*/
+			//lastTouch = touch;
+            //window.alert("moved");
+		});
+		domCanvas.addEventListener('touchend', function(event) {
+            self.processEvent('release',domCanvas,event,event.changedTouches[0]);
+            self.processEvent('click',domCanvas,event,event.changedTouches[0]);
+            self.mousePressed = false;
+			//var touch = event.changedTouches[0];
+			//self.end(touch.pageX,touch.pageY);
+		});	
+	}
     
     
-    //@property x Return the x coordinate of the bounds.
-    this.getX = function() { return this.x; };
-    //@property y Return the y coordinate of the bounds.
-    this.getY = function() { return this.y; };
-    //@property width Return the width of the bounds.
-    this.getWidth = function() { return this.w; }
-    //@property height Return the height of the bounds.
-    this.getHeight = function() { return this.h; }
+    this.calcLocalXY = function(canvas,event) {
+        var docX = -1;
+        var docY = -1;
+        if (event.pageX == null) {
+            // IE case
+            var d= (document.documentElement && document.documentElement.scrollLeft != null) ?
+                 document.documentElement : document.body;
+             docX= event.clientX + d.scrollLeft;
+             docY= event.clientY + d.scrollTop;
+        } else {
+            // all other browsers
+            docX= event.pageX;
+            docY= event.pageY;
+        }        
+        docX -= canvas.offsetLeft;
+        docY -= canvas.offsetTop;
+        return {x:docX,y:docY};
+    };		
     
-    this.intersects = function(b) {
-        
-        var left = self.x;
-        var top = self.y;
-        var right = self.x + self.w;
-        var bottom = self.y + self.h;
-        
-        var bleft = b.x;
-        var btop = b.y;
-        var bright = b.x + b.w;
-        var bbottom = b.y + b.h;
-        
-        if(bleft < left && bright > right) return true;
-        
-        //too far left
-        if(bright < left) return false;
-        
-        //too far right
-        if(bleft > right) return false;
-        
-        //too high
-        if(bbottom < top) return false;
-        
-        //too low
-        if(btop > bottom) return false;
-        
-        
-        
-        return true;
+    
+    this.findNode = function(point) {
+    	//go in reverse, ie: front to back
+    	for(var i=this.nodes.length-1; i>=0; i--) {
+    		var node = this.nodes[i];
+    		if(node && node.isVisible() && node.contains(point)) {
+    			return node;
+    		}
+    		
+    		if(node instanceof Group && node.isVisible()) {
+    		    var r = this.searchGroup(node,point);
+    		    if(r) {
+    		        return r;
+    		    }
+    		}
+    	}
+    	return this;
     }
     
-    this.union = function(b) {
-        var al = self.x;
-        var ar = self.x+self.w;
-        var at = self.y;
-        var ab = self.y+self.h;
-        var bl = b.x;
-        var br = b.x+b.w;
-        var bt = b.y;
-        var bb = b.y+b.h;
-        
-        var l = Math.min(al,bl);
-        var r = Math.max(ar,br);
-        var t = Math.min(at,bt);
-        var b = Math.max(ab,bb);
-        return new Bounds(l,t,r-l,b-t);
-    }
-     
-    
-    this.translate = function(x,y) {
-        return new Bounds(self.x+x,self.y+y,self.w,self.h);
+    this.searchGroup = function(group,point) {
+        point = {x:point.x-group.getX(), y:point.y-group.getY() };
+        for(var j=group.children.length-1; j>=0; j--) {
+            var node = group.children[j];
+            if(node && node.isVisible() && node.contains(point)) {
+                return node;
+            }
+            if(node instanceof Group && node.isVisible()) {
+    		    var r = this.searchGroup(node,point);
+    		    if(r) return r;
+            }
+        }
+        return null;
     }
     
-    this.toString = function() {
-        return "Bounds: " + x + ","+y+" "+w+"x"+h;
-    }
-    
-    return true;
-};
+}
+
+
+Canvas.prototype.repaint = function() {
+	var ctx = this.domCanvas.getContext('2d');
+	this.width = this.domCanvas.width;
+	this.height = this.domCanvas.height;
+	
+//	console.log("width = " + this.domCanvas.width 
+//	    + " client width = " + this.domCanvas.clientWidth);
+	var w = this.domCanvas.clientWidth;
+	if(w != this.oldwidth && this.autoSize) {
+	    this.domCanvas.width = w;
+	    this.domCanvas.height = w/this.ratio;
+		this.oldwidth = w;
+	}
+	
+	
+	ctx.fillStyle = this.bgfill;
+	if(this.transparent) {
+	    ctx.clearRect(0,0,this.width,this.height);
+	} else {
+	    ctx.fillRect(0,0,this.width,this.height);
+	}
+	
+	ctx.can = this;
+	ctx.engine = this.engine;
+	
+	ctx.save();
+	//ctx.rect(0,0,100,100);
+	//ctx.clip();
+	if(this.autoScale) {
+	    var scale =  w/this.originalWidth;
+	    ctx.scale(scale,scale);
+	}
+	
+	
+	for(var i=0; i<this.nodes.length; i++) {
+		var node = this.nodes[i];
+		node.paint(ctx);
+	}
+	ctx.restore();
+	this.dirty = false;
+	
+}
+
+//@function setBackground(bgfill) set the background color of the canvas
+Canvas.prototype.setBackground = function(bgfill) {
+    this.bgfill = bgfill;
+}
+//@function setTransparent(trans) set if the canvas should draw it's background or let it be transparent
+Canvas.prototype.setTransparent = function(transparent) {
+    this.transparent = transparent;
+}
+
+//@function add(node) Adds a node to this canvas.
+Canvas.prototype.add = function(node) {
+	this.nodes.push(node);
+	node.parent = this;
+}
+
+//@function on(type,node,fn)  adds an event handler of the specified type. ex: canvas.on('click',rect,function(){});
+Canvas.prototype.on = function(eventtype, node, fn) {
+    this.listeners.push({
+        type:eventtype,
+        node:node,
+        fn:fn,
+    });
+}
+//@function onClick(node,function) adds an event handler to be called when the user clicks on the specified node. Works with both mouse and touch events.
+Canvas.prototype.onClick = function(node,fn) {
+	this.listeners.push({
+		type:'click'
+		,node:node
+		,fn:fn
+	});
+}
+
+//@function onPress(node,function) adds an event handler to be called when the user presses on the specified node. Works with both mouse and touch events.
+Canvas.prototype.onPress = function(node,fn) {
+	this.listeners.push({
+		type:'press'
+		,node:node
+		,fn:fn
+	});
+}
+//@function onRelease(node,function) adds an event handler to be called when the user presses and then releases on the specified node. Works with both mouse and touch events.
+Canvas.prototype.onRelease = function(node,fn) {
+	this.listeners.push({
+		type:'release'
+		,node:node
+		,fn:fn
+	});
+}
+//@function onDrag(node,function) adds an event handler to be called when the user drags on the specified node. Works with both mouse and touch events.
+Canvas.prototype.onDrag = function(node,fn) {
+	this.listeners.push({
+		type:'drag'
+		,node:node
+		,fn:fn
+	});
+}
+//@function onMomentumDrag(node,function) adds an event handler to be called when the user drags on the specified node. Works with both mouse and touch events. Will apply momentum so that the drag continues after the user has released their mouse/finger.
+Canvas.prototype.onMomentumDrag = function(node,fn) {
+	this.listeners.push({
+		type:'momentumdrag'
+		,node:node
+		,fn:fn
+	});
+}
+Canvas.prototype.setDirty = function() {
+	if(!this.dirty) {
+		this.dirty = true;
+		if(!this.engine.autoPaint) {
+			this.repaint();
+		}
+	}
+}
+//@function getWidth() Returns the width of the canvas in pixels
+Canvas.prototype.getWidth = function() {
+    return this.domCanvas.width;
+}
+//@function getHeight() Returns the height of the canvas in pixels
+Canvas.prototype.getHeight = function() {
+    return this.domCanvas.height;
+}
+
 
 /*
-@class Buffer An offscreen area that you can draw into. Used for special effects and caching.
-@category resource
+@class AminoNode the base class for all nodes
+#category core
+@end
 */
-function Buffer(w,h) {
-    var self = this;    
-    //@property width  The width of the buffer, set at creation time.
-    this.w = w;
-    this.getWidth = function() { return this.w; }
-    
-    //@property height  The height of the buffer, set at creation time.
-    this.h = h;
-    this.getHeight = function() { return this.h; }
-    
-    this.buffer = document.createElement("canvas");
-    this.buffer.width = this.w;
-    this.buffer.height = this.h;
-    
-    //@doc get the Canvas 2D context of the buffer, so you can draw on it
-    this.getContext = function() { return self.buffer.getContext('2d'); }
-    
-    //@doc Get an canvas ImageData structure.
-    this.getData = function() {
-        var c = this.getContext();
-        var data = c.getImageData(0,0,this.getWidth(), this.getHeight());
-        return data;
-    };
-    
-    //@method Return the *red* component at the specified x and y.
-    this.getR = function(data, x, y) {
-        var pi = x+y*data.width;
-        return data.data[pi*4+0];
-    };
-    
-    //@method Return the *green* component at the specified x and y.
-    this.getG = function(data, x, y) {
-        var pi = x+y*data.width;
-        return data.data[pi*4+1];
-    };
-    
-    //@method Return the *blue* component at the specified x and y.
-    this.getB = function(data, x, y) {
-        var pi = x+y*data.width;
-        return data.data[pi*4+2];
-    };
-    
-    //@method Return the *alpha* component at the specified x and y.
-    this.getA = function(data, x, y) {
-        var pi = x+y*data.width;
-        return data.data[pi*4+3];
-    };
-    
-    //@method Set the red, green, blue, and alpha components at the specified x and y.
-    this.setRGBA = function(data,x,y,r,g,b,a) {
-        var pi = (x+y*this.getWidth())*4;
-        //console.log("pi = " + pi);
-        data.data[pi+0] = r; //alpha
-        data.data[pi+1] = g; //red
-        data.data[pi+2] = b; //green
-        data.data[pi+3] = a; //blue
-        return this;
-    };
-    //@method Set the data structure back into the canvas. This should be the same value you got from *getData()*.
-    this.setData = function(data) {
-        this.getContext().putImageData(data,0,0);
-        return this;
-    };
-    //@method Clear the buffer with transparent black.
-    this.clear = function() {
-        var ctx = this.getContext();
-        ctx.clearRect(0,0,this.getWidth(),this.getHeight());
-        return this;
-    };
-    return true;
-};
-
-/* 
-@class BufferNode A node which draws its child into a buffer. Use it to cache children which are expensive to draw.
-@category misc
-*/
-function BufferNode(n) {
-	Node.call(this);
-	this.node = n;
-    this.node.setParent(this);
-    this.buf = null;
+function AminoNode() {
     var self = this;
-    this.draw = function(ctx) {
-        var bounds = this.node.getVisualBounds();
-        if(!this.buf) {
-            this.buf = new Buffer(bounds.getWidth(),bounds.getHeight());
+	this.typename = "AminoNode";
+	this.hashcode = Math.random();
+	
+	//@property parent the parent of this node. Might be null if the node has not been added to the scene
+	this.parent = null;
+	this.setParent = function(parent) {
+	    this.parent = parent;
+	    return this;
+	}
+	this.getParent = function() {
+	    return this.parent;
+	}
+	
+	//@property visible Controls visibility of this node. Note: non-visible nodes cannot receive input events.
+	this.visible = true;
+	this.setVisible = function(visible) {
+	    this.visible = visible;
+	    this.setDirty();
+	    return this;
+	}
+	this.isVisible = function() {
+	    return this.visible;
+	}
+	
+	//@function setDirty() marks this node as being dirty
+	this.setDirty = function() {
+        if(self.parent != null) {
+            self.parent.setDirty();
         }
-        //redraw the child only if it's dirty
-        if(this.isDirty()) {
-            var ctx2 = this.buf.getContext();
-            ctx2.save();
-            ctx2.translate(-bounds.getX(),-bounds.getY());
-            this.node.draw(ctx2);
-            ctx2.restore();
+    }
+}
+
+/*
+@class AminoShape
+The base class for all shape nodes. Shapes all have fills and strokes.
+#category core
+@end
+*/
+function AminoShape() {
+    AminoNode.call(this);
+	var self = this;
+	this.typename = "AminoShape";
+	this.fill = "gray";
+	this.stroke = "black";
+	this.strokeWidth = 0;
+	this.opacity = 1.0;
+	
+	//@property fill  The fill color of this shape. This can be a hex string like "#ff0000" or a color name like "red" or a complex fill such as a gradient.
+	this.setFill = function(fill) {
+	    self.fill = fill;
+	    self.setDirty();
+	    return self;
+	}
+	
+	this.paint = function(ctx) {
+        if(self.fill.generate) {
+            ctx.fillStyle = self.fill.generate(ctx);
+        } else {
+            ctx.fillStyle = self.fill;
         }
-        ctx.save();
-        ctx.translate(bounds.getX(),bounds.getY());
-        ctx.drawImage(this.buf.buffer,0,0);
-        ctx.restore();
-        this.clearDirty();
-    };
-    return true;
-};
-BufferNode.extend(Node);
+        if(self.getOpacity() < 1) {
+            ctx.save();
+            ctx.globalAlpha = self.getOpacity();
+            self.fillShape(ctx);
+            ctx.restore();
+        } else {
+            self.fillShape(ctx);
+        }
+        if(self.strokeWidth > 0) {
+            if(self.stroke.generate) {
+                ctx.strokeStyle = self.stroke.generate(ctx);
+            } else {
+                ctx.strokeStyle = self.stroke;
+            }
+            ctx.lineWidth = self.strokeWidth;
+            self.strokeShape(ctx);
+        }
+    }
+}
+AminoShape.extend(AminoNode);
+
+AminoShape.prototype.getFill = function() {
+	return this.fill;
+}
+AminoShape.prototype.setOpacity = function(opacity) {
+	this.opacity = opacity;
+	this.setDirty();
+	return this;
+}
+AminoShape.prototype.getOpacity = function() {
+    return this.opacity;
+}
+
+//@property  stroke The stroke color of this shape. This can be a hex value or color name, both as strings. ex: setStroke("#000000") or setStroke("black");
+AminoShape.prototype.setStroke = function(stroke) {
+	this.stroke = stroke;
+	this.setDirty();
+	return this;
+}
+AminoShape.prototype.getStroke = function() {
+    return this.stroke;
+}
+
+//@property strokeWidth The current stroke width of this shapestroke. Must be a positive number or 0. If zero then the shape will not be stroked.
+AminoShape.prototype.setStrokeWidth = function(strokeWidth) {
+	this.strokeWidth = strokeWidth;
+	this.setDirty();
+	return this;
+}
+AminoShape.prototype.getStrokeWidth = function() {
+    return this.strokeWidth;
+}
+
+//@function contains(point) indicates if the shape contains the point
+AminoShape.prototype.contains = function(point) {
+    return false;
+}
+
+
 
 
 
 
 /*
-@class Transform Transforms the child inside of it with a translation and/or rotation.
-@category misc
+@class Transform
+A transform applies an affine transform to it's child node.  You must
+pass the child node to the Transform constructor. Then you can set
+the translate, rotate, and scale properties. ex:
+
+    var r = new Rect().set(0,0,100,50).setFill("red");
+    var t = new Transform(r).setTranslateX(50).setRotate(30);
+
+#category core
+@end 
 */
 function Transform(n) {
-    Node.call(this);
     this.node = n;
-    this.node.setParent(this);
+    this.node.parent = this;
+   	this.typename = "Transform";
     var self = this;
     
     //@property translateX translate in the X direction
@@ -453,7 +694,7 @@ function Transform(n) {
     
     
     
-    
+    /* container stuff */
     this.contains = function(x,y) {
         return false;
     };
@@ -467,62 +708,41 @@ function Transform(n) {
         return this.node;
     };
     
-    this.convertToChildCoords = function(x,y) {
-        var x1 = x-this.translateX;
-        var y1 = y-this.translateY;
-        x1 -= this.anchorX;
-        y1 -= this.anchorY;
-        var a = -this.rotate * Math.PI/180;
-        var x2 = x1*Math.cos(a) - y1*Math.sin(a);
-        var y2 = x1*Math.sin(a) + y1*Math.cos(a);
-        x2 = x2/this.scaleX;
-        y2 = y2/this.scaleY;
-        x2 += this.anchorX;
-        y2 += this.anchorY;
-        return [x2,y2];
-    };
-    
-    this.draw = function(ctx) {
+
+    this.paint = function(ctx) {
         ctx.save();
         ctx.translate(self.translateX,self.translateY);
-        
         ctx.translate(self.anchorX,self.anchorY);
         var r = this.rotate % 360;
-        if(ROTATE_BACKWARDS) {
-            r = 360-r;
-        }
         ctx.rotate(r*Math.PI/180.0,0,0);
         if(self.scaleX != 1 || self.scaleY != 1) {
             ctx.scale(self.scaleX,self.scaleY);
         }
         ctx.translate(-self.anchorX,-self.anchorY);
-        this.node.draw(ctx);
+        self.node.paint(ctx);
         ctx.restore();
-        this.clearDirty();
     };
-    
-    this.getVisualBounds = function() {
-        if(!this.node.getVisualBounds) return null;
-        var b = this.node.getVisualBounds();
-        if(b == null) return null;
-        return this.node.getVisualBounds().translate(this.getTranslateX(),this.getTranslateY());
-    }
     
     return true;
 }
-Transform.extend(Node);
+Transform.extend(AminoNode);
 
-
-
+Transform.prototype.setDirty = function() {
+	if(this.parent != null) {
+		this.parent.setDirty();
+	}
+}
 
 
 /*
-@class Group A parent node which holds an ordered list of child nodes. It does not draw anything by itself, but setting visible to false will hide the children.
-@category shape
+@class Group A parent node which holds an ordered list of child nodes. It does not draw anything by itself, but setting visible to false will hide the children. 
+#category core
+@end
 */
 
 function Group() {
-    Node.call(this);
+    AminoNode.call(this);
+	this.typename = "Group";
     this.children = [];
     this.parent = null;
     var self = this;
@@ -549,6 +769,7 @@ function Group() {
         return self.y;
     };
     
+    //@property opacity set the opacity of the group
     this.opacity = 1.0;
     this.setOpacity = function(o) {
         self.opacity = o;
@@ -558,14 +779,14 @@ function Group() {
         return self.opacity;
     };
     
-    //@method Add the child `n` to this group.
+    //@function add(node) Add the child `n` to this group.
     this.add = function(n) {
         self.children[self.children.length] = n;
         n.setParent(self);
         self.setDirty();
         return self;
     };
-    //@method Remove the child `n` from this group.
+    //@function remove(node) Remove the child `n` from this group.
     this.remove = function(n) {
         var i = self.children.indexOf(n);
         if(i >= 0) {
@@ -573,1100 +794,343 @@ function Group() {
             n.setParent(null);
         }
         self.setDirty();
-        self._bounds = null;
         return self;
     };
     
-    this.draw = function(ctx) {
+    this.paint = function(ctx) {
         if(!self.isVisible()) return;
-        indent();
         var ga = ctx.globalAlpha;
         ctx.globalAlpha = self.opacity;
         ctx.translate(self.x,self.y);
         for(var i=0; i<self.children.length;i++) {
-            self.children[i].draw(ctx);
+            self.children[i].paint(ctx);
         }
         ctx.translate(-self.x,-self.y);
         ctx.globalAlpha = ga;
-        outdent();
-        this.clearDirty();
     };
-    //@method Remove all children from this group.
+    
+    //@function clear() Remove all children from this group.
     this.clear = function() {
         self.children = [];
         self.setDirty();
         return self;
     };
-    //@method Always returns false. You should call contains on the children instead.
+    //@function contains(x,y) Always returns false. You should call contains on the children instead.
     this.contains = function(x,y) {
         return false;
     };
-    //@method Always returns true, whether or not it actually has children at the time.
+    //@function hasChildren() Always returns true, whether or not it actually has children at the time.
     this.hasChildren = function() {
         return true;
     };
-    //@method Convert the `x` and `y` in to child coordinates.
     this.convertToChildCoords = function(x,y) {
         return [x-self.x,y-self.y];
     };
-    //@method Returns the number of child nodes in this group.
+    //@function childCount() Returns the number of child nodes in this group.
     this.childCount = function() {
         return self.children.length;
     };
-    //@method Returns the child node at index `n`.
+    //@function getChild(n) Returns the child node at index `n`.
     this.getChild = function(n) {
         return self.children[n];
     };
     
-    this._bounds = null;
-    this.getVisualBounds = function() {
-        if(self.children.length <= 0) {
-            return null;
-        }
-        
-        if(self._bounds == null) {
-            for(var i=0; i<self.children.length; i++) {
-                var child = self.children[i];
-                if(!child.getVisualBounds) {
-                    if(child instanceof Group) {
-                    } else {
-                        //console.log("warning. no visual bounds: ");
-                        //console.log(self.children[i]);
-                    }
-                    continue;
-                }
-                var b = child.getVisualBounds();
-                if(b == null) {
-                    if(child instanceof Group) {
-                    } else {
-                        //console.log("warning, vis bounds is null");
-                        //console.log(self.children[i]);
-                    }
-                    continue;
-                }
-                if(self._bounds == null) {
-                    self._bounds = b;
-                } else {
-                    self._bounds = self._bounds.union(b);
-                }
-            }
-            if(self._bounds != null) {
-                self._bounds = self._bounds.translate(self.x,self.y);
-            }
-        }
-        return self._bounds;
-    };
-    
-    this.setDirty = function() {
-        self.dirty = true;
-        self._bounds = null;
-        if(self.getParent()) {
-            self.getParent().setDirty();
-        }
-    };
     return true;
 };
-Group.extend(Node, {});
+Group.extend(AminoNode, {});
 
 
 
 
 
+/* ============= Animation ================= */
 /*
-@class ImageView  A node which draws an image. Takes a string URL in it's constructor. ex: new ImageView("blah.png")
-@category shape
+@class  PropAnim
+Animates a single property on a node.  You must call the constructor
+with the node, string name of the property, a start value, an end value
+and a duration. Then you can further customize it with functions.
+
+#category animation
+
+Example: to create a property animation that make a rectangle's width go from
+50 to 100 over half a second, and loop forever do the following:
+
+    var anim = new PropAnim(rect,"w",50,100,0.5)
+        .setLoopCount(-1)
+        .start();
+    engine.addAnim(anim);
+
+
+@end
 */
-function ImageView(url) {
-    Node.call(this);
-    var self = this;
-    if(url instanceof Image) {
-        this.img = url;
-        this.loaded = true;
-        this.width = url.width;
-        this.height = url.height;
-    } else {
-        this.src = url;
-        this.img = new Image();
-        this.loaded = false;
-        this.width = 10;
-        this.height = 10;
-        this.img.onload = function() {
-            console.log("loaded");
-            self.loaded = true;
-            self.setDirty();
-            self.width = self.img.width;
-            self.height = self.img.height;
-            console.log("self = " + self.width + " " + self.height);
-        }
-        this.img.src = url;
-    }
-    
-    //@property x  The Y coordinate of the upper left corner of the image.
-    this.x = 0.0;
-    this.setX = function(x) { this.x = x;   this.setDirty();  return this;  };
-    this.getX = function() { return this.x; };
-    
-    //@property y  The Y coordinate of the upper left corner of the image.
-    this.y = 0.0;
-    this.setY = function(y) {  this.y = y;  this.setDirty();  return this;  };
-    this.getY = function() { return this.y; };
-    
-    
-    
-    this.hasChildren = function() { return false; }
-    
-    this.draw = function(ctx) {
-        //self.loaded = false;
-        if(self.loaded) {
-            ctx.drawImage(self.img,self.x,self.y);
-        } else {
-            ctx.fillStyle = "red";
-            ctx.fillRect(self.x,self.y,100,100);
-        }
-        self.clearDirty();
-    };
-    this.contains = function(x,y) {
-        if(x >= this.x && x <= this.x + this.width) {
-            if(y >= this.y && y<=this.y + this.height) {
-                return true;
-            }
-        }
-        return false;
-    };
-    this.getVisualBounds = function() {
-        return new Bounds(this.x,this.y,this.width,this.height);
-    };
-    return true;
-};
-ImageView.extend(Node);
-
-
-
-function LinearGradientFill(x,y,width,height) {
-    var self = this;
-    self.x = x;
-    self.y = y;
-    self.width = width;
-    self.height = height;
-    self.offsets = [];
-    self.colors = [];
-    self.addStop = function(offset, color) {
-        self.offsets.push(offset);
-        self.colors.push(color);
-        return self;
-    };
-    self.generate = function(ctx) {
-        var grad = ctx.createLinearGradient(self.x,self.y,self.width,self.height);
-        for(var i in self.offsets) {
-            grad.addColorStop(self.offsets[i],self.colors[i]);
-        }
-        return grad;
-    }
-};
-
-
-
-function RadialGradientFill(x,y,radius) {
-    var self = this;
-    self.x = x;
-    self.y = y;
-    self.radius = radius;
-    self.offsets = [];
-    self.colors = [];
-    self.addStop = function(offset, color) {
-        self.offsets.push(offset);
-        self.colors.push(color);
-        return self;
-    };
-    self.generate = function(ctx) {
-        var grad = ctx.createRadialGradient(self.x,self.y, 0, self.x, self.y, self.radius);
-        for(var i in self.offsets) {
-            grad.addColorStop(self.offsets[i],self.colors[i]);
-        }
-        return grad;
-    }
-};
-
-function PatternFill(url, repeat) {
-    var self = this;
-    
-    self.src = url;
-    self.img = new Image();
-    self.loaded = false;
-    self.repeat = repeat;
-    self.img.onload = function() {
-        console.log("pattern loaded");
-        self.loaded = true;
-    };
-    self.img.src = self.src;
-    self.generate = function(ctx) {
-        if(!self.loaded) {
-            return "red";
-        }
-        return ctx.createPattern(self.img, self.repeat);
-    };
-    return true;
+function PropAnim(node,prop,startValue,end,duration) {
+	this.isdom = false;
+	if(node instanceof Element) {
+		this.isdom = true;
+	}
+	this.node = node;
+	this.prop = prop;
+	this.startValue = startValue;
+	this.end = end;
+	this.duration = duration;
+	this.value = -1;
+	this.started = false;
+	this.playing = false;
+	this.loop = 0;
+	this.beforeCallback = null;
+	this.afterCallback = null;
+	this.loopcount = 0;
+	this.autoReverse = false;
+	this.forward = true;
+	return this;
 }
 
+PropAnim.prototype.update = function() {
+	if(!this.playing) return;
+	if(!this.started) {
+		this.started = true;
+		this.value = this.startValue;
+		this.startTime = new Date().getTime();
+		if(this.beforeCallback) {
+		    this.beforeCallback();
+		}
+	}
+	
+	var currentTime = new Date().getTime();
+	var dur = currentTime-this.startTime;
+	if(dur > this.duration*1000) {
+		this.started = false;
+		if(this.afterCallback) {
+		    this.afterCallback();
+		}
+		//don't loop
+		if(this.loop == 0 || this.loopcount == 0) {
+		    this.playing = false;
+		}
+		//loop forver
+		if(this.loop == -1) {
+		    //no nothing
+		}
+		//loop N times
+		if(this.loop > 0) {
+		    this.loopcount--;
+		}
+		if(this.autoReverse) {
+		    this.forward = !this.forward;
+		}
+		return;
+	}
+	
+	var t = (currentTime-this.startTime)/(this.duration*1000);
+	if(!this.forward) t = 1-t;
+	
+	var val = this.startValue + t*(this.end-this.startValue);
+	if(this.isdom) {
+		this.node.style[this.prop] = (val+"px");
+	} else {
+	    var fun = "set"
+	        +this.prop[0].toUpperCase()
+	        +this.prop.slice(1);
+		this.node[fun](val);
+	}
+}
 
-/*
- basic painting routine. just recursively draw
-*/
-function SimplePaintStrategy() {
-    this.paintScene = function(ctx,runner) {
-        var root = runner.root;
-        if(root == null) return;
-        root.draw(ctx);
-    };
+//@function toggle()  Toggle the playing state. If the animation is playing it will stop it. If the animation is stopped it will start playing it.
+PropAnim.prototype.toggle = function() {
+	this.playing = !this.playing;
+	this.engine.animationChanged();
+}
+//@function start() Start playing the animation.
+PropAnim.prototype.start = function() {
+	this.playing = true;
+    if(this.engine) {
+        this.engine.animationChanged();
+    }
+    return this;
+}
+//@function onBefore(callback) set a function to be called just before the animation starts
+PropAnim.prototype.onBefore = function(beforeCallback) {
+    this.beforeCallback = beforeCallback;
+    return this;
+}
+//@function onAfter(callback) set a function to be called just after the animation starts
+PropAnim.prototype.onAfter = function(afterCallback) {
+    this.afterCallback = afterCallback;
+    return this;
+}
+//@function setLoop(count) set how many times the animation should loop. The default is 0 (no looping). Set to -1 to loop forever
+PropAnim.prototype.setLoop = function(loop) {
+    this.loop = loop;
+    this.loopcount = loop;
+    return this;
+}
+//@function setAutoReverse(autoReverse) set if the animation should automatically reverse when it reaches the end. This only has an effect if the animation is looping.
+PropAnim.prototype.setAutoReverse = function(autoReverse) {
+    this.autoReverse = true;
+    return this;
 }
 
 /*
- bounds painting routine. doesn't draw shapes which are outside the bounds of the viewport
+@class SerialAnim
+Performs several animations one after another.
+#category animation
+@end
 */
-function BoundsPaintStrategy() {
-    var self = this;
-    var drawCount = 0;
-    this.paintScene = function(ctx, runner) {
-        self.drawCount = 0;
-        var root = runner.root;
-        var viewport = new Bounds(0,0,runner.canvas.width,runner.canvas.height);
-        self.drawNode(ctx, runner, viewport, root);
-        ADB.debugLine("draw count = " + self.drawCount);
-        //console.log("---");
-    };
-    
-    this.drawNode = function(ctx, runner, viewport, node) {
-        //fast fails
-        if(node == null) return;
-        if(!node.isVisible()) return;
-        //if no bounds then just draw it
-        if(!node.getVisualBounds) {
-            node.draw(ctx);
-            node.clearDirty();
-            self.drawCount++;
-            return;
-        }
-        
-        var bounds = node.getVisualBounds();
-        if(bounds == null) return;
-        if(false) {
-            ctx.strokeStyle = "red";
-            ctx.fillStyle = "red";
-            ctx.strokeRect(bounds.x,bounds.y,bounds.w,bounds.h);
-            ctx.fillText(""+bounds.toString() + "    " + viewport.toString(),bounds.x+500,bounds.y);
-            p("bounds = " + bounds.toString() + " " + viewport.toString() + " " + viewport.intersects(bounds));
-        }
-        //if intersect then draw
-        if(viewport.intersects(bounds)) {
-            if(node instanceof Group) {
-                ctx.save();
-                ctx.translate(node.x,node.y);
-                var v2 = viewport.translate(-node.x,-node.y);
-                indent();
-                for(var i=0; i<node.children.length;i++) {
-                    self.drawNode(ctx,runner,v2,node.children[i]);
-                }
-                outdent();
-                ctx.restore();
-                node.clearDirty();
-                self.drawCount++;
-            } else {
-                node.draw(ctx);
-                self.drawCount++;
-            }
-        }
-        //make the node clean
-        node.clearDirty();
-    }
-}
-
-/*
- advanced painting routine which handles recursion itself and caches nodes into canvas buffers.
-*/
-function CachingPaintStrategy() {
-    var self = this;
-    self.drawCount = 0;
-    
-    this.paintScene = function(ctx,root) {
-        if(root == null) return;
-        self.drawCount = 0;
-        if(root instanceof Group) {
-            self.drawGroup(ctx,root);
-        } else {
-            self.drawShape(ctx,root);
-        }
-        //console.log("caching paint node count = " + self.drawCount);
-    };
-    
-    this.drawShape = function(ctx,node) {
-        if(!node || !node.isVisible()) return;
-        
-        if(node.isCached()) {
-            //draw using a buffer cache
-            var bounds = node.getVisualBounds();
-            var bufdirty = !node._amino_buf;
-            if(bufdirty) {
-                node._amino_buf = new Buffer(bounds.getWidth(),bounds.getHeight());
-            }
-            //redraw the child only if it's dirty
-            if(node.isDirty() || bufdirty) {
-                var ctx2 = node._amino_buf.getContext();
-                ctx2.save();
-                ctx2.translate(-bounds.getX(),-bounds.getY());
-                self.drawCount++;
-                node.draw(ctx2);
-                ctx2.restore();
-            }
-            ctx.save();
-            ctx.translate(bounds.getX(),bounds.getY());
-            ctx.drawImage(node._amino_buf.buffer,0,0);
-            ctx.restore();
-            node.clearDirty();
-        } else {
-            //regular draw
-            self.drawCount++;
-            node.draw(ctx);
-        }
-    };
-    
-    this.drawGroup = function(ctx,group) {
-        if(!group || !group.isVisible()) return;
-        
-        indent();
-        ctx.save();
-        var ga = ctx.globalAlpha;
-        ctx.globalAlpha = group.opacity;
-        ctx.translate(group.x,group.y);
-        for(var i=0; i<group.children.length;i++) {
-            self.drawShape(ctx,group.children[i]);
-        }
-        ctx.restore();
-        outdent();
-        group.clearDirty();
-    };
-}
-
-
-
-/* 
-@class MEvent The base mouse event. Has a reference to the node that the event was on (if any), and the x and y coords. Will have more functionality in the future. 
-@category misc
-*/
-function MEvent() {
-    this.node = null;
-    this.x = -1;
-    this.y = -1;
-    var self = this;
-    //@method Get the node that this mouse event actually happened on.
-    this.getNode = function() {
-        return this.node;
-    };
-    this.getX = function() {
-        return this.x;
-    };
-    this.getY = function() {
-        return this.y;
-    };
-    return true;
-}
-
-function KEvent() {
-    this.key = 0;
-}
-
-
-
-
-/* 
-    adapted from robert penner's easing equations.
-    http://www.robertpenner.com/easing/
-*/
-var LINEAR = function(t) {
-    return t;
-}
-var EASE_IN = function(t) {
-    var t2 = t*t;
-    return t2;
-};
-var EASE_OUT = function(t) {
-    t = 1-t;
-    var t2 = t*t;
-    return -t2+1;
-};
-var EASE_IN_OVER = function(t) {
-    var s = 1.70158;
-    var t2 = t*t*((s+1)*t-s);
-    return t2;
-};
-var EASE_OUT_OVER = function(t) {
-    var s = 1.70158;
-    t = 1-t;
-    var t2 = t*t*((s+1)*t-s);
-    return -t2+1;
-};
-/*
-//x(t) = x0 cos(sqrt(k/m)*t)
-//k = spring constant (stiffness)
-//m = mass 
-var SPRING = function(t) {
-    var k = 0.01;
-    var m = 1;
-    return Math.cos(t*Math.PI*2);//Math.sqrt(k/m)*t);
-};
-*/
-
-/* 
-@class PropAnim A PropAnim is a single property animation. It animates a property on an object over time, optionally looping and reversing direction at the end of each loop (making it oscillate).
-@category animation
-*/
-function PropAnim(n,prop,start,end,duration) {
-    this.node = n;
-    this.prop = prop;
-    this.started = false;
-    this.startValue = start;
-    this.endValue = end;
-    this.duration = duration;
-    this.loop = false;
-    this.autoReverse = false;
-    this.forward = true;
-    this.dead = false;
-    
-    
-    var self = this;
-    
-    //@doc Indicates if this animation has started yet
-    this.isStarted = function() {
-        return self.started;
-    };
-    
-    //@property loop  Determines if the animation will loop at the end rather than stopping.
-    this.setLoop = function(loop) {
-        this.loop = loop;
-        return this;
-    };
-    
-    //@property autoReverse Determines if the animation will reverse direction when it loops. This means it will oscillate.
-    this.setAutoReverse = function(r) {
-        this.autoReverse = r;
-        return this;
-    };
-    
-    this.start = function(time) {
-        self.startTime = time;
-        self.started = true;
-        self.node[self.prop] = self.startValue;
-    };
-    
-    this.setValue = function(tvalue) {
-        value = (self.endValue-self.startValue)*tvalue + self.startValue;
-        self.node[self.prop] = value;
-        self.node.setDirty();
-    };
-    
-    this.update = function(time) {
-        var elapsed = time-self.startTime;
-        var fract = 0.0;
-        fract = elapsed/(duration*1000);
-        if(fract > 1.0) {
-            if(self.loop) {
-                self.startTime = time;
-                if(self.autoReverse) {
-                    self.forward = !self.forward;
-                }
-                fract = 0.0;
-            } else {
-                //set the final value
-                self.setValue(1.0);
-                self.dead = true;
-                return;
-            }
-        }
-        
-        if(!self.forward) {
-            fract = 1.0-fract;
-        }
-        //var value = (self.endValue-self.startValue)*fract + self.startValue;
-        //var value = self.tween(fract,self.startValue,self.endValue);
-        var tvalue = self.tween(fract);
-        self.setValue(tvalue);
-    }
-    this.tween = LINEAR;
-    this.setTween = function(func) {
-        this.tween = func;
-        return this;
-    };
-    return true;
-}    
-
-/*
-@class PathAnim  Animates a shape along a path. The Path can be composed of lines or curves. PathAnim can optionally loop or reverse direction at the end. Create it with the node, path, and duration like this: `new PathAnim(node,path,10);`
-@category animation
-*/
-function PathAnim(n,path,duration) {
-    this.node = n;
-    this.path = path;
-    this.duration = duration;
-    this.loop = false;
-    this.forward = true;
-    this.dead = false;
-    var self = this;
-    //@method Returns true if the animation is currently running.
-    this.isStarted = function() {
-        return self.started;
-    };
-    //@property loop Indicates if the animation should repeat when it reaches the end.
-    this.setLoop = function(loop) {
-        this.loop = loop;
-        return this;
-    };
-    this.tween = LINEAR;
-    this.setTween = function(func) {
-        this.tween = func;
-        return this;
-    };
-    this.start = function(time) {
-        self.started = true;
-        self.startTime = time;
-        //        self.node[self.prop] = self.startValue;
-        return self;
-    };
-    this.update = function(time) {
-        var elapsed = time-self.startTime;
-        var fract = 0.0;
-        fract = elapsed/(duration*1000);
-        if(fract > 1.0) {
-            if(self.loop) {
-                self.startTime = time;
-                if(self.autoReverse) {
-                    self.forward = !self.forward;
-                }
-                fract = 0.0;
-            } else {
-                self.dead = true;
-                return;
-            }
-        }
-
-        if(!self.forward) {
-            fract = 1.0-fract;
-        }
-
-        var tvalue = self.tween(fract);
-        //value = (self.endValue-self.startValue)*tvalue + self.startValue;
-        var pt = self.path.pointAtT(tvalue);
-        if(self.node.setX){
-            //console.log("setting x");
-            self.node.setX(pt[0]);
-            self.node.setY(pt[1]);
-        }
-        if(self.node.setTranslateX) {
-            self.node.setTranslateX(pt[0]);
-            self.node.setTranslateY(pt[1]);
-        }
-        self.node.setDirty();
-    }
-    return true;
-}
-
-
-
-var ADB = {
-    dline:"",
-    avgfps:0,
-    getAverageFPS : function() {
-        return ADB.avgfps;
-    },
-    debugLine : function(s) {
-        ADB.dline = s;
-    }
-}
-
-
-/* 
-@class Runner The core of Amino. It redraws the screen, processes events, and executes animation. Create a new instance of it for your canvas, then call `start()` to start the event loop.
-@category misc
-*/
-function Runner() {
-    this.root = "";
-    this.background = "gray";
+function SerialAnim() {
     this.anims = [];
-    this.callbacks = [];
-    this.listeners = {};
-    this.masterListeners = [];
-    this.tickIndex = 0;
-    this.tickSum = 0;
-    this.tickSamples = 30;
-    this.tickList = [];
-    this.lastTick = 0;
-    this.fps = 60;
-    this.dirtyTrackingEnabled = false;
-    this.clearBackground = true;
-    this.DEBUG = true;
-    
-    this.paintStrategy = new SimplePaintStrategy();
-    //this.paintStrategy = new CachingPaintStrategy();
-    //this.paintStrategy = new BoundsPaintStrategy();
-    
-    var self = this;
-
-    //@property root  The root node of the scene.
-    this.setRoot = function(r) {
-        self.root = r;
-        if(self.root) {
-            self.root.setDirty();
-        }
-        return self;
-    };
-    //@property background The background color of the scene.  May be set to null or "" to not draw a background.
-    this.setBackground = function(background) {
-        self.background = background;
-        return self;
-    };
-    
-    //@property fps  The target FPS (Frames Per Second). The system will try to hit this FPS and never go over it.
-    this.setFPS = function(fps) {
-        self.fps = fps;
-        return self;
-    };
-    
-    function attachEvent(node,name,func) {
-        self.masterListeners.push(func);
-        if(node.addEventListener) {
-            node.addEventListener(name,func,false);
-        } else if(node.attachEvent) {
-            node.attachEvent(name,func);
-        }
-    };
-    
-    this.calcLocalXY = function(canvas,event) {
-        var docX = -1;
-        var docY = -1;
-        if (event.pageX == null) {
-            // IE case
-            var d= (document.documentElement && document.documentElement.scrollLeft != null) ?
-                 document.documentElement : document.body;
-             docX= event.clientX + d.scrollLeft;
-             docY= event.clientY + d.scrollTop;
-        } else {
-            // all other browsers
-            docX= event.pageX;
-            docY= event.pageY;
-        }        
-        docX -= canvas.offsetLeft;
-        docY -= canvas.offsetTop;
-        return [docX,docY];
-    };
-    //@property canvas  The canvas element that the scene will be placed in.
-    this.setCanvas = function(canvas) {
-        self.canvas = canvas;
-        var _mouse_pressed = false;
-        var _drag_target = null;
-        attachEvent(canvas,'mousedown',function(e){
-            var xy = self.calcLocalXY(canvas,e);
-            _mouse_pressed = true;
-            //send target node event first
-            var node = self.findNode(self.root,xy[0],xy[1]);
-            //p("---------- found node --------");
-            //console.log(node);
-            var evt = new MEvent();
-            evt.node = node;
-            evt.x = xy[0];
-            evt.y = xy[1];
-            if(node) {
-                var start = node;
-                _drag_target = node;
-                while(start) {
-                    self.fireEvent("MOUSE_PRESS",start,evt);
-                    //p("blocked = " + start.isMouseBlocked());
-                    if(start.isMouseBlocked()) return;
-                    start = start.getParent();
-                }
-            }
-            //send general events next
-            self.fireEvent("MOUSE_PRESS",null,evt);
-            //p("---------------");
-        });
-        attachEvent(canvas,'mousemove',function(e){
-            if(_mouse_pressed) {
-                var xy = self.calcLocalXY(canvas,e);
-                var node = self.findNode(self.root,xy[0],xy[1]);
-                var evt = new MEvent();
-                
-                //redirect events to current drag target, if applicable
-                if(_drag_target) {
-                    node = _drag_target;
-                }
-                evt.node = node;
-                evt.x = xy[0];
-                evt.y = xy[1];
-                if(node) {
-                    var start = node;
-                    while(start) {
-                        self.fireEvent("MOUSE_DRAG",start,evt);
-                        if(start.isMouseBlocked()) return;
-                        start = start.getParent();
-                    }
-                }
-                //send general events next
-                self.fireEvent("MOUSE_DRAG",null,evt);
-            }
-        });
-        attachEvent(canvas, 'mouseup', function(e) {
-            _mouse_pressed = false;
-            _drag_target = false;
-            //send target node event first
-            var xy = self.calcLocalXY(canvas,e);
-            var node = self.findNode(self.root,xy[0],xy[1]);
-            //console.log(node);
-            var evt = new MEvent();
-            evt.node = node;
-            evt.x = xy[0];
-            evt.y = xy[1];
-            if(node) {
-                var start = node;
-                while(start) {
-                    self.fireEvent("MOUSE_RELEASE",start,evt);
-                    if(start.isMouseBlocked()) return;
-                    start = start.getParent();
-                }
-            }
-            //send general events next
-            self.fireEvent("MOUSE_RELEASE",null,evt);
-        });
-        attachEvent(document, 'keydown', function(e) {
-            var evt = new KEvent();
-            evt.key = e.keyCode;
-            self.fireEvent("KEY_PRESSED",null,evt);
-        });
-        attachEvent(document, 'keyup', function(e) {
-            var evt = new KEvent();
-            evt.key = e.keyCode;
-            self.fireEvent("KEY_RELEASED",null,evt);
-        });
-        attachEvent(window, 'onUnload', function(e) {
-            console.log("got Unload");
-        });
-        attachEvent(window, 'onunload', function(e) {
-            console.log("got unload");
-        });
-        return self;
-    };
-    
-    this.findNode = function(node,x,y) {
-        //p("findNode:" + node._hash + " " + x + " " + y);
-        //console.log(node);
-        //don't descend into invisible nodes
-        //p("visible = " + node.isVisible());
-        if(!node.isVisible()) {
-            return null;
-        }
-        if(node.contains(x,y)) {
-            //p("node contains it " + node._hash);
-            return node;
-        }
-        if(node.hasChildren()) {
-            //p("node has children");
-            var nc = node.convertToChildCoords(x,y);
-            indent();
-            //descend from front to back
-            for(var i=node.childCount()-1; i>=0; i--) {
-                //p("looking at child: " + node.getChild(i)._hash);
-                //console.log(node.getChild(i));
-                var n = self.findNode(node.getChild(i),nc[0],nc[1]);
-                if(n) {
-                    //p("backing up. matched " + n._hash);
-                    outdent();
-                    return n;
-                }
-            }
-            outdent();
-        }
-        //p("returning null");
-        return null;
-    };
-    
-    this.fireEvent = function(type,key,e) {
-        //p("firing event for key: " + key + " type = " + type);
-        //console.log(key);
-        var k = key;
-        if(key) {
-            k = key._hash;
-        } else {
-            k = "*";
-        }
-        //p("Using real key: " + k);
-        //p("firing event for key: " + k + " type = " + type);
-        
-        if(self.listeners[k]) {
-            if(self.listeners[k][type]) {
-                for(var i=0; i<self.listeners[k][type].length; i++) {
-                    var l = self.listeners[k][type][i];
-                    //p("listener = " + l);
-                    l(e);
-                }
-            }
-        }
-    };
-
-    this.drawScene = function(ctx) {
-        //fill the background
-        if(self.clearBackground) {
-            if(self.transparentBackground) {
-                ctx.clearRect(0,0,self.canvas.width,self.canvas.height);
-            } else {
-                ctx.fillStyle = self.background;
-                ctx.fillRect(0,0,self.canvas.width,self.canvas.height);
-            }
-        }
-        
-        //draw the scene
-        if(self.root) {
-            self.paintStrategy.paintScene(ctx,self);
-        }
-    }        
-    
-    
-    
-    this.doNext = function() {
-        if(window.webkitRequestAnimationFrame) {
-            window.webkitRequestAnimationFrame(self.update);
-            return;
-        }
-        if(window.mozRequestAnimationFrame) {
-            window.mozRequestAnimationFrame(self.update);
-            return;
-        }
-        //console.log("can't repaint! not webkit");
-        setTimeout(self.update,1000/self.fps);
-        return;
-    };
-    
-    this.update = function() {
-        //drop to 1fps if in bg
-        if(self.inBackground) {
-            setTimeout(function() { self.doNext(); }, 1000);
-        } else {
-            self.doNext();
-        }
-        
-        var time = new Date().getTime();
-        self.processInput(time);
-        self.processAnims(time);
-        self.processCallbacks(time);
-        var ctx = self.canvas.getContext("2d");
-        
-        self.processRepaint(time, ctx);
-        self.processDebugOverlay(time, ctx);
-    };
-    
-    this.interv = -1;
-    this.inBackground = false;
-    //@doc Start the scene. This is usually the last thing you call in your setup code.
-    this.start = function() {
-        //palm specific
-        if (window.PalmSystem) {
-            window.PalmSystem.stageReady();
-            Mojo = {
-                stageActivated: function() {
-                    self.inBackground = false;
-                },
-                stageDeactivated: function() {
-                    self.inBackground = true;
-                },
-            };
-        }
-        
-        self.lastTick = new Date().getTime();
-        self.doNext();
-        //self.interv = setInterval(this.update,1000/self.fps);
-    };
-    
-    
-    this.stop = function() {
-        clearInterval(self.interv);
-        console.log("stopped the repaint");
-    };
-    this.cleanup = function() {
-        console.log("cleaning up stuff");
-        self.anims = [];
-        self.callbacks = [];
-        
-        for(var i=0; i<self.listeners.length; i++) {
-            self.listeners[i] = [];
-        }
-        self.listeners = [];
-        self.root = null;
-        for(var i=0; i<self.masterListeners.length; i++) {
-            console.log("removing master listener");
-            self.canvas.removeEventListener(self.masterListeners[i]);
-        }
-        self.canvas = null;
-    };
-    
-    //@doc Add an animation to the scene.
-    this.addAnim = function(anim) {
-        this.anims[this.anims.length] = anim;
-        return this;
-    };
-    
-    //@doc Add a function callback to the scene. The function will be called on every frame redraw.
-    this.addCallback = function(callback) {
-        this.callbacks[this.callbacks.length] = callback;
-        return this;
-    };
-    
-    //@doc Listen to a particular type of event on a particular target. *eventTarget* may be null or "*" to listen on all nodes.
-    this.listen = function(eventType, eventTarget, callback) {
-        var key = "";
-        if(eventTarget) {
-            key = eventTarget._hash;
-        } else {
-            key = "*";
-        }
-        
-        if(!this.listeners[key]) {
-            this.listeners[key] = [];
-        }
-        if(!this.listeners[key][eventType]) {
-            this.listeners[key][eventType] = [];
-        }
-        
-        this.listeners[key][eventType].push(callback);
-        //p("added listener. key = "+ key + " type = " + eventType + " = " + callback);
-    };
-    
-    //@doc Do the function later, when the next frame is drawn.
-    this.doLater = function(callback) {
-        callback.doLater = true;
-        callback.done = false;
-        self.addCallback(callback);
-        return self;
-    };
-    
-    //@method gets the drawing context of the canvas. You *must* have already called _setCanvas()_ first.
-    this.getContext = function() {
-        return self.canvas.getContext('2d');
-    };
-    
-    
-    this.processInput = function() {
-    };
-    this.processAnims = function(time) {
-        //process animation
-        for(i=0;i<self.anims.length; i++) {
-            var a = self.anims[i];
-            if(a.dead) continue;
-            if(!a.isStarted()) {
-                a.start(time);
-                continue;
-            }
-            a.update(time);
-        }
-    };
-    
-    this.processCallbacks = function(time) {
-        //process callbacks
-        for(i=0;i<self.callbacks.length;i++) {
-            var cb = self.callbacks[i];
-            if(!cb.done) {
-                cb();
-            }
-            if(cb.doLater) {
-                cb.doLater = false;
-                cb.done = true;
-            }
-        }
-    };
-    
-    this.processRepaint = function(time, ctx) {
-        if(self.dirtyTrackingEnabled) {
-            if(self.root && self.root.isDirty()) {
-                self.drawScene(ctx);
-            }
-        } else {
-            self.drawScene(ctx);
-        }
-    };
-    
-    this.processDebugOverlay = function(time, ctx) {
-        if(self.DEBUG) {
-            ctx.save();
-            ctx.translate(0,self.canvas.height-60);
-            ctx.fillStyle = "gray";
-            ctx.fillRect(0,-10,200,70);
-            //draw a debugging overlay
-            ctx.fillStyle = "black";
-            ctx.fillText("timestamp " + new Date().getTime(),10,0);
-            
-            //calc fps
-            var delta = time-self.lastTick;
-            self.lastTick = time;
-            if(self.tickList.length <= self.tickIndex) {
-                self.tickList[self.tickList.length] = 0;
-            }
-            self.tickSum -= self.tickList[self.tickIndex];
-            self.tickSum += delta;
-            self.tickList[self.tickIndex]=delta;
-            ++self.tickIndex;
-            if(self.tickIndex>=self.tickSamples) {
-                self.tickIndex = 0;
-            }
-            var fpsAverage = self.tickSum/self.tickSamples;
-            ctx.fillText("last msec/frame " + delta,10,10);
-            ctx.fillText("last frame msec " + (new Date().getTime()-time),10,20);
-            ctx.fillText("avg msec/frame  " + (fpsAverage).toPrecision(3),10,30);
-            ctx.fillText("avg fps = " + ((1.0/fpsAverage)*1000).toPrecision(3),10,40);
-            ctx.fillText("" + ADB.dline,10,50);
-            ctx.restore();
-            ADB.avgfps = ((1.0/fpsAverage)*1000);
-        }
-        
-    };
-
-    
-    return true;
+    this.animIndex = -1;
+}
+//@function add(anim) add another animation
+SerialAnim.prototype.add = function(anim) {
+    this.anims.push(anim);
+    return this;
+}
+//@function start() starts the animation
+SerialAnim.prototype.start = function() {
+	this.playing = true;
+	this.animIndex = 0;
+	this.anims[this.animIndex].start();
+    if(this.engine) {
+        this.engine.animationChanged();
+    }
+    return this;
+}
+SerialAnim.prototype.update = function() {
+	if(!this.playing) return;
+	if(!this.started) {
+		this.started = true;
+	}
+	
+	var anim = this.anims[this.animIndex];
+	anim.update();
+	if(!anim.playing) {
+	    this.animIndex++;
+	    if(this.animIndex >= this.anims.length) {
+	        console.log('serial anim done');
+	        this.playing = false;
+	    } else {
+	        this.anims[this.animIndex].start();
+	    }
+	}
 }
 
 
 /*
-@class Util  A class with some static utility functions.
-@category misc
+@class ParallelAnim
+An animation which performs several other animations in Parallel
+#category animation
+@end
 */
-function Util() {
-    //@doc convert the canvas into a PNG encoded data url. Use this if your browser doesn't natively support data URLs
-    this.toDataURL = function(canvas) {
-	    console.log(" $$ Canvas = " + canvas);
-	    var canWidth = canvas.width;
-	    var canHeight = canvas.height;
-        var c = canvas.getContext('2d');
-        var data = c.getImageData(0,0,canWidth, canHeight);
-        var p = new PNGlib(canWidth, canHeight, 2); 
-        for (var j = 0; j < canHeight; j++) {
-            for (var i = 0; i < canWidth; i++) {
-                var n = i+j*canWidth;
-                var pi = n*4; //pixel index 
-                var r = data.data[pi+0];
-                var g = data.data[pi+1];
-                var b = data.data[pi+2];
-                var a = data.data[pi+3];
-                p.buffer[p.index(i,j)] = p.getColor(r,g,b,a);
-            }
+function ParallelAnim() {
+    this.anims = [];
+}
+//@function add(anim) add another animation
+ParallelAnim.prototype.add = function(anim) {
+    this.anims.push(anim);
+    return this;
+}
+//@function start() starts the animation
+ParallelAnim.prototype.start = function() {
+	this.playing = true;
+	for(var i=0; i<this.anims.length; i++) {
+	    this.anims[i].start();
+	}
+    if(this.engine) {
+        this.engine.animationChanged();
+    }
+    return this;
+}
+ParallelAnim.prototype.update = function() {
+	if(!this.playing) return;
+	if(!this.started) {
+		this.started = true;
+	}
+
+	var stillPlaying = false;
+	for(var i=0; i<this.anims.length; i++) {
+	    this.anims[i].update();
+	    if(this.anims[i].playing) {
+	        stillPlaying = true;
+	    }
+	}
+	
+	if(!stillPlaying) {
+        this.playing = false;
+	}
+}
+
+/*
+@class CallbackAnim
+An animation which calls a function on every repaint. Mainly used
+for proceeduration animation like particle simulators.
+#category animation
+@end
+*/
+function CallbackAnim() {
+    this.started = false;
+    this.playing = false;
+    this.callback = null;
+    this.engine = null;
+    return this;
+}
+CallbackAnim.prototype.update = function() {
+	if(!this.started) {
+		this.started = true;
+	}
+	if(this.callback) {
+	    this.callback();
+	}
+}
+//@function start() start the animation
+CallbackAnim.prototype.start = function() {
+    this.playing = true;
+    if(this.engine) {
+        this.engine.animationChanged();
+    }
+}
+
+
+function WorkTile(left,top,width,height, src, dst) {
+    this.left = left;
+    this.top = top;
+    this.width = width;
+    this.height = height;
+    this.src = src;
+    this.dst = dst;
+    this.srcData = null;
+    this.getData = function() {
+        if(this.srcData == null) {
+            this.srcData = this.src.getContext().getImageData(this.left,this.top,this.width,this.height);
         }
-        
-        var url = "data:image/png;base64,"+p.getBase64();
-        return url;
+        return this.srcData;
     };
-    
+    this.getR = function(x,y) {
+        var pi = x+y*this.width;
+        return this.srcData.data[pi*4+0];
+    };
+    this.getG = function(x,y) {
+        var pi = x+y*this.width;
+        return this.srcData.data[pi*4+1];
+    };
+    this.getB = function(x,y) {
+        var pi = x+y*this.width;
+        return this.srcData.data[pi*4+2];
+    };
+    this.getA = function(x,y) {
+        var pi = x+y*this.width;
+        return this.srcData.data[pi*4+3];
+    };
+    this.saveData = function() {
+        dst.getContext().putImageData(this.srcData,this.left,this.top);
+    }        
     return true;
-};
-
-
-
+}
 
 
 /*
 @class SaturationNode A parent node which adjusts the saturation of its child. Uses a buffer internally.
-@category effect
+#category effects
+@end
 */
 function SaturationNode(n) {
     Node.call(this);
@@ -1757,51 +1221,17 @@ function SaturationNode(n) {
     };
     return true;
 }
-SaturationNode.extend(Node);
+SaturationNode.extend(AminoNode);
 
 
-function WorkTile(left,top,width,height, src, dst) {
-    this.left = left;
-    this.top = top;
-    this.width = width;
-    this.height = height;
-    this.src = src;
-    this.dst = dst;
-    this.srcData = null;
-    this.getData = function() {
-        if(this.srcData == null) {
-            this.srcData = this.src.getContext().getImageData(this.left,this.top,this.width,this.height);
-        }
-        return this.srcData;
-    };
-    this.getR = function(x,y) {
-        var pi = x+y*this.width;
-        return this.srcData.data[pi*4+0];
-    };
-    this.getG = function(x,y) {
-        var pi = x+y*this.width;
-        return this.srcData.data[pi*4+1];
-    };
-    this.getB = function(x,y) {
-        var pi = x+y*this.width;
-        return this.srcData.data[pi*4+2];
-    };
-    this.getA = function(x,y) {
-        var pi = x+y*this.width;
-        return this.srcData.data[pi*4+3];
-    };
-    this.saveData = function() {
-        dst.getContext().putImageData(this.srcData,this.left,this.top);
-    }        
-    return true;
-}
 
 /*
 @class BackgroundSaturationNode A parent node which adjusts the saturation of its child. Uses a buffer internally.
-@category effect
+#category effects
+@end
 */
 function BackgroundSaturationNode(n) {
-    Node.call(this);
+    AminoNode.call(this);
 	this.node = n;
     this.node.setParent(this);
     this.buf1 = null;
@@ -1992,16 +1422,17 @@ function BackgroundSaturationNode(n) {
     };
     return true;
 }
-BackgroundSaturationNode.extend(Node);
+BackgroundSaturationNode.extend(AminoNode);
 
 /*
 @class BlurNode A parent node which blurs its child.
-@category effect
+#category effects
+@end
 */
 function BlurNode(n) {
 	this.node = n;
 	console.log("n = " + n);
-    Node.call(this);
+    AminoNode.call(this);
     if(n) n.setParent(this);
     this.buf1 = null;
     this.buf2 = null;
@@ -2104,11 +1535,12 @@ function BlurNode(n) {
     };
     return true;
 };
-BlurNode.extend(Node);
+BlurNode.extend(AminoNode);
 
 /*
 @class ShadowNode A parent node which draws a shadow under its child. Uses a buffer internally.
-@category effect
+#category effects
+@end
 */
 function ShadowNode(n) {
     console.log("initing shadow node");
@@ -2216,522 +1648,487 @@ ShadowNode.extend(BlurNode);
 
 
 
-
-/* 
-@class Shape The base of all shapes. Shapes are geometric shapes which have a *fill*, a *stroke*, and *opacity*. They may be filled or unfilled.
-@category shape
+/*
+@class Buffer An offscreen area that you can draw into. Used for special effects and caching.
+#category effects
+@end
 */
-function Shape() {
-    Node.call(this);
-    this.hasChildren = function() { return false; }
+function Buffer(w,h) {
+    var self = this;    
+    //@property width  The width of the buffer, set at creation time.
+    this.w = w;
+    this.getWidth = function() { return this.w; }
     
-    //@property fill The color, gradient, or texture used to fill the shape. May be set to "" or null.
-    this.fill = "red";
-    this.setFill = function(fill) {
-        this.fill = fill;
-        this.setDirty();
+    //@property height  The height of the buffer, set at creation time.
+    this.h = h;
+    this.getHeight = function() { return this.h; }
+    
+    this.buffer = document.createElement("canvas");
+    this.buffer.width = this.w;
+    this.buffer.height = this.h;
+    
+    //@doc get the Canvas 2D context of the buffer, so you can draw on it
+    this.getContext = function() { return self.buffer.getContext('2d'); }
+    
+    //@doc Get an canvas ImageData structure.
+    this.getData = function() {
+        var c = this.getContext();
+        var data = c.getImageData(0,0,this.getWidth(), this.getHeight());
+        return data;
+    };
+    
+    //@method Return the *red* component at the specified x and y.
+    this.getR = function(data, x, y) {
+        var pi = x+y*data.width;
+        return data.data[pi*4+0];
+    };
+    
+    //@method Return the *green* component at the specified x and y.
+    this.getG = function(data, x, y) {
+        var pi = x+y*data.width;
+        return data.data[pi*4+1];
+    };
+    
+    //@method Return the *blue* component at the specified x and y.
+    this.getB = function(data, x, y) {
+        var pi = x+y*data.width;
+        return data.data[pi*4+2];
+    };
+    
+    //@method Return the *alpha* component at the specified x and y.
+    this.getA = function(data, x, y) {
+        var pi = x+y*data.width;
+        return data.data[pi*4+3];
+    };
+    
+    //@method Set the red, green, blue, and alpha components at the specified x and y.
+    this.setRGBA = function(data,x,y,r,g,b,a) {
+        var pi = (x+y*this.getWidth())*4;
+        //console.log("pi = " + pi);
+        data.data[pi+0] = r; //alpha
+        data.data[pi+1] = g; //red
+        data.data[pi+2] = b; //green
+        data.data[pi+3] = a; //blue
         return this;
     };
-    this.getFill = function() { return this.fill; };
-    
-    //@property strokeWidth The width of the shape's outline stroke. Set it to 0 to not draw a stroke.
-    this.strokeWidth = 0;
-    this.setStrokeWidth = function(sw) {  this.strokeWidth = sw;  this.setDirty();  return this;  };
-    this.getStrokeWidth = function() { return this.strokeWidth; };
-    
-    //@property stroke  The color of the stroke. Will only be drawn if `strokeWidth` is greater than 0.
-    this.stroke = "black";
-    this.setStroke = function(stroke) { this.stroke = stroke; return this; }
-    this.getStroke = function() { return this.stroke; }
-    
-    //@property opacity the opacity of the entire node. default is 1.0
-    this.opacity = 1.0;
-    this.setOpacity = function(opacity) { this.opacity = opacity; return this; }
-    this.getOpacity = function() { return this.opacity; }
+    //@method Set the data structure back into the canvas. This should be the same value you got from *getData()*.
+    this.setData = function(data) {
+        this.getContext().putImageData(data,0,0);
+        return this;
+    };
+    //@method Clear the buffer with transparent black.
+    this.clear = function() {
+        var ctx = this.getContext();
+        ctx.clearRect(0,0,this.getWidth(),this.getHeight());
+        return this;
+    };
     return true;
-}
-Shape.extend(Node);
-
-
-
-
+};
 
 /* 
-@class Text A shape which draws a single line of text with the specified content (a string), font, and color.
-@category shape
+@class BufferNode A node which draws its child into a buffer. Use it to cache children which are expensive to draw.
+#category effects
+@end
 */
+function BufferNode(n) {
+	AminoNode.call(this);
+	this.node = n;
+    this.node.setParent(this);
+    this.buf = null;
+    var self = this;
+    this.draw = function(ctx) {
+        var bounds = this.node.getVisualBounds();
+        if(!this.buf) {
+            this.buf = new Buffer(bounds.getWidth(),bounds.getHeight());
+        }
+        //redraw the child only if it's dirty
+        if(this.isDirty()) {
+            var ctx2 = this.buf.getContext();
+            ctx2.save();
+            ctx2.translate(-bounds.getX(),-bounds.getY());
+            this.node.draw(ctx2);
+            ctx2.restore();
+        }
+        ctx.save();
+        ctx.translate(bounds.getX(),bounds.getY());
+        ctx.drawImage(this.buf.buffer,0,0);
+        ctx.restore();
+        this.clearDirty();
+    };
+    return true;
+};
+BufferNode.extend(AminoNode);
+
+
+
+
+
+
+function BitmapText(src) {
+	this.src = src;
+	this.x = 0;
+	this.y = 0;
+	this.text = "random text";
+	return this;
+}
+
+BitmapText.prototype.setMetrics = function(metrics) {
+	this.metrics = metrics;
+	return this;
+}
+BitmapText.prototype.setLineHeight = function(lineHeight) {
+	this.lineHeight = lineHeight;
+	return this;
+}
+BitmapText.prototype.setX = function(x) {
+	this.x = x;
+	return this;
+}
+BitmapText.prototype.setY = function(y) {
+	this.y = y;
+	return this;
+}
+BitmapText.prototype.paint = function(g) {
+	g.fillStyle = "black";
+	g.font = "12pt sans-serif";
+	g.fillText(this.text,this.x,this.y);
+}
+
+
+
+
+/*
+@class Rect
+
+A rectangle shape.
+#category shapes
+
+Example: create a red rectangle with a 5px black border and 20px rounded corners:
+
+    var rect = new Rect()
+        .set(0,0,100,30)
+        .setFill("red")
+        .setStroke("black")
+        .setStrokeWidth(5)
+        .setCorner(20);
+
+@end
+*/
+
+function Rect() {
+    AminoShape.call(this);
+	this.typename = "Rect";
+    var self = this;
+    //@property x  the x
+	this.x = 0;
+	//@property y the y
+	this.y = 0;
+	//@property w the width
+	this.w = 10;
+	//@property h the height
+	this.h = 10;
+	
+	this.setX = function(x) {
+	    this.x = x;
+	    this.setDirty();
+	    return this;
+	};
+	this.getX = function() {
+	    return this.x;
+	}
+	this.setY = function(y) {
+	    this.y = y;
+	    this.setDirty();
+	    return this;
+	};
+	this.getY = function() {
+	    return this.y;
+	}
+	
+	
+	//@function set(x,y,w,h)  set the x, y, width, and height all at the same time
+	this.set = function(x,y,w,h) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.setDirty();
+        return this;
+    }
+    
+    this.contains = function(pt) {
+        if(pt.x >= this.x && pt.x <= this.x + this.w) {
+            if(pt.y >= this.y && pt.y<=this.y + this.h) {
+                return true;
+            }
+        }
+        return false;
+    }
+	return this;
+}
+Rect.extend(AminoShape);
+Rect.prototype.fillShape = function(ctx) {
+    if(this.corner > 0) {
+        var x = this.x;
+        var y = this.y;
+        var w = this.w;
+        var h = this.h;
+        var r = this.corner;
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.lineTo(x+w-r, y);
+        ctx.bezierCurveTo(x+w-r/2,y,   x+w,y+r/2,   x+w,y+r);
+        ctx.lineTo(x+w,y+h-r);
+        ctx.bezierCurveTo(x+w,y+h-r/2, x+w-r/2,y+h, x+w-r, y+h);
+        ctx.lineTo(x+r,y+h);
+        ctx.bezierCurveTo(x+r/2,y+h,   x,y+h-r/2,   x,y+h-r);
+        ctx.lineTo(x,y+r);
+        ctx.bezierCurveTo(x,y+r/2,     x+r/2,y,     x+r,y);
+        ctx.closePath();
+        ctx.fill();
+    } else {
+        ctx.fillRect(this.x,this.y,this.w,this.h);
+    }
+}
+Rect.prototype.strokeShape = function(ctx) {
+    if(this.corner > 0) {
+        var x = this.x;
+        var y = this.y;
+        var w = this.w;
+        var h = this.h;
+        var r = this.corner;
+        ctx.beginPath();
+        ctx.moveTo(x+r,y);
+        ctx.lineTo(x+w-r, y);
+        ctx.bezierCurveTo(x+w-r/2,y,   x+w,y+r/2,   x+w,y+r);
+        ctx.lineTo(x+w,y+h-r);
+        ctx.bezierCurveTo(x+w,y+h-r/2, x+w-r/2,y+h, x+w-r, y+h);
+        ctx.lineTo(x+r,y+h);
+        ctx.bezierCurveTo(x+r/2,y+h,   x,y+h-r/2,   x,y+h-r);
+        ctx.lineTo(x,y+r);
+        ctx.bezierCurveTo(x,y+r/2,     x+r/2,y,     x+r,y);
+        ctx.closePath();
+        ctx.strokeStyle = this.getStroke();
+        ctx.lineWidth = this.strokeWidth;
+        ctx.stroke();
+    } else {
+        ctx.strokeRect(this.x,this.y,this.w,this.h);
+    }
+}
+Rect.prototype.setCorner = function(corner) {
+    this.corner = corner;
+	this.setDirty();
+    return this;
+}
+Rect.prototype.getCorner = function(corner) {
+    return this.corner;
+}
+
+
+
+/*
+@class Text
+A node which draws text with a single style. The text can have any
+CSS font setting and be positioned anywhere.
+#category shapes
+@end
+*/
+
 function Text() {
-    Shape.call(this);
-    //this.parent = null;
-    
-    //@property x  The X coordinate of the left edge of the text.
-    this.x = 0;
-    this.setX = function(x) { this.x = x; this.setDirty(); return this; };
-    
-    //@property y  The Y coordinate of the bottom edge of the text.
-    this.y = 0;
-    this.setY = function(y) { this.y = y; this.setDirty(); return this; };
-    
-    //@property text The actual text string which will be drawn.
-    this.text = "-no text-";
-    this.setText = function(text) { this.text = text;  this.setDirty();  return this;  };
-    
+    AminoShape.call(this);
+	this.font = "12pt sans-serif";
+	
+	//@property x the x
+	this.x = 0;
+	this.setX = function(x) {
+	    this.x = x;
+	    this.setDirty();
+	    return this;
+	};
+	this.getX = function() {
+	    return this.x;
+	}
+	
+	//@property y the y
+	this.y = 0;
+	this.setY = function(y) {
+	    this.y = y;
+	    this.setDirty();
+	    return this;
+	};
+	this.getY = function() {
+	    return this.y;
+	}
+	
+	//@property text the actual string of text to be draw
+	this.text = "random text";
+	
     //@property autoSize  should the bounds of the text be calculated from the text, or explicit
     this.autoSize = true;
-    this.setAutoSize = function(autoSize) { this.autoSize = autoSize; this.setDirty(); return this; };
+    this.setAutoSize = function(autoSize) {
+        this.autoSize = autoSize; 
+        this.setDirty(); 
+        return this; 
+    };
     
     //@property width width of text box
     this.width = 100;
-    this.setWidth = function(width) { this.width = width; this.setDirty(); return this; };
+    this.setWidth = function(width) { 
+        this.width = width; 
+        this.setDirty(); 
+        return this; 
+    };
     
     //@property height height of text box
     this.height = 100;
-    this.setHeight = function(height) { this.height = height; this.setDirty(); return this; };
+    this.setHeight = function(height) { 
+        this.height = height; 
+        this.setDirty(); 
+        return this; 
+    };
 
     //@property halign
     this.halign = 'left';
-    this.setHAlign = function(halign) { this.halign = halign; this.setDirty(); return this; };    
-    
-    this._bounds = new Bounds(0,0,50,20);
-    
-    var self = this;
-    this.getVisualBounds = function() {
-        return self._bounds;
-    };
-    
-    this.draw = function(ctx) {
-        if(!this.isVisible()) return;
-        var f = ctx.font;
-        ctx.font = this.font;
-        if(this.fill.generate) {
-            ctx.fillStyle = this.fill.generate(ctx);
-        } else {
-            ctx.fillStyle = this.fill;
+    this.setHAlign = function(halign) { 
+        this.halign = halign; 
+        this.setDirty(); 
+        return this; 
+    };    
+	
+	return this;
+}
+Text.extend(AminoShape);
+//@function set(text,x,y) shortcut to set the text, x and y of the text
+Text.prototype.set = function(text,x,y) {
+	this.x = x;
+	this.y = y;
+	this.text = text;
+	this.setDirty();
+	return this;
+}
+Text.prototype.setText = function(text) {
+    this.text = text;
+    this.setDirty();
+    return this;
+}
+
+
+//@property font(fontstring) the font to render the text with. Uses the CSS font shortcut, such as '12pt bold Arial'
+Text.prototype.setFont = function(font) {
+    this.font = font;
+    return this;
+}
+
+
+Text.prototype.fillShape = function(ctx) {
+	ctx.font = this.font;
+    var strs = this.text.split('\n');
+    var h = ctx.measureText('m').width;
+    var mw = 0;
+    var y = this.y;
+    if(this.autoSize) {
+        for(var i=0; i<strs.length; i++) {
+            ctx.fillText(strs[i], this.x, y);
+            mw = Math.max(mw,ctx.measureText(strs[i]));
+            y+= h;
         }
-        ctx.save();
-        if(this.getOpacity() != 1) {
-            ctx.globalAlpha = this.getOpacity();
-        }
-        
-        var strs = this.text.split('\n');
-        var h = ctx.measureText('m').width;
-        var mw = 0;
-        var y = this.y;
-        if(this.autoSize) {
+    } else {
+        mw = this.width;
+        var align = ctx.textAlign;
+        if(this.halign == 'left') {
+            ctx.textAlign = 'left';
             for(var i=0; i<strs.length; i++) {
                 ctx.fillText(strs[i], this.x, y);
-                mw = Math.max(mw,ctx.measureText(strs[i]));
                 y+= h;
             }
-        } else {
-            mw = this.width;
-            var align = ctx.textAlign;
-            if(this.halign == 'left') {
-                ctx.textAlign = 'left';
-                for(var i=0; i<strs.length; i++) {
-                    ctx.fillText(strs[i], this.x, y);
-                    y+= h;
-                }
-            }
-            if(this.halign == 'right') {
-                ctx.textAlign = 'right';
-                for(var i=0; i<strs.length; i++) {
-                    ctx.fillText(strs[i], this.x + this.width, y);
-                    y+= h;
-                }
-            }
-            if(this.halign == 'center') {
-                ctx.textAlign = 'center';
-                for(var i=0; i<strs.length; i++) {
-                    ctx.fillText(strs[i], this.x + this.width/2, y);
-                    y+= h;
-                }
-            }
-            ctx.textAlign = align;
         }
-        ctx.restore();
-        ctx.font = f;
-        
-        this._bounds = new Bounds(this.x,this.y,mw,y);
-        //ctx.strokeRect(this.x, this.y, this.width, this.height);
-        this.clearDirty();
-    };
-    
-    //@property font  The font description used to draw the text. Use the CSS font format. ex: *20pt Verdana*
-    this.font = "20pt Verdana";
-    this.setFont = function(font) { this.font = font; this.setDirty(); return this; }
-    
-    this.contains = function() { return false; }
-    return true;    
-};
-Text.extend(Shape);
-
-
-/* 
-@class Text A shape which draws a single line of text with the specified content (a string), font, and color.
-@category shape
-*/
-function BitmapText(src) {
-    Shape.call(this);
-    this.src = src;
-    this.img = new Image();
-    var self = this;
-    this.img.onload = function() {
-    	console.log("image loaded " + this.src);
-    	self.setDirty();
-    };
-    this.img.src = src;
-    //this.parent = null;
-    //@property x  The X coordinate of the left edge of the text.
-    this.x = 0;
-    this.setX = function(x) { this.x = x; this.setDirty(); return this; };
-    
-    //@property y  The Y coordinate of the bottom edge of the text.
-    this.y = 0;
-    this.setY = function(y) { this.y = y; this.setDirty(); return this; };
-    
-    //@property text The actual text string which will be drawn.
-    this.text = "-no text-";
-    this.setText = function(text) { this.text = text;  this.setDirty();  return this;  };
-    
-    this.metrics = [];
-    this.key = [];
-    this.setMetrics = function(key,metrics) {
-	    this.key = key;
-    	this.metrics = metrics;
-    	this.setDirty();
-    	return this;
+        if(this.halign == 'right') {
+            ctx.textAlign = 'right';
+            for(var i=0; i<strs.length; i++) {
+                ctx.fillText(strs[i], this.x + this.width, y);
+                y+= h;
+            }
+        }
+        if(this.halign == 'center') {
+            ctx.textAlign = 'center';
+            for(var i=0; i<strs.length; i++) {
+                ctx.fillText(strs[i], this.x + this.width/2, y);
+                y+= h;
+            }
+        }
+        ctx.textAlign = align;
     }
-    this.lineHeight = 30;
-    this.setLineHeight = function(lineHeight) {
-    	this.lineHeight = lineHeight;
-    	return this;
-    }
-    this.draw = function(ctx) {
-        if(!this.isVisible()) return;
-        
-        var str = this.text;
-        //var str = "Greetings Earthling!";
-        var x = 0;
-        for(var i=0; i<str.length; i++) {
-	        var letter = str.charCodeAt(i);
-	        var n = this.key[letter];
-	        console.log("letter = " + letter + " char = " + n);
-	        var h = this.lineHeight;
-	        var xoff = this.metrics[n*2];
-	        var w = this.metrics[n*2+1];
-	        ctx.drawImage(this.img,
-	         xoff,0,w,h,
-	         x,0,w,h);
-	        x += w;
-        }
-    }
-};
-BitmapText.extend(Shape);
-
-// @class Ellipse  A ellipse shape.
-// @category shape
-//
-function Ellipse() {
-    Shape.call(this);
-    var self = this;
-    
-    //@property x  The X coordinate of the *center* of the ellipse (not it's left edge)
-    this.x = 0.0;
-    this.getX = function() { return this.x; };
-    this.setX = function(x) { this.x = x; this.setDirty(); return this; };
-
-    //@property y  The Y coordinate of the *center* of the ellipse (not it's top edge)
-    this.y = 0.0;
-    this.getY = function() { return this.y; };
-    this.setY = function(y) { this.y = y; this.setDirty(); return this; };
-
-    //@property width The width of the ellipse.
-    this.width = 20;
-    this.getWidth = function() { return this.width; };
-    this.setWidth = function(width) { this.width = width; this.setDirty(); return this; };
-
-    //@property height The height of the ellipse.
-    this.height = 10;
-    this.getHeight = function() { return this.height; };
-    this.setHeight = function(height) { this.height = height; this.setDirty(); return this; };
-
-
-    //@method Set the x, y, w, h at the same time.
-    this.set = function(x,y,w,h) {
-        this.x = x;
-        this.y = y;
-        this.width = w;
-        this.height = h;
-        this.setDirty();
-        return this;
-    };
-    
-    this.draw = function(ctx) { 
-        if(!this.isVisible()) return;
-        
-        if(this.fill.generate) {
-            ctx.fillStyle = this.fill.generate(ctx);
-        } else {
-            ctx.fillStyle = this.fill;
-        }
-        var hB = (self.width / 2) * .5522848
-        var vB = (self.height / 2) * .5522848
-        var aX = self.x;
-        var aY = self.y;
-        var eX = self.x + self.width;
-        var eY = self.y + self.height;
-        var mX = self.x + self.width / 2;
-        var mY = self.y + self.height / 2;
-        ctx.beginPath();
-        ctx.moveTo(aX, mY);
-        ctx.bezierCurveTo(aX, mY - vB, mX - hB, aY, mX, aY);
-        ctx.bezierCurveTo(mX + hB, aY, eX, mY - vB, eX, mY);
-        ctx.bezierCurveTo(eX, mY + vB, mX + hB, eY, mX, eY);
-        ctx.bezierCurveTo(mX - hB, eY, aX, mY + vB, aX, mY);
-        ctx.closePath();
-        ctx.save();
-        if(this.getOpacity() != 1) {
-            ctx.globalAlpha = this.getOpacity();
-        }
-        ctx.fill();
-        ctx.restore();
-        if(self.getStrokeWidth() > 0) {
-            ctx.strokeStyle = self.getStroke();
-            ctx.lineWidth = self.getStrokeWidth();
-            ctx.stroke();
-        }
-        this.clearDirty();
-    };
-
-    this.contains = function(x,y) {
-        //console.log("comparing: " + this.x + " " + this.y + " " + this.width + " " + this.height + " --- " + x + " " + y);
-        if(x >= this.x && x <= this.x + this.width) {
-            if(y >= this.y && y<=this.y + this.height) {
-                return true;
-            }
-        }
-        return false;
-    };
-
-    this.getVisualBounds = function() {
-        return new Bounds(self.x,self.y,self.width,self.height);
-    };
-    return true;
-};
-Ellipse.extend(Shape);
-
-
-
-
-
+}
+Text.prototype.strokeShape = function(g) {
+	//g.font = this.font;
+	//g.strokeText(this.text,this.x,this.y);
+}
+Text.prototype.contains = function(pt) {
+	return false;
+}
 
 
 /*
-@class Circle  A circle shape.
-@category shape
+@class Circle
+A circle shape. The x and y are the *center* of the circle.
+#category shapes
+@end
 */
 function Circle() {
-    Shape.call(this);
-    
-    //@property x  The X coordinate of the *center* of the circle (not it's left edge).
-    this.x = 0.0;
-    this.getX = function() { return this.x; };
-    this.setX = function(x) { this.x = x; this.setDirty(); return this; };
-    
-    //@property y  The Y coordinate of the *center* of the circle (not it's top edge).
-    this.y = 0.0;
-    this.getY = function() { return this.y; };
-    this.setY = function(y) { this.y = y; this.setDirty(); return this; };
-    
-    //@property radius The radius of the circle
-    this.radius = 10.0;
-    this.getRadius = function() { return this.radius; };
-    this.setRadius = function(radius) { this.radius = radius; this.setDirty(); return this; }; 
-    var self = this;
-    
-    //@method Set the x, y, and radius of the circle all in one step
-    this.set = function(x,y,radius) {
-        self.x = x;
-        self.y = y;
-        self.radius = radius;
-        self.setDirty();
-        return self;
-    };
-    
-    this.draw = function(ctx) {
-        if(!this.isVisible()) return;
-        if(this.fill.generate) {
-            ctx.fillStyle = this.fill.generate(ctx);
-        } else {
-            ctx.fillStyle = this.fill;
+    AminoShape.call(this);
+	this.x = 0;
+	this.y = 0;
+	this.radius = 10;
+	//@property x the center x of the circle
+	this.getX = function() {
+	    return this.x;
+	}
+	//@property y the center y of the circle
+	this.getY = function() {
+	    return this.y;
+	}
+	this.setX = function(x) {
+	    this.x = x;
+	    return this;
+	}
+	this.setY = function(y) {
+	    this.y = y;
+	    return this;
+	}
+	return this;
+}
+Circle.extend(AminoShape);
+//@function set(x,y,radius)  a shortcut function to set the center x, center y, and radius of the circle
+Circle.prototype.set = function(x,y,radius) {
+	this.x = x;
+	this.y = y;
+	this.radius = radius;
+	return this;
+}
+Circle.prototype.fillShape = function(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, true); 
+    ctx.closePath();
+    ctx.fill();
+}
+Circle.prototype.strokeShape = function(ctx) {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2, true); 
+    ctx.closePath();
+    ctx.stroke();
+}
+Circle.prototype.contains = function(pt) {
+    if(pt.x >= this.x-this.radius && pt.x <= this.x + this.radius) {
+        if(pt.y >= this.y-this.radius && pt.y<=this.y + this.radius) {
+            return true;
         }
-        ctx.beginPath();
-        ctx.arc(self.x, self.y, self.radius, 0, Math.PI*2, true); 
-        ctx.closePath();
-        ctx.save();
-        if(this.getOpacity() != 1) {
-            ctx.globalAlpha = this.getOpacity();
-        }
-        ctx.fill();
-        ctx.restore();
-        if(self.getStrokeWidth() > 0) {
-            ctx.strokeStyle = self.getStroke();
-            ctx.lineWidth = self.getStrokeWidth();
-            ctx.stroke();
-        }
-        this.clearDirty();
-    };
-    this.contains = function(x,y) {
-        if(x >= this.x-this.radius && x <= this.x + this.radius) {
-            if(y >= this.y-this.radius && y<=this.y + this.radius) {
-                return true;
-            }
-        }
-        return false;
-    };
-    this.getVisualBounds = function() {
-        return new Bounds(this.x-this.radius
-            ,this.y-this.radius
-            ,this.radius*2
-            ,this.radius*2);
-    };
-    return true;
-};
-Circle.extend(Shape);
+    }
+    return false;
+}
 
 
 
-/*
-@class Rect A rectangular shape. May be rounded or have straight corners.
-@category shape
-*/
-function Rect() {
-    Shape.call(this);
-    
-    var self = this;
-    //@method Set the x, y, w, h at the same time.
-    this.set = function(x,y,w,h) {
-        this.x = x;
-        this.y = y;
-        this.width = w;
-        this.height = h;
-        this.setDirty();
-        return this;
-    };
-    
-    //@property width The width of the rectangle.
-    this.width = 100.0;
-    this.getWidth = function() { return this.width; };
-    this.setWidth = function(w) {
-        this.width = w;
-        this.setDirty();
-        return this;
-    };
-    
-    //@property height The height of the rectangle.
-    this.height = 100.0;
-    this.getHeight = function() { return this.height; };
-    this.setHeight = function(h) {
-        this.height = h;
-        this.setDirty();
-        return this;
-    };
-    
-    //@property x The X coordinate of the rectangle.
-    this.x = 0.0;
-    this.setX = function(x) {
-        this.x = x;
-        this.setDirty();
-        return this;
-    };
-    this.getX = function() { return this.x; };
-    
-    //@property y The Y coordinate of the rectangle.
-    this.y = 0.0;
-    this.setY = function(y) {
-        this.y = y;
-        this.setDirty();
-        return this;
-    };
-    this.getY = function() { return this.y; };
-    
-    
-    //@property corner  The radius of the corner, if it's rounded. The radius is the same for all corners. If zero, then the rectangle will not be rounded.
-    this.corner = 0;
-    this.setCorner = function(c) {
-        this.corner = c;
-        this.setDirty();
-        return this;
-    };
-    
-    this.contains = function(x,y) {
-        //console.log("comparing: " + this.x + " " + this.y + " " + this.width + " " + this.height + " --- " + x + " " + y);
-        if(x >= this.x && x <= this.x + this.width) {
-            if(y >= this.y && y<=this.y + this.height) {
-                return true;
-            }
-        }
-        return false;
-    };
-    this.draw = function(ctx) {
-        
-        if(this.fill.generate) {
-            ctx.fillStyle = this.fill.generate(ctx);
-        } else {
-            ctx.fillStyle = this.fill;
-        }
-        if(this.corner > 0) {
-            var x = this.x;
-            var y = this.y;
-            var w = this.width;
-            var h = this.height;
-            var r = this.corner;
-            ctx.beginPath();
-            ctx.moveTo(x+r,y);
-            ctx.lineTo(x+w-r, y);
-            ctx.bezierCurveTo(x+w-r/2,y,   x+w,y+r/2,   x+w,y+r);
-            ctx.lineTo(x+w,y+h-r);
-            ctx.bezierCurveTo(x+w,y+h-r/2, x+w-r/2,y+h, x+w-r, y+h);
-            ctx.lineTo(x+r,y+h);
-            ctx.bezierCurveTo(x+r/2,y+h,   x,y+h-r/2,   x,y+h-r);
-            ctx.lineTo(x,y+r);
-            ctx.bezierCurveTo(x,y+r/2,     x+r/2,y,     x+r,y);
-            ctx.closePath();
-            ctx.save();
-            if(this.getOpacity() != 1) {
-                ctx.globalAlpha = this.getOpacity();
-            }
-            ctx.fill();
-            ctx.restore();
-            if(this.strokeWidth > 0) {
-                ctx.strokeStyle = this.getStroke();
-                ctx.lineWidth = this.strokeWidth;
-                ctx.stroke();
-            }
-        } else {
-            ctx.save();
-            if(this.getOpacity() != 1) {
-                ctx.globalAlpha = this.getOpacity();
-            }
-            ctx.fillRect(this.x,this.y,this.width,this.height);
-            ctx.restore();
-            if(this.strokeWidth > 0) {
-                ctx.strokeStyle = this.getStroke();
-                ctx.lineWidth = this.strokeWidth;
-                ctx.strokeRect(this.x,this.y,this.width,this.height);
-            }
-        }
-        this.clearDirty();
-    };
-    this.getVisualBounds = function() {
-        return new Bounds(this.x,this.y,this.width,this.height);
-    };
-    return true;
-};
-Rect.extend(Shape);
-
-
+// ===================== Path and PathNode
 
 var SEGMENT_MOVETO = 1;
 var SEGMENT_LINETO = 2;
@@ -2753,32 +2150,39 @@ function Segment(kind,x,y,a,b,c,d) {
 
 /*
 @class Path A Path is a sequence of line and curve segments. It is used for drawing arbitrary shapes and animating.  Path objects are immutable. You should create them and then reuse them.
-@category resource
+#category shapes
+@end
 */
 function Path() {
     this.segments = [];
     this.closed = false;
     
-    //@doc jump directly to the x and y. This is usually the first thing in your path.
-    this.moveTo = function(x,y) { this.segments.push(new Segment(SEGMENT_MOVETO,x,y)); return this; };
+    //@function moveTo(x,y) jump directly to the x and y. This is usually the first thing in your path.
+    this.moveTo = function(x,y) { 
+        this.segments.push(new Segment(SEGMENT_MOVETO,x,y)); 
+        return this; 
+    };
     
-    //@doc draw a line from the previous x and y to the new x and y.
-    this.lineTo = function(x,y) { this.segments.push(new Segment(SEGMENT_LINETO,x,y)); return this; };
+    //@function lineTo(x,y) draw a line from the previous x and y to the new x and y.
+    this.lineTo = function(x,y) { 
+        this.segments.push(new Segment(SEGMENT_LINETO,x,y)); 
+        return this; 
+    };
     
-    //@doc close the path. It will draw a line from the last x,y to the first x,y if needed.
+    //@function closeTo(x,y) close the path. It will draw a line from the last x,y to the first x,y if needed.
     this.closeTo = function(x,y) {
         this.segments.push(new Segment(SEGMENT_CLOSETO,x,y)); 
         this.closed = true;
         return this;
     };
     
-    //@doc draw a beizer curve from the previous x,y to a new point (x2,y2) using the four control points (cx1,cy1,cx2,cy2).
+    //@function curveTo(cx1,cy1,cx2,cy2,x2,y2) draw a beizer curve from the previous x,y to a new point (x2,y2) using the four control points (cx1,cy1,cx2,cy2).
     this.curveTo = function(cx1,cy1,cx2,cy2,x2,y2) {
         this.segments.push(new Segment(SEGMENT_CURVETO,cx1,cy1,cx2,cy2,x2,y2));
         return this;
     };
     
-    //@doc build the final path object.
+    //@function build() build the final path object.
     this.build = function() {
         return this;
     };
@@ -2835,12 +2239,13 @@ function getBezier(percent, C1, C2, C3, C4) {
 
 
 /*
-@class PathNode  Draws a path.
-@category shape
+@class PathNode Draws a path.
+#category shapes
+@end
 */
 function PathNode() {
-    Shape.call(this);
-    //@property path  the Path to draw
+    AminoShape.call(this);
+    //@property path the Path to draw
     this.path = null;
     this._bounds = null;
     
@@ -2853,6 +2258,7 @@ function PathNode() {
     this.getPath = function() {
         return this.path;
     };
+    /*
     this.getVisualBounds = function() {
         if(this._bounds == null) {
             var l = 10000;
@@ -2886,76 +2292,472 @@ function PathNode() {
         }
         return this._bounds;
     }
+    */
+    return true;
+}
+PathNode.extend(AminoShape);
+
+PathNode.prototype.fillShape = function(ctx) {
+    ctx.beginPath();
+    for(var i=0; i<this.path.segments.length; i++) {
+        var s = this.path.segments[i];
+        if(s.kind == SEGMENT_MOVETO) 
+            ctx.moveTo(s.x,s.y);
+        if(s.kind == SEGMENT_LINETO) 
+            ctx.lineTo(s.x,s.y);
+        if(s.kind == SEGMENT_CURVETO)
+            ctx.bezierCurveTo(s.cx1,s.cy1,s.cx2,s.cy2,s.x,s.y);
+        if(s.kind == SEGMENT_CLOSETO)
+            ctx.closePath();
+    }
+    if(this.path.closed) {
+        ctx.fill();
+    }
+}
+PathNode.prototype.strokeShape = function (ctx) {
+    ctx.beginPath();
+    for(var i=0; i<this.path.segments.length; i++) {
+        var s = this.path.segments[i];
+        if(s.kind == SEGMENT_MOVETO) 
+            ctx.moveTo(s.x,s.y);
+        if(s.kind == SEGMENT_LINETO) 
+            ctx.lineTo(s.x,s.y);
+        if(s.kind == SEGMENT_CURVETO)
+            ctx.bezierCurveTo(s.cx1,s.cy1,s.cx2,s.cy2,s.x,s.y);
+        if(s.kind == SEGMENT_CLOSETO)
+            ctx.closePath();
+    }
+    if(this.path.closed) {
+        ctx.stroke();
+    }
+}
+
+/*
+@class Ellipse
+An ellipse / oval shape. X and Y and width and height represent 
+the rectangular bounds of the ellipse.
+#category shapes
+@end
+*/
+function Ellipse() {
+    AminoShape.call(this);
+    var self = this;
     
-    this.draw = function(ctx) {
-        if(!this.isVisible()) return;
-        if(this.fill.generate) {
-            ctx.fillStyle = this.fill.generate(ctx);
-        } else {
-            ctx.fillStyle = this.fill;
-        }
+    //@property x  The X coordinate of the *center* of the ellipse (not it's left edge)
+    this.x = 0.0;
+    this.getX = function() { return this.x; };
+    this.setX = function(x) { this.x = x; this.setDirty(); return this; };
+
+    //@property y  The Y coordinate of the *center* of the ellipse (not it's top edge)
+    this.y = 0.0;
+    this.getY = function() { return this.y; };
+    this.setY = function(y) { this.y = y; this.setDirty(); return this; };
+
+    //@property width The width of the ellipse.
+    this.width = 20;
+    this.getWidth = function() { return this.width; };
+    this.setWidth = function(width) { this.width = width; this.setDirty(); return this; };
+
+    //@property height The height of the ellipse.
+    this.height = 10;
+    this.getHeight = function() { return this.height; };
+    this.setHeight = function(height) { this.height = height; this.setDirty(); return this; };
+
+
+    //@function set(x,y,w,h) Set the x, y, w, h at the same time.
+    this.set = function(x,y,w,h) {
+        this.x = x;
+        this.y = y;
+        this.width = w;
+        this.height = h;
+        this.setDirty();
+        return this;
+    };
+    
+    this.fillShape = function(ctx) {
+        var hB = (self.width / 2) * .5522848
+        var vB = (self.height / 2) * .5522848
+        var aX = self.x;
+        var aY = self.y;
+        var eX = self.x + self.width;
+        var eY = self.y + self.height;
+        var mX = self.x + self.width / 2;
+        var mY = self.y + self.height / 2;
         ctx.beginPath();
-        for(var i=0; i<this.path.segments.length; i++) {
-            var s = this.path.segments[i];
-            if(s.kind == SEGMENT_MOVETO) 
-                ctx.moveTo(s.x,s.y);
-            if(s.kind == SEGMENT_LINETO) 
-                ctx.lineTo(s.x,s.y);
-            if(s.kind == SEGMENT_CURVETO)
-                ctx.bezierCurveTo(s.cx1,s.cy1,s.cx2,s.cy2,s.x,s.y);
-            if(s.kind == SEGMENT_CLOSETO)
-                ctx.closePath();
-        }
-        if(this.path.closed) {
-            ctx.fill();
-        }
-        if(this.strokeWidth > 0) {
-            ctx.strokeStyle = this.stroke;
-            ctx.lineWidth = this.strokeWidth;
-            ctx.stroke();
-            ctx.lineWidth = 1;
-        }
-        this.clearDirty();
+        ctx.moveTo(aX, mY);
+        ctx.bezierCurveTo(aX, mY - vB, mX - hB, aY, mX, aY);
+        ctx.bezierCurveTo(mX + hB, aY, eX, mY - vB, eX, mY);
+        ctx.bezierCurveTo(eX, mY + vB, mX + hB, eY, mX, eY);
+        ctx.bezierCurveTo(mX - hB, eY, aX, mY + vB, aX, mY);
+        ctx.closePath();
+        ctx.fill();
     };
     return true;
 };
-PathNode.extend(Shape);
-
-
-
-function ParticleSimulator() {
-	Node.call(this);
-	this.parts = [];
-	this.max = 50;
-	this.tick = 0;
-	this.draw = function(ctx) {
-		//create
-		if(this.parts.length < this.max) {
-			var p = this.create();
-			if(p != null) {
-				this.parts.push(p);
-			}
-		}
-		
-		//update
-		for(var i=0; i<this.parts.length; i++) {
-			this.update(this.parts[i]);
-		}
-		
-		//draw
-		ctx.save();
-		for(var i=0; i<this.parts.length; i++) {
-			this.render(ctx,this.parts[i]);
-		}
-		ctx.restore();
-		
-		//destroy / recycle
-		for(var i=0; i<this.parts.length; i++) {
-			this.recycle(this.parts[i]);
-		}
-		this.tick++;
-	};
+Ellipse.extend(AminoShape);
+Ellipse.prototype.strokeShape = function (ctx) {
+    ctx.stroke();
 }
-ParticleSimulator.extend(Node);
 
+
+/*
+@class ImageView
+A node which draws an image. You must create it using the constructor with a string URL. Ex:  var img = new ImageView("foo.png");
+#category shapes
+@end
+*/
+function ImageView(url) {
+    AminoNode.call(this);
+    var self = this;
+    this.typename = "ImageView";
+    if(url instanceof Image) {
+        this.img = url;
+        this.loaded = true;
+        this.width = url.width;
+        this.height = url.height;
+    } else {
+        this.src = url;
+        this.img = new Image();
+        this.loaded = false;
+        this.width = 10;
+        this.height = 10;
+        this.img.onload = function() {
+            self.loaded = true;
+            self.setDirty();
+            self.width = self.img.width;
+            self.height = self.img.height;
+        }
+        this.img.src = url;
+    }
+    
+    //@property x  The Y coordinate of the upper left corner of the image.
+    this.x = 0.0;
+    this.setX = function(x) { this.x = x;   this.setDirty();  return this;  };
+    this.getX = function() { return this.x; };
+    
+    //@property y  The Y coordinate of the upper left corner of the image.
+    this.y = 0.0;
+    this.setY = function(y) {  this.y = y;  this.setDirty();  return this;  };
+    this.getY = function() { return this.y; };
+    
+    this.paint = function(ctx) {
+        //self.loaded = false;
+        if(self.loaded) {
+            ctx.drawImage(self.img,self.x,self.y);
+        } else {
+            ctx.fillStyle = "red";
+            ctx.fillRect(self.x,self.y,100,100);
+        }
+    };
+    
+    this.contains = function(pt) {
+ //       console.log("image checking contains " + JSON.stringify(pt));
+//        console.log("x = " + self.x + " " + self.y + " " + self.w + " " + self.h);
+        if(pt.x >= self.x && pt.x <= self.x + self.width) {
+            if(pt.y >= self.y && pt.y<=self.y + self.height) {
+                return true;
+            }
+        }
+        return false;
+    }
+    return true;
+};
+ImageView.extend(AminoNode);
+
+
+
+
+
+
+// =========== Paints ===========
+/*
+@class LinearGradientFill
+A *fill* that can be used to fill shapes with a linear gradient. First
+create the gradient at an x,y,w,h using the constructor, then add
+colors using the *addStop* function.  The LinearGradientFill can be
+used with the *fill* property of any shape.
+#category shapes
+@end
+*/
+function LinearGradientFill(x,y,width,height) {
+    var self = this;
+    self.x = x;
+    self.y = y;
+    self.width = width;
+    self.height = height;
+    self.offsets = [];
+    self.colors = [];
+    //@function addStop(offset,color) add a new color stop to the gradient. Offset should be between 0 and 1. Color should be a string color like "#00ff00" or "green".
+    self.addStop = function(offset, color) {
+        self.offsets.push(offset);
+        self.colors.push(color);
+        return self;
+    };
+    self.generate = function(ctx) {
+        var grad = ctx.createLinearGradient(
+                self.x,self.y,
+                self.width,self.height);
+        for(var i in self.offsets) {
+            grad.addColorStop(self.offsets[i],self.colors[i]);
+        }
+        return grad;
+    }
+};
+
+
+
+/*
+@class RadialGradientFill
+A *fill* that can be used to fill shapes with a radial gradient. First
+create the gradient at an x,y, and radius using the constructor, then add
+colors using the *addStop* function.  The RadialGradientFill can be
+used with the *fill* property of any shape.
+#category shapes
+@end
+*/
+function RadialGradientFill(x,y,radius) {
+    var self = this;
+    self.x = x;
+    self.y = y;
+    self.radius = radius;
+    self.offsets = [];
+    self.colors = [];
+    //@function addStop(offset,color) add a new color stop to the gradient. Offset should be between 0 and 1. Color should be a string color like "#00ff00" or "green".
+    self.addStop = function(offset, color) {
+        self.offsets.push(offset);
+        self.colors.push(color);
+        return self;
+    };
+    self.generate = function(ctx) {
+        var grad = ctx.createRadialGradient(self.x,self.y, 0, self.x, self.y, self.radius);
+        for(var i in self.offsets) {
+            grad.addColorStop(self.offsets[i],self.colors[i]);
+        }
+        return grad;
+    }
+};
+
+/*
+@class PatternFill
+A PatternFill fills a shape with an image, optionally repeated.
+#category shapes
+@end
+*/
+function PatternFill(url, repeat) {
+    var self = this;
+    
+    this.src = url;
+    this.img = new Image();
+    this.loaded = false;
+    this.repeat = repeat;
+    this.img.onload = function() {
+        self.loaded = true;
+        if(self.can != null) {
+            self.can.setDirty();
+        }
+    };
+    this.can = null;
+    this.img.src = self.src;
+    this.generate = function(ctx) {
+        self.can = ctx.can;
+        if(!self.loaded) {
+            return "red";
+        }
+        return ctx.createPattern(self.img, self.repeat);
+    };
+    return true;
+}
+
+
+function ThreeScene() {
+    this.scene = new THREE.Scene();
+    this.renderer = null;
+    this.engine = null;
+    this.repaint = function() {
+        this.dirty = false;
+        this.renderer.render( this.scene, this.camera );
+    };
+    this.add = function(o) {
+        if(o instanceof THREE.DirectionalLight) {
+            this.scene.add(o);
+            return;
+        }
+        this.scene.add(o.obj);
+        o.parent = this;
+    };
+    
+    this.setDirty = function() {
+        if(!this.dirty) {
+            this.dirty = true;
+            if(!this.engine.autoPaint) {
+                this.repaint();
+            }
+        }
+    };
+}
+
+
+Amino.prototype.add3DCanvas = function(id) {
+    
+	var canvasElement = document.getElementById(id);
+	var width = canvasElement.clientWidth;
+	var height = canvasElement.clientHeight;
+	
+	sc = new ThreeScene();
+	sc.engine = this;
+    sc.scene.domWidth = width;
+    sc.scene.domHeight = height;
+    sc.camera = new THREE.PerspectiveCamera( 70, width/height, 1, 1000 );
+    sc.camera.position.y = 150;
+    sc.camera.position.z = 500;
+    sc.scene.add( sc.camera );
+	
+    sc.domElement = canvasElement;
+    sc.renderer = new THREE.CanvasRenderer();
+    sc.renderer.setSize( width, height);
+    sc.domElement.appendChild( sc.renderer.domElement );
+	this.canvases.push(sc);    
+	return sc;
+};
+
+
+
+
+function BaseNodeThree() {
+    this.parent = null;
+
+    this.setFill = function(color) {
+        if(color[0] == '#') {
+            color = color.substr(1);
+        }
+        this.fill = parseInt(color,16);
+        return this;
+    };
+    this.setDirty = function() {
+        if(this.parent != null) {
+            this.parent.setDirty();
+        }
+    };
+};
+
+
+
+
+function Block() {
+    this.geometry = new THREE.CubeGeometry( 200, 200, 200 );
+    this.fill = 0xff0000;
+    this.obj = null;
+    
+    this.set = function(w,h,d) {
+        this.geometry = new THREE.CubeGeometry( w, h, d);
+        return this;
+    };
+    this.getThreeObj = function() {
+        if(this.obj == null) {
+            this.material = new THREE.MeshLambertMaterial( { 
+                color: this.fill, 
+                shading: THREE.FlatShading, 
+                overdraw: true });
+            this.obj = new THREE.Mesh(this.geometry, this.material);
+        }
+        return this.obj;
+    };
+    
+}
+Block.extend(BaseNodeThree);
+
+
+
+
+function Sphere() {
+    this.geometry = new THREE.SphereGeometry(200, 50, 50)    
+    this.fill = 0xff0000;
+    this.obj = null;
+    
+    this.set = function(radius, detail) {
+        this.geometry = new THREE.SphereGeometry(radius, detail, detail)    
+        return this;
+    };
+    
+    this.getThreeObj = function() {
+        if(this.obj == null) {
+            this.material = new THREE.MeshLambertMaterial( { 
+                color: this.fill, 
+                //shading: THREE.SmoothShading, 
+                shading: THREE.FlatShading, 
+                overdraw: true, 
+            });
+            this.obj = new THREE.Mesh(this.geometry, this.material);
+        }
+        return this.obj;
+    };
+    
+}
+Sphere.extend(BaseNodeThree);
+
+
+
+
+function BeveledPath() {
+    var extrudeSettings = {	
+        amount: 20,  
+        bevelEnabled: true, 
+        bevelSegments: 2, 
+        steps: 2 };
+        
+    var sqLength = 200;
+    this.squareShape = new THREE.Shape();
+    this.squareShape.moveTo( -sqLength,-sqLength );
+    this.squareShape.lineTo( -sqLength, sqLength );
+    this.squareShape.lineTo( sqLength, sqLength );
+    this.squareShape.lineTo( sqLength, -sqLength );
+    this.squareShape.lineTo( -sqLength, -sqLength );
+    
+    this.geometry = this.squareShape.extrude( extrudeSettings );
+    this.fill = 0xff0000;
+    
+    this.obj = null;
+    this.getThreeObj = function() {
+        if(this.obj == null) {
+            this.material = new THREE.MeshLambertMaterial( { 
+                color: this.fill, 
+                shading: THREE.FlatShading, 
+                overdraw: true });
+            this.obj = new THREE.Mesh(this.geometry, this.material);
+        }            
+        return this.obj;
+    };
+}
+BeveledPath.extend(BaseNodeThree);
+
+
+
+function Group3() {
+    this.obj = new THREE.Object3D();
+    this.setPositionY = function(y) {
+        this.obj.position.y = y;
+        return this;
+    };
+    this.add = function(o) {
+        this.obj.add(o.getThreeObj());
+        o.parent = this;
+        return this;
+    };
+    this.setRotateY = function(y) {
+        this.obj.rotation.y = y;
+        this.setDirty();
+        return this;
+    };
+}
+Group3.extend(BaseNodeThree);
+
+
+
+
+
+function Light3() {
+    this.obj = new THREE.DirectionalLight( 0xffffff );
+    //directly front light
+    this.obj.position.set(1,0.2,0.5);
+}
 

@@ -13,7 +13,7 @@
 	font-style: italic;
 	src: url("../fonts/GoudyStM-Italic-webfont.woff");
 }
-body {
+#book_content {
 	font-size: 13pt;
     font-family: 'Crimson', Georgia, Times, serif;
 }
@@ -36,140 +36,67 @@ h2 {
 h3 {
 	font-size: 200%;
 }
-#footer {
-	font-family: Helvetica, Verdana, Arial, sans-serif;
-}
-
-
 
 
 
 /* ============ colors and backgrounds ============ */
-
-body {
+/*
+#book_content {
 	background-color: white;
 	background-image: url(../images/graytexture.png);
 }
-
+*/
 #header {
 	background-image: url(../images/bluenoise.png);
-	border: 1px solid red;
 	background-color: #00ebe7;
-	border-width: 0px;
 	background-position: 100% 100%;
 	background-repeat: repeat;	
 }
 #header h1 { color: white; }
 #header h2 { color: black; }
-#footer {
-	color: #555555;
-	border-left-width: 0px;
-	border-bottom-width: 0px;
-	border-right-width: 0px;
-	border-top-width: 1px;
-	border-style: solid;
-	border-color: #c9c9c9;
-	background-color: #f0f0f0;
-	background-image: url(../images/graytexture.png);
-}
-
-
-
-
-
 
 
 /*  ==========  basic structure  =========  */
-body {
-	margin: 0em 5em 5em 5em;
+
+#book_content {
+    border: 0px solid red;
+    margin:0;
+    padding:0;
 }
-#content, #header {
-	margin: 0;
-	padding: 0;
-}
+
 #content {
-	margin: 0;
+	margin:  0;
 	padding: 0;
-	margin-left: auto;
+	border: 0px solid red;
+	margin-left:  auto;
 	margin-right: auto;
-	padding: 0rem;
-	width: 100%;
-	max-width: 40rem;
 }
+
 #header {
-	margin-left: -5em;
-	margin-right: -5em;
-	padding-left: 5em;
-	padding-right: 5em;
+    border: 1px solid #06e6e3;
+    padding: 0;
+    margin:  0;
 }
+
 #header * {
-	margin: auto;
 	margin-left: auto;
 	margin-right: auto;
-	padding: 0rem;
-	width: 100%;
-	max-width: 40rem;
+	border: 0px solid red;
 }
 
-#header h1 { font-size:  400%; }
-#header h2 { padding-top: 4em; }
+#content, #header * {
+	max-width: 600px;
+}
 
+
+#header h1 { font-size:  350%; }
+#header h2 { padding-top: 1em; }
 
 
 /* debugging */
 /*
 #content, #header, #header * { border: 3px solid purple; }
 */
-
-
-
-/* =========== footer structure ============ */
-
-#footer {
-	position: fixed;
-	left: 0;
-	width: 100%;
-	bottom: 0;
-	display: block;
-	padding: 0.2em;
-	margin: 0em;
-}
-#footer li {
-	display: block;
-	float: right;
-	padding: 1em;
-	border: 0px solid black;
-	vertical-align: top;
-	margin: 0;
-}
-#footer li:last-child {
-	float: none;
-}
-#footer a {
-	border-width: 0;
-}
-#footer li a {
-	text-decoration: none;
-}
-
-#footer b {
-	font-style: normal;
-	font-weight: normal;
-	padding-left: 1em;
-	padding-right: 1em;
-}
-#fchapter {
-	border: 1px solid #f0f0f0;
-	padding: 0.3em;
-}
-#fchapter:hover {
-	border: 1px solid #606060;
-	background-color: #ddd;
-}
-
-
-
-
 
 
 /* ============= GENERAL CONTENT STYLES ============== */
@@ -187,8 +114,8 @@ a {
 }
 
 
-
 /*  ==========  inline code  =========  */
+
 pre, canvas {
 	background-color: white;
 	padding: 0.8em;
@@ -216,6 +143,7 @@ pre span {
 
 
 /* ========== tables =========== */
+
 table {
 	font-family: Helvetica, Verdana, Arial, sans-serif;
 	border-collapse: collapse;
@@ -237,101 +165,6 @@ th {
 	background-color: #9f9f9f;
 }
 
-
-/* ==== chapter navigation ==== */
-
-#chapternav {
-	border:0px solid black;
-	text-align: right;
-	font-family: Helvetica, Verdana, Arial, sans-serif;
-}
-#chapternav a {
-	padding: 0.3em;
-	margin: 0.5em;
-	text-decoration: none;
-	color: #666;
-	border: 1px solid black;
-	border-color: #aaa;
-	border: 1px solid #f0f0f0;
-}
-#chapternav a:hover {
-	border: 1px solid #606060;
-	background-color: #ddd;
-}
-
-
-
-/* ========= table of contents menu =========== */
-
-#toc {
-	border-left-width: 0px;
-	border-bottom-width: 1px;
-	border-right-width: 1px;
-	border-top-width: 1px;
-	border-style: solid;
-	border-color: #aaa;
-	color: #9b9b9b;
-	font-family: Helvetica, Verdana, Arial, sans-serif;
-	visibility: hidden;
-	position: fixed;
-	left: 0;
-	bottom: 3em;
-	background-color: white;
-	margin: 0;
-	padding: 1em;
-}
-#toc li {
-	list-style: none;
-	margin: 0em;
-	padding: 0.6em 1em;
-	border: 0px solid #aaa;
-	border-bottom-width: 1px;
-}
-#toc li:last-child {
-	border: 0px;
-}
-#toc li a {
-	text-decoration: none;
-	color: #676767;
-	border-width: 0;
-}
-
-
-
-
-
-/* === chapter footer fontsize ====== */
-.fontsize {
-/*    float: right;
-    margin: 0;
-    margin-right: 3em;*/
-}
-.fontsize { 
-    border: 0px solid black; 
-}
-
-.fontsize a { 
-    clear: both;
-    border: 1px solid #444; 
-	border: 1px solid #f0f0f0;
-    padding: 0px; margin: 0px; 
-    color: #222;       
-    text-decoration: none;
-    display: inline-block;
-    width: 20px;
-    text-align: center;
-    vertical-align: bottom;
-}
-.fontsize a:hover {
-	border: 1px solid #606060;
-	background-color: #ddd;
-}
-.fontsize .selected {
-	background-color: #bbb;
-}
-#set-font-small { font-size: 10pt; line-height: 18pt;}
-#set-font-med { font-size: 14pt; line-height: 18pt;}
-#set-font-large { font-size: 18pt; line-height: 18pt;}
 
 
 
@@ -374,19 +207,16 @@ th {
 }
 
 
-
-
-
-
 /* ==== general utility stuff ==== */
+/*
 .float-left { float:left; }
 .float-right { float:right; }
-
-
+*/
 
 /* ======== adapt for mobile ======== */
 
 /* ipad portrait size and smaller */
+/*
 @media all and (max-width:800px) {
 	.photo img { max-width: 100%; }
 
@@ -398,9 +228,10 @@ th {
 		font-size: 11pt;
 	}
 }
-
+*/
 /* iphone landscape mode and smaller */
 
+/*
 @media all and (max-width: 480px) {
 	body {
 		font-size: 10pt;
@@ -419,5 +250,21 @@ th {
 		padding: 0.4em;
 		margin: 0;
 	}
+}
+*/
+
+#book_content.fontsmall  { font-size: 10pt; }
+#book_content.fontmedium { font-size: 13pt; }
+#book_content.fontlarge  { font-size: 16pt; }
+
+
+
+#toc {
+    padding-left:0;
+    margin-left:0;
+}
+#toc li {
+	padding: 0.3em;
+    list-style: none;
 }
 
