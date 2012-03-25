@@ -160,6 +160,7 @@ Amino.prototype.removeAnim = function(anim) {
 Amino.prototype.start = function() {
     var self = this;
     var rp = function() {
+        if(self.shouldStop) return;
         self.repaint();
         window.requestAnimationFrame(rp);
     }
@@ -170,6 +171,10 @@ Amino.prototype.start = function() {
 		//just paint once
 		this.repaint();
 	}
+}
+
+Amino.prototype.stop = function() {
+    this.shouldStop = true;
 }
 
 Amino.prototype.repaint = function() {

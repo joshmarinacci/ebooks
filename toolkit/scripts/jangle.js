@@ -13,7 +13,7 @@ function Jangle() {
     
     this.clear = function(ctx) {
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0,0,300,100);
+        ctx.fillRect(0,0,self.canvas.width,self.canvas.height);
     }
 
     this.invokeFunction = function() {
