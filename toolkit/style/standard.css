@@ -109,6 +109,9 @@ a {
 	border: 1px solid #009994;
 	border-width: 0 0 1px 0;
 }
+a.noborder {
+    border-width: 0;
+}
 #content h3 a {
 	border-width: 0;
 }

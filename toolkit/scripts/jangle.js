@@ -36,8 +36,6 @@ function Jangle() {
         self.code = $("#"+exampleid+" pre")[0];
         self.invokeFunction();
         
-        //console.log("arg length = " + self.drawfun.length);
-        //console.log('constructor = ' + self.drawfun.name);
         var src = self.drawfun.toString().split("\n");
         var val = "";
         for(var i=0; i<src.length; i++) {
@@ -57,12 +55,9 @@ function Jangle() {
         
         for(var id in self.vars) {
             var varx = document.getElementById(""+id);
-            console.log("varx = " + varx);
             $(varx).bind('mousedown',function(e){
-                console.log("in mouse down");
                 var popup = $("#"+exampleid+" .popup");
                 var id = $(this).attr("id");
-                //console.log("mousedown on " + id );
                 e.preventDefault();
                 self.startX = e.clientX;
                 self.startValue = self.vars[id];
@@ -110,7 +105,7 @@ function Jangle() {
                 var ppos = $("#"+self.exampleid).offset();
                 var tpos = $(this).offset();
                 popup.css("left",(e.pageX-ppos.left-30)+"px");
-                popup.text(""+newvalue);
+                popup.get(0).innerHTML = ""+newvalue;
             }
         }
     }; 
@@ -126,10 +121,8 @@ function Jangle() {
             self.invokeFunction();
             var popup = $("#"+self.exampleid+" .popup");
             var ppos = $("#"+self.exampleid).offset();
-            var tpos = $(this).offset();
             popup.css("left",(e.pageX-ppos.left-30)+"px");
-            //popup.css("left",(x-30)+"px");
-            popup.text(""+newvalue);
+            popup.get(0).innerHTML = ""+newvalue;
         }
     }; 
     
