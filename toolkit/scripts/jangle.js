@@ -19,11 +19,14 @@ function Jangle() {
     this.invokeFunction = function() {
         var ctx = self.canvas.getContext('2d');
         self.clear(ctx);
+        ctx.save();
+        ctx.strokeStyle = 'black';
         var values = [ctx];
         for(var id in self.vars) {
             values.push(self.vars[id]);
         }
         self.drawfun.apply(this,values);
+        ctx.restore();
     }
     this.setup = function(exampleid) {
         self.exampleid = exampleid;
@@ -45,6 +48,7 @@ function Jangle() {
             val += "\n";
         }
         
+        val = val.replace("<","&lt;");
         for(var id in self.vars) {
             var newid=exampleid+"_"+id;
             val = val.replace(new RegExp(id),"<b id='"+newid+"'>"+self.vars[id]+"</b>");
