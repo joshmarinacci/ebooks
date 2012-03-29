@@ -90,7 +90,7 @@ function Jangle() {
                 var ppos = $("#"+exampleid).offset();
                 var tpos = $(this).offset();
                 popup.css("top",(tpos.top-ppos.top-80)+"px");
-                popup.css("left",(e.pageX-ppos.left-30)+"px");
+                popup.css("left",(x-ppos.left-30)+"px");
                 popup.text(""+self.startValue);
             });
         }
@@ -125,7 +125,7 @@ function Jangle() {
             self.invokeFunction();
             var popup = $("#"+self.exampleid+" .popup");
             var ppos = $("#"+self.exampleid).offset();
-            popup.css("left",(e.pageX-ppos.left-30)+"px");
+            popup.css("left",(x-ppos.left-30)+"px");
             popup.get(0).innerHTML = ""+newvalue;
         }
     }; 
