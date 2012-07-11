@@ -1,5 +1,6 @@
 /* ========= fonts =========== */
 
+
 @font-face {
     font-family: "Gothic";
     src: url("../fonts/League_Gothic-webfont.woff");
@@ -13,7 +14,8 @@
 	font-style: italic;
 	src: url("../fonts/GoudyStM-Italic-webfont.woff");
 }
-#book_content {
+
+#content {
 	font-size: 13pt;
     font-family: 'Crimson', Georgia, Times, serif;
 }
@@ -58,11 +60,16 @@ h3 {
 
 /*  ==========  basic structure  =========  */
 
-#book_content {
+body {
+    margin: 0;
+    padding: 0;
+}
+#book_content, #content {
     border: 0px solid red;
     margin:0;
     padding:0;
 }
+
 
 #content {
 	margin:  0;

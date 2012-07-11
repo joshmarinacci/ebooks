@@ -6,28 +6,72 @@ var fs = require("fs");
 var step = require('step');
 var util = require('util');
 
+//console.log(process.argv);
+if(process.argv.length != 4) {
+    console.log("node build_site.js <sourcedir> <outdir>");
+    process.exit();
+}
 
-console.log(" " + __dirname);
-console.log('args = ' + process.argv);
-var outfile = process.argv[2];
-console.log("writing to file: " + outfile);
-var basedir = process.argv[3];
-console.log("using basedir " + basedir);
 
-var fd = fs.createWriteStream(outfile);
-var header = fs.readFileSync(__dirname+"/header.html","utf8");
-var footer = fs.readFileSync(__dirname+"/footer.html","utf8");
-console.log("fd = " + fd);
+var src = process.argv[2];
+console.log(" source dir = " + src);
+var out = process.argv[3];
+console.log(" output dir = " + out);
 
-p(header);
+var tocout = fs.createWriteStream(out+"/toc.html");
 
-//get list of files, sorted and filtered
-var files = fs.readdirSync(basedir,this);
+//parse chapters
+var files = fs.readdirSync(src,this);
 files = files.filter(function(file,i,a) {
     return /chapter.*html/.test(file);
 }).sort();
 
+console.log(files);
 
+var chapter_header = fs.readFileSync(__dirname+"/../templates/chapter_header.html","utf8");
+var chapter_footer = fs.readFileSync(__dirname+"/../templates/chapter_footer.html","utf8");
+
+//for each chapter
+for(var i=0; i<files.length; i++) {
+    var file = files[i];
+    console.log("processing = " + file);
+    var fd = fs.createWriteStream(out+"/"+file);
+    var body = fs.readFileSync(src+"/"+file);
+    //  add standard header 
+    fd.write(chapter_header);
+    fd.write("<div class='chapnav'>");
+    if(i > 0) {
+        fd.write("<a id='prevchap' href='"+files[i-1]+"'>previous</a>");
+    }
+    if(i+1 < files.length) {
+        fd.write("<a id='nextchap' href='"+files[i+1]+"'>next</a>");
+    }
+    fd.write("<div/>");
+    fd.write(body);
+    // add standard footer
+    fd.write(chapter_footer);
+    //  save to disk
+    fd.end();
+}
+
+
+//  add to toc 
+//generate toc to outdir
+
+var fd = fs.createWriteStream(out+"/toc.html");
+fd.write(chapter_header);
+fd.write('<div id="header"><h2>Chapter 1</h2><h1>Basic Drawing</h1></div>');
+fd.write('<div id="content">');
+fd.write("<ul>\n");
+for(var i=0; i<files.length; i++) {
+    fd.write("<li><a href='"+files[i]+"'>"+files[i]+"</a></li>\n");
+}
+fd.write("</ul>\n");
+fd.write('</div">');
+fd.write(chapter_footer);
+fd.end();
+
+/*
 //process each file
 function proc(filename) {
     jsdom.env(basedir+'/'+filename, [__dirname+'/../scripts/jquery.js'], function(errors, window) {
@@ -60,12 +104,14 @@ function proc(filename) {
 }
 
 proc(files.shift());
-
+*/
+/*
 function endTOC() {
     p(footer);
     fd.end();
     console.log("closed the toc");
 }
+*/
     
 function p(s) {
     fd.write(s);
