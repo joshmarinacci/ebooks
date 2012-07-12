@@ -5,6 +5,7 @@ var jsdom = require("jsdom");
 var fs = require("fs");
 var step = require('step');
 var util = require('util');
+var wrench = require('wrench');
 
 //console.log(process.argv);
 if(process.argv.length != 4) {
@@ -17,6 +18,7 @@ var src = process.argv[2];
 console.log(" source dir = " + src);
 var out = process.argv[3];
 console.log(" output dir = " + out);
+fs.mkdir(out, 0777);
 
 var tocout = fs.createWriteStream(out+"/toc.html");
 
@@ -71,81 +73,18 @@ fd.write('</div">');
 fd.write(chapter_footer);
 fd.end();
 
-/*
-//process each file
-function proc(filename) {
-    jsdom.env(basedir+'/'+filename, [__dirname+'/../scripts/jquery.js'], function(errors, window) {
-        console.log("inside jsdom " + filename);
-        try {
-            p("<li><h3><a href='"+filename+"'>"+window.$("h1").text()+"</a></h3></li>");
-            p("<ul>");
-            var sections = window.$("h3");
-            //console.log("section count = " + sections.length);
-            for(var i=0; i<sections.length; i++) {
-                //console.log("section = " + sections[i]);
-                var s = window.$(sections[i]);
-                var a = s.find('a');
-                if(a.length == 0) continue;
-                //console.log("text = " + s.find('a').text());
-                //console.log("id = " + s.find('a').attr("id"));
-                p("<li><a href='"+filename+"#"+a.attr("id")+"'>"+a.text()+"</a></li>");
-            }
-            p("</ul>");
-        } catch (e) {
-            console.log("e = " + e);
-        }
-        
-        if(files.length > 0) {
-            proc(files.shift());
-        } else {
-            endTOC();
-        }
-    });
-}
 
-proc(files.shift());
-*/
-/*
-function endTOC() {
-    p(footer);
-    fd.end();
-    console.log("closed the toc");
-}
-*/
-    
+//copy over the toolkit
+fs.mkdir(out+'/toolkit', 0777);
+wrench.copyDirSyncRecursive('style', out+'/toolkit/style');
+wrench.copyDirSyncRecursive('fonts', out+'/toolkit/fonts');
+wrench.copyDirSyncRecursive('scripts', out+'/toolkit/scripts');
 function p(s) {
     fd.write(s);
     fd.write("\n");
 }
-/*
-function processFile(file,filename,callback) {
-    console.log("processing file: " + file);
-    jsdom.env(file, [__dirname+'/../scripts/jquery.js'], function(errors, window) {
-        if(errors) {
-            console.log("errors = " + errors);
-        }
-        try {
-            p("<li><h3><a href='"+filename+"'>"+window.$("h1").text()+"</a></h3></li>");
-            p("<ul>");
-            var sections = window.$("h3");
-            //console.log("section count = " + sections.length);
-            for(var i=0; i<sections.length; i++) {
-                //console.log("section = " + sections[i]);
-                var s = window.$(sections[i]);
-                var a = s.find('a');
-                if(a.length == 0) continue;
-                //console.log("text = " + s.find('a').text());
-                //console.log("id = " + s.find('a').attr("id"));
-                p("<li><a href='"+filename+"#"+a.attr("id")+"'>"+a.text()+"</a></li>");
-            }
-            p("</ul>");
-        } catch (e) {
-            console.log("e = " + e);
-        }
-        callback({name:filename});
-    });
-}
 
-*/
-
+//copy over other files from the master book
+wrench.copyDirSyncRecursive(src+'/examples', out+'/examples');
+wrench.copyDirSyncRecursive(src+'/images', out+'/images');
 
