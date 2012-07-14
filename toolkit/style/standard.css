@@ -277,4 +277,41 @@ th {
 	padding: 0.3em;
     list-style: none;
 }
+.chapnav {
+    position: relative;
+    padding: 1em;
+    border: 0px solid black;
+    left: 0;
+    right: 0;
+    font-size: 130%;
+    font-weight: normal;
+    text-transform: none;
+    font-family: Gothic, Helvetica, Verdana, Arial, sans-serif;
 
+}
+.chapnav.top {
+    position: absolute;
+    top: 0;
+}
+.chapnav.bottom {
+    /*
+    position: absolute;
+    bottom: 0;
+    */
+/*    padding-top: 3em;*/
+}
+.chapnav a {
+    padding: 0.5em;
+    margin: 0.5em;
+    border: 0px solid gray;
+    position: absolute;
+    text-decoration: underline;
+    top: 0;
+}
+.chapnav .prevchap { left: 0;  }
+.chapnav .nextchap { right: 0; }
+
+.chapnav.bottom a {
+    padding-top: 3em;
+    padding-bottom: 3em;
+}
