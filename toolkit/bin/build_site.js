@@ -29,6 +29,8 @@ files = files.filter(function(file,i,a) {
     return /^chapter.*html/.test(file);
 }).sort();
 
+files.unshift("title.html");
+
 console.log(files);
 
 var chapter_header = fs.readFileSync(__dirname+"/../templates/chapter_header.html","utf8");
@@ -58,7 +60,7 @@ function copyChapters() {
         if(i > 0) {
             fd.write("<a class='prevchap' href='"+toc[i-1].filename+"'>previous</a>\n");
         }
-        fd.write("<span>&nbsp;</span>\n");
+        fd.write("<a class='toclink' href='toc.html'>Table of Contents</a>\n");
         if(i+1 < toc.length) {
             fd.write("<a class='nextchap' href='"+toc[i+1].filename+"'>next</a>\n");
         }
@@ -70,7 +72,7 @@ function copyChapters() {
         if(i > 0) {
             fd.write("<a class='prevchap' href='"+toc[i-1].filename+"'>previous</a>\n");
         }
-        fd.write("<span>&nbsp;</span>\n");
+        fd.write("<a class='toclink' href='toc.html'>Table of Contents</a>\n");
         if(i+1 < toc.length) {
             fd.write("<a class='nextchap' href='"+toc[i+1].filename+"'>next</a>\n");
         }
